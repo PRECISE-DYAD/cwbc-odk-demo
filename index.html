@@ -1,0 +1,96 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<meta http-equiv="content-type" content="text/html; charset=us-ascii">
+<!-- <meta content='width=device-width; initial-scale=1.0; maximum-scale=1.0; user-scalable=0;' name='viewport' /> -->
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script type="text/javascript" src="../app/system/libs/jquery-3.4.1.js"></script>
+<script type="text/javascript" src="../app/system/libs/jquery-migrate-3.0.0.js"></script>
+<link rel='stylesheet' type='text/css'href='devEnv/css/animate.css' />
+<link rel="stylesheet" type="text/css" href="devEnv/css/style.css" />
+  <script type="text/javascript">
+//<![CDATA[
+  function loadPage(value) {
+        var cw = document.getElementById('screen').contentWindow;
+        cw.location = value;
+  }
+  function autoResize(newBaseHeight){
+	var tabBodies = document.getElementsByClassName('content-tab');
+	var maxHeight = 0;
+	for ( var i = 0 ; i < tabBodies.length ; ++i ) {
+		var tabBody = tabBodies[i];
+		var height = tabBody.scrollHeight;
+		if ( maxHeight < height ) {
+			maxHeight = height;
+		}
+	}
+	if ( maxHeight < 1600 ) {
+		maxHeight = 1600;
+	}
+
+	if ( newBaseHeight > maxHeight + 3 ) {
+		console.log('resizing from ' + maxHeight + ' to new ' + (newBaseHeight + 3) );
+		$('.content-tab').height(newBaseHeight+3);
+	}
+  }
+  function switchTab(event, tabId) {
+    var contentTabs = document.getElementsByClassName("content-tab");
+    for (var i = 0; i < contentTabs.length; i++) {
+      contentTabs[i].style.display = "none";
+    }
+
+    var tabLinks = document.getElementsByClassName("tab-link");
+    for (var i = 0; i < tabLinks.length; i++) {
+      tabLinks[i].className = tabLinks[i].className.replace(" active", "");
+    }
+
+    document.getElementById(tabId).style.display = "block";
+    event.currentTarget.className += " active";
+  }
+//]]>   
+  </script>
+<title>OpenDataKit Development Environment Homepage</title>
+</head>
+
+<body class="absolute">
+  <noscript>This page requires javascript and a Chrome or WebKit browser</noscript>
+  <div class="topversion">ODK 2.1.6</div>
+  <ul class="tabs">
+    <li>
+      <button onclick="switchTab(event, 'tab1')" class="tab-link active">Preview</a>
+    </li>
+    <li>
+      <button onclick="switchTab(event, 'tab2')" class="tab-link">Customize</a>
+    </li>
+    <li>
+      <button onclick="switchTab(event, 'tab3')" class="tab-link">XLSX Converter</a>
+    </li>
+    <li>
+      <button onclick="switchTab(event, 'tab4')" class="tab-link">File Browser</a>
+    </li>
+    <li>
+      <button onclick="switchTab(event, 'tab5')" class="tab-link">Scan Form Designer</a>
+    </li>
+    <li>
+      <button onclick="switchTab(event, 'tab6')" class="tab-link">QR Code Generator</a>
+    </li>
+  </ul>
+  <div class="content">
+    <iframe id="tab1" class="content-tab" src="devEnv/tab1.html" frameborder="0" style="display: block"></iframe>
+    <iframe id="tab2" class="content-tab" src="devEnv/tab2.html" frameborder="0" ></iframe>
+    <iframe id="tab3" class="content-tab" src="devEnv/tab3.html" frameborder="0" ></iframe>
+    <iframe id="tab4" class="content-tab" src="devEnv/tab4.html" frameborder="0" ></iframe>
+    <iframe id="tab5" class="content-tab" src="devEnv/tab5.html" frameborder="0" ></iframe>
+    <iframe id="tab6" class="content-tab" src="devEnv/tab6.html" frameborder="0" ></iframe>
+  </div>
+  <script type="text/javascript">
+//<![CDATA[
+    $(function() {
+	  if ( !window.openDatabase ) {
+		document.body.innerHTML="<p><font color=\"red\">You must use a Chrome or Safari browser (note: this is tested only on Chrome)</font></p>";
+	  }
+	})
+  //]]>   
+  </script>
+  </body>
+</html>
