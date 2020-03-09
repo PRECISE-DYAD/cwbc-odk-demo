@@ -74,6 +74,17 @@ Alternatively, html files can be previewed locally using a local webserver (e.g.
 
 ---
 
+## ODK Application Designer Migration
+
+This application is based on the core ODK Application Designer image (taken at v2.1.6). In order to maintain future compatibility, minimal changes have been made to the core repo, with the `app` folder containing app-specific custom logic.
+
+If using with a future version of app designer, along with any core breaking changes the following files should be noted as they contain custom code:
+
+-   `package.json`: custom scripts and dependencies added
+-   `README.md`: custom documentation
+
+---
+
 ODK Application Designer Docs  
 v2.1.6
 
