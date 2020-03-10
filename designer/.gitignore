@@ -1,0 +1,6 @@
+build/
+*.~lock.*
+app/output/props/*
+tempZipDir
+.idea/*
+node_modules
