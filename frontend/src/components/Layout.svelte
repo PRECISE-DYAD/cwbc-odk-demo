@@ -2,18 +2,21 @@
   main {
     text-align: center;
     padding: 1em;
-    max-width: 240px;
+    max-width: 480px;
+    height: calc(100% - 32px);
+    display: flex;
+    flex-direction: column;
     margin: 0 auto;
+    border: 1px solid #cdcdcd;
   }
 
-  @media (min-width: 640px) {
+  @media (max-width: 480px) {
     main {
-      max-width: none;
+      border: none;
     }
   }
 </style>
 
-<svelte:options tag="app-layout" />
 <main>
   <!-- use slot to allow any other custom element to sit inside -->
   <slot />

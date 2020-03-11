@@ -21,8 +21,6 @@
   }
 </style>
 
-<!-- All components should have a tag used to import into other web components -->
-<svelte:options tag="app-home" />
 <main>
   <header>
     <h1>Precise-Dyad Demo</h1>
