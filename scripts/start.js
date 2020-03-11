@@ -1,9 +1,11 @@
 const inquirer = require("inquirer");
 const child = require("child_process");
-//
-const util = require("util");
-const exec = util.promisify(require("child_process").exec);
-//
+
+/**
+ * Handle start of different applications, showing a prompt
+ * if none are specified
+ * @example npm run start designer
+ */
 function main() {
   const appName = process.argv[2];
   switch (appName) {
@@ -16,20 +18,15 @@ function main() {
   }
 }
 function startDesigner() {
-  // first copy tables data before running
-  child.spawn("node", ["scripts/prepare.js"], {
-    stdio: ["ignore", "inherit", "inherit"],
-    shell: true
-  });
-  process.chdir("./designer");
   child.spawn("grunt", {
+    cwd: "./designer",
     stdio: ["ignore", "inherit", "inherit"],
     shell: true
   });
 }
 function startFrontend() {
-  process.chdir("./frontend");
   child.spawn("npm", ["run", "dev"], {
+    cwd: "./frontend",
     stdio: ["ignore", "inherit", "inherit"],
     shell: true
   });
