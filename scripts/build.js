@@ -32,7 +32,7 @@ async function main() {
     stdio: "inherit",
     shell: true
   });
-  await fs.copy(`${frontendPath}/public`, `${designerPath}/app/config/assets`);
+  await fs.copy(`${frontendPath}/build`, `${designerPath}/app/config/assets`);
   console.log("build complete");
 }
 main().catch(handleError);

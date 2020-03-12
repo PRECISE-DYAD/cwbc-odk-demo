@@ -25,7 +25,7 @@ function startDesigner() {
   });
 }
 function startFrontend() {
-  child.spawn("npm", ["run", "dev"], {
+  child.spawn("npm", ["run", "start"], {
     cwd: "./frontend",
     stdio: ["ignore", "inherit", "inherit"],
     shell: true
