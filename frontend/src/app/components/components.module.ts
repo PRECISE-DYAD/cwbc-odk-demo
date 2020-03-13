@@ -18,6 +18,11 @@ import { MatToolbarModule } from "@angular/material/toolbar";
     MatButtonModule,
     MatToolbarModule
   ],
-  exports: [BreadcrumbComponent]
+  exports: [
+    BreadcrumbComponent,
+    MatCardModule,
+    MatButtonModule,
+    MatToolbarModule
+  ]
 })
 export class ComponentsModule {}

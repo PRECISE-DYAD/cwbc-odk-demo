@@ -4,11 +4,15 @@ import { HomeComponent } from "./pages/home/home.component";
 import { ProjectComponent } from "./pages/project/project.component";
 
 const routes: Routes = [
-  { path: "", component: HomeComponent, data: { breadcrumb: "Home" } },
   {
-    path: "projects/:projectId",
+    path: "",
+    component: HomeComponent,
+    data: { breadcrumb: "", title: "Select A Project" }
+  },
+  {
+    path: "projects/:projectName",
     component: ProjectComponent,
-    data: { breadcrumb: "Project" }
+    data: { breadcrumb: ":projectName", title: ":projectName" }
   }
 ];
 

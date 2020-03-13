@@ -9,7 +9,7 @@ import { ActivatedRoute } from "@angular/router";
 })
 export class ProjectComponent implements OnInit {
   constructor(private odk: OdkService, private route: ActivatedRoute) {
-    this.odk.setProjectById(this.route.snapshot.params.projectId);
+    this.odk.setProjectByName(this.route.snapshot.params.projectName);
   }
 
   ngOnInit(): void {}

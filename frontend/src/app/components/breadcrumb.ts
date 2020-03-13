@@ -22,25 +22,24 @@ interface IBreadCrumb {
         >
           {{ breadcrumb.label }}
         </a>
-        <ng-template #lastRoute>{{ breadcrumb.label }}</ng-template>
+        <ng-template #lastRoute>{{ breadcrumb.label | titlecase }}</ng-template>
       </li>
     </ol>
   `,
   styles: [
     `
-      .breadcrumb li {
+      ol {
+        padding-left: 1em;
+      }
+      li {
         display: inline;
       }
-      .breadcrumb li + li:before {
+      li + li:before {
         content: " > ";
-        color: white;
+        color: black;
       }
-      .breadcrumb {
-        background-color: #8d0000;
-        padding: 20px;
-        a {
-          color: white;
-        }
+      a {
+        color: black;
       }
     `
   ]
@@ -60,11 +59,13 @@ export class BreadcrumbComponent implements OnInit {
     url: string = "",
     breadcrumbs: Array<IBreadCrumb> = []
   ): Array<IBreadCrumb> {
-    console.log("build breadcrumb", route.snapshot);
     // If no routeConfig is avalailable we are on the root path
-    const label = route.routeConfig
+    let label: string = route.routeConfig
       ? route.routeConfig.data?.breadcrumb
       : "Home";
+    if (label[0] === ":") {
+      label = route.snapshot.params[label.replace(":", "")];
+    }
     const path = route.routeConfig ? route.routeConfig.path : "";
     // In the routeConfig the complete path is not available,
     // so we rebuild it each time
