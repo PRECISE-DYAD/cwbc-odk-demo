@@ -1,0 +1,8 @@
+[
+  {
+    "image": "assets/precise.png",
+    "id": "precise",
+    "title": "Precise"
+  },
+  { "image": "assets/dyad.png", "id": "dyad", "title": "Dyad" }
+]
