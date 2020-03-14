@@ -1,1 +1,11 @@
 **/node_modules
+designer/app/output/csv
+designer/app/output/db
+designer/app/output/debug/*.json
+designer/app/config/tables/*
+!designer/app/config/tables/.gitkeep
+designer/app/config/assets/build
+designer/app/config/assets/framework/forms
+
+.env
+frontend/src/assets/odk
