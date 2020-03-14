@@ -7,8 +7,10 @@ const designerPath = path.join(rootPath, "designer");
 const frontendPath = path.join(rootPath, "frontend");
 
 async function main() {
-  console.log("preparing data");
   console.log("copying data...");
+
+  // TODO - Clear directories
+
   // copy forms
   await fs.copy(
     "forms/framework.xlsx",
@@ -34,13 +36,12 @@ async function main() {
     const source = path.resolve(`${designerPath}/app/config`);
     const dest = `${frontendPath}/src/assets/odk`;
     const destination = path.normalize(filepath).replace(source, dest);
-    console.log(filepath, destination);
     await fs.copy(filepath, destination);
   }
-  // console.log("json", jsonFilepaths);
 }
 main();
 
+// find files by a given extension recursively, returning full paths
 async function recFindByExt(base, ext, files, result) {
   files = files || (await fs.readdir(base));
   result = result || [];
