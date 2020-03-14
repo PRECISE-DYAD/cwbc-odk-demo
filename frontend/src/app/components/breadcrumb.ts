@@ -80,7 +80,6 @@ export class BreadcrumbComponent implements OnInit {
       // there will be more children to look after, to build our breadcumb
       return this.buildBreadCrumb(route.firstChild, nextUrl, newBreadcrumbs);
     }
-    console.log("new breadcrumbs", newBreadcrumbs);
     return newBreadcrumbs;
   }
 }
