@@ -1,0 +1,7 @@
+<mat-toolbar color="primary">
+  <mat-toolbar-row>
+    <h1>{{ routeData$ | async | titlecase }}</h1>
+  </mat-toolbar-row>
+</mat-toolbar>
+<app-breadcrumb></app-breadcrumb>
+<router-outlet></router-outlet>
