@@ -6,6 +6,10 @@ designer/app/config/tables/*
 !designer/app/config/tables/.gitkeep
 designer/app/config/assets/build/
 designer/app/config/assets/framework/forms/
+forms/framework.xlsx
+forms/~$framework.xlsx
+forms/tables/*
+!forms/tables/.gitkeep
 
 .env
 frontend/src/assets/odk
