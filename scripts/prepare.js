@@ -4,6 +4,7 @@ const child = require("child_process");
 
 const rootPath = process.cwd();
 const designerPath = path.join(rootPath, "designer");
+const designerAssetsPath = path.join(designerPath, "app/config/assets");
 const frontendPath = path.join(rootPath, "frontend");
 
 async function main() {
@@ -12,10 +13,22 @@ async function main() {
   // TODO - Clear directories (some done in build)
 
   // copy forms
-  await fs.copy(
-    "forms/framework.xlsx",
-    `${designerPath}/app/config/assets/framework/forms/framework/framework.xlsx`
-  );
+  await fs.ensureDir(`${designerAssetsPath}/framework/forms`);
+  await fs.emptyDir(`${designerAssetsPath}/framework/forms`);
+  await fs
+    .copy(
+      "forms/framework.xlsx",
+      `${designerAssetsPath}/framework/forms/framework/framework.xlsx`
+    )
+    .catch(err => {
+      console.error(
+        "\x1b[31m",
+        "ERROR: No Framework.xlsx provided in forms directory"
+      );
+      process.exit(1);
+    });
+  await fs.ensureDir(`${designerPath}/app/config/tables`);
+  await fs.emptyDir(`${designerPath}/app/config/tables`);
   await fs.copy("forms/tables", `${designerPath}/app/config/tables`);
   // process forms
   child.spawnSync("grunt", ["xlsx-convert-all"], {
