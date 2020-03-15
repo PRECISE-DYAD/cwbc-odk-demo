@@ -6,6 +6,10 @@ interface IResponse {
   };
 }
 
+/**
+ * Mock ODKData Class. Similar in implementation to one provided by ODK app designer,
+ * but minimal and with improved access to real data
+ */
 export class OdkDataClass {
   getAllTableIds(successCallbackFn, failureCallbackFn): IResponse {
     console.log("getting all table ids");

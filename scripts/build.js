@@ -4,6 +4,7 @@ const child = require("child_process");
 
 const rootPath = process.cwd();
 const designerPath = path.join(rootPath, "designer");
+const designerAssetsPath = path.join(designerPath, "app/config/assets");
 const frontendPath = path.join(rootPath, "frontend");
 
 /**
@@ -15,20 +16,17 @@ async function main() {
   // build and copy frontend
   // Angular - build basehref used
   console.log("building app...");
+  await fs.ensureDir(`${designerAssetsPath}/build`);
+  await fs.emptyDir(`${designerAssetsPath}/build`);
   child.spawnSync("ng build --prod --baseHref=/default/config/assets/build/", {
     cwd: frontendPath,
     stdio: "inherit",
     shell: true
   });
-  await fs.ensureDir(`${designerPath}/app/config/assets/build`);
-  await fs.emptyDir(`${designerPath}/app/config/assets/build`);
-  await fs.copy(
-    `${frontendPath}/build`,
-    `${designerPath}/app/config/assets/build`
-  );
+  console.log("build complete, copying files");
+  await fs.copy(`${frontendPath}/build`, `${designerAssetsPath}/build`);
   await rewriteIndexes();
   // rewrite app designer index to load build index instead
-  console.log("build complete");
 }
 main().catch(handleError);
 
@@ -48,6 +46,11 @@ async function rewriteIndexes() {
   </html>
   `
   );
+  // also uncomment odk import scripts from build
+  const buildIndexPath = `${designerAssetsPath}/build/index.html`;
+  let buildIndex = await fs.readFile(buildIndexPath, "utf8");
+  buildIndex = buildIndex.replace("<!--odk", "").replace("odk-->", "");
+  await fs.writeFile(buildIndexPath, buildIndex);
 }
 
 function handleError(err) {

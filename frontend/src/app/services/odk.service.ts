@@ -3,7 +3,6 @@ import { HttpClient } from "@angular/common/http";
 import { BehaviorSubject } from "rxjs";
 import ALL_PROJECTS from "../data/projects.json";
 import { OdkDataClass } from "./odkData.js";
-import { environment } from "../../environments/environment";
 // odkCommon declared globally from asset import
 declare const odkCommon: any;
 declare const window: Window & { odkData: any };
@@ -20,32 +19,9 @@ export class OdkService {
   // when not running on device (non-production), use local odkData implementation
   odkData = new OdkDataClass();
   constructor(private http: HttpClient) {
-    if (environment.odkLibs) {
-      // Import scripts
-      /*
-        <!-- <script type="text/javascript" src="assets/odk/odkCommon.js"></script>
-    <script type="text/javascript" src="assets/odk/odkData.js"></script>
-    <script
-      type="text/javascript"
-      src="assets/odk/tables/odkTables.js"
-    ></script> -->
-    */
+    if (window.odkData) {
       this.odkData = window.odkData;
     }
-    this.getFramework();
-
-    // const info = JSON.parse(odkCommon.getPlatformInfo());
-    // console.log("info", info);
-    // console.log("odkData", this.odkData);
-    // console.log(
-    //   "table ids",
-    //   this.odkData.getAllTableIds(
-    //     res => {
-    //       console.log("all tables", res);
-    //     },
-    //     err => console.error(err)
-    //   )
-    // );
   }
 
   setProjectByName(name: string) {

@@ -9,7 +9,7 @@ const frontendPath = path.join(rootPath, "frontend");
 async function main() {
   console.log("copying data...");
 
-  // TODO - Clear directories
+  // TODO - Clear directories (some done in build)
 
   // copy forms
   await fs.copy(
