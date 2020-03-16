@@ -1,16 +1,12 @@
-import { Component, OnInit } from "@angular/core";
-import { OdkService } from "src/app/services/odk.service";
+import { Component } from "@angular/core";
+import ALL_PROJECTS from "../../data/projects.json";
+import { IProjectMeta } from "src/app/types/types.js";
 
 @Component({
   selector: "app-home",
   templateUrl: "./home.component.html",
   styleUrls: ["./home.component.scss"]
 })
-export class HomeComponent implements OnInit {
-  projects = [];
-  constructor(odk: OdkService) {
-    this.projects = odk.projects;
-  }
-
-  ngOnInit(): void {}
+export class HomeComponent {
+  projects: IProjectMeta[] = ALL_PROJECTS;
 }

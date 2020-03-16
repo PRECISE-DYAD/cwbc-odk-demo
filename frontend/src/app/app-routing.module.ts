@@ -10,9 +10,9 @@ const routes: Routes = [
     data: { breadcrumb: "", title: "Select A Project" }
   },
   {
-    path: "projects/:projectName",
+    path: "projects/:projectId",
     component: ProjectComponent,
-    data: { breadcrumb: ":projectName", title: ":projectName" }
+    data: { breadcrumb: ":projectId" }
   }
 ];
 

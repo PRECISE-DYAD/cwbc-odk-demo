@@ -1,9 +1,9 @@
 import { Component, OnInit, ViewChild } from "@angular/core";
-import { OdkService } from "src/app/services/odk.service";
 import { ActivatedRoute } from "@angular/router";
 import { MatPaginator } from "@angular/material/paginator";
 import { MatSort } from "@angular/material/sort";
 import { MatTableDataSource } from "@angular/material/table";
+import { CommonStore } from "src/app/stores/common.store";
 
 export interface UserData {
   id: string;
@@ -13,44 +13,8 @@ export interface UserData {
 }
 
 /** Constants used to fill up our data base. */
-const COLORS: string[] = [
-  "maroon",
-  "red",
-  "orange",
-  "yellow",
-  "olive",
-  "green",
-  "purple",
-  "fuchsia",
-  "lime",
-  "teal",
-  "aqua",
-  "blue",
-  "navy",
-  "black",
-  "gray"
-];
-const NAMES: string[] = [
-  "Maia",
-  "Asher",
-  "Olivia",
-  "Atticus",
-  "Amelia",
-  "Jack",
-  "Charlotte",
-  "Theodore",
-  "Isla",
-  "Oliver",
-  "Isabella",
-  "Jasper",
-  "Cora",
-  "Levi",
-  "Violet",
-  "Arthur",
-  "Mia",
-  "Thomas",
-  "Elizabeth"
-];
+const COLORS: string[] = ["maroon", "red", "orange", "yellow"];
+const NAMES: string[] = ["Maia", "Asher", "Olivia", "Atticus"];
 
 @Component({
   selector: "app-project",
@@ -63,8 +27,8 @@ export class ProjectComponent implements OnInit {
 
   @ViewChild(MatPaginator, { static: true }) paginator: MatPaginator;
   @ViewChild(MatSort, { static: true }) sort: MatSort;
-  constructor(private odk: OdkService, private route: ActivatedRoute) {
-    this.odk.setProjectByName(this.route.snapshot.params.projectName);
+  constructor(store: CommonStore, private route: ActivatedRoute) {
+    store.setProjectById(this.route.snapshot.params.projectId);
     // Create 100 users
     const users = Array.from({ length: 100 }, (_, k) => createNewUser(k + 1));
 
@@ -84,9 +48,6 @@ export class ProjectComponent implements OnInit {
     if (this.dataSource.paginator) {
       this.dataSource.paginator.firstPage();
     }
-  }
-  get project() {
-    return this.odk.activeProject.value;
   }
 }
 

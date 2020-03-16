@@ -17,10 +17,13 @@ $dyad-accent: mat-palette($mat-amber, A200, A100, A400);
 $dyad-warn: mat-palette($mat-deep-orange);
 $dyad-theme: mat-dark-theme($dyad-primary, $dyad-accent, $dyad-warn);
 
-.precise-theme {
+.theme-default {
+  @include angular-material-theme($precise-theme);
+}
+.theme-precise {
   @include angular-material-theme($precise-theme);
 }
 
-.dyad-theme {
+.theme-dyad {
   @include angular-material-theme($dyad-theme);
 }
