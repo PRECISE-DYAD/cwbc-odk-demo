@@ -10,8 +10,6 @@ const frontendPath = path.join(rootPath, "frontend");
 async function main() {
   console.log("copying data...");
 
-  // TODO - Clear directories (some done in build)
-
   // copy forms
   await fs.ensureDir(`${designerAssetsPath}/framework/forms`);
   await fs.emptyDir(`${designerAssetsPath}/framework/forms`);
@@ -36,7 +34,18 @@ async function main() {
     stdio: ["ignore", "inherit", "inherit"],
     shell: true
   });
-  // copy back json
+  // copy preload data
+  await fs.ensureDir(`${designerAssetsPath}/csv`);
+  await fs.emptyDir(`${designerAssetsPath}/csv`);
+  await fs.copy("forms/csv", `${designerAssetsPath}/csv`);
+  await fs.move(
+    `${designerAssetsPath}/csv/tables.init`,
+    `${designerAssetsPath}/tables.init`,
+    {
+      overwrite: true
+    }
+  );
+  // copy back json in case frontend wants to access
   await fs.copy(
     `${designerPath}/app/config/assets/framework/forms/framework/formDef.json`,
     `${frontendPath}/src/assets/odk/framework.json`
