@@ -1,6 +1,7 @@
 build/
 *.~lock.*
 app/output/props/*
+!app/output/props/.gitkeep
 tempZipDir
 .idea/*
 node_modules
