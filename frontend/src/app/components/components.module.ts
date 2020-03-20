@@ -11,8 +11,9 @@ import { MatFormFieldModule } from "@angular/material/form-field";
 import { MatPaginatorModule } from "@angular/material/paginator";
 import { MatInputModule } from "@angular/material/input";
 import { MatSortModule } from "@angular/material/sort";
-import { MatIconModule } from "@angular/material/icon";
+import { MatIconModule, MatIconRegistry } from "@angular/material/icon";
 import { OdkTableRowsComponent } from "./odkTableRows/odkTableRows";
+import { DomSanitizer } from "@angular/platform-browser";
 
 @NgModule({
   declarations: [BreadcrumbComponent, OdkTableRowsComponent],
@@ -45,4 +46,18 @@ import { OdkTableRowsComponent } from "./odkTableRows/odkTableRows";
     MatIconModule
   ]
 })
-export class ComponentsModule {}
+export class ComponentsModule {
+  constructor(iconRegistry: MatIconRegistry, sanitizer: DomSanitizer) {
+    // register icons
+    this.registerIcons(iconRegistry, sanitizer);
+  }
+  registerIcons(iconRegistry, sanitizer) {
+    const icons = ["pregnant", "add"];
+    icons.forEach(i => {
+      iconRegistry.addSvgIcon(
+        i,
+        sanitizer.bypassSecurityTrustResourceUrl(`assets/icons/${i}.svg`)
+      );
+    });
+  }
+}
