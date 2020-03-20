@@ -10,7 +10,7 @@ const frontendPath = path.join(rootPath, "frontend");
 async function main() {
   console.log("copying data...");
   // populate framework from example if not present
-  const frameworkExists = fs.exists("forms/framework.xlsx");
+  const frameworkExists = await fs.exists("forms/framework.xlsx");
   if (!frameworkExists) {
     await fs.copyFile("forms/framework.sample.xlsx", "forms/framework.xlsx");
   }
