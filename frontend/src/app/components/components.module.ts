@@ -12,9 +12,10 @@ import { MatPaginatorModule } from "@angular/material/paginator";
 import { MatInputModule } from "@angular/material/input";
 import { MatSortModule } from "@angular/material/sort";
 import { MatIconModule } from "@angular/material/icon";
+import { OdkTableRowsComponent } from "./odkTableRows/odkTableRows";
 
 @NgModule({
-  declarations: [BreadcrumbComponent],
+  declarations: [BreadcrumbComponent, OdkTableRowsComponent],
   imports: [
     CommonModule,
     RouterModule,
@@ -32,6 +33,7 @@ import { MatIconModule } from "@angular/material/icon";
   ],
   exports: [
     BreadcrumbComponent,
+    OdkTableRowsComponent,
     MatCardModule,
     MatButtonModule,
     MatToolbarModule,

@@ -1,6 +1,4 @@
-import { Component, HostBinding } from "@angular/core";
-import { Router, ActivationEnd, ActivatedRouteSnapshot } from "@angular/router";
-import { filter, distinctUntilChanged, map } from "rxjs/operators";
+import { Component } from "@angular/core";
 import { CommonStore } from "./stores/common.store";
 
 @Component({

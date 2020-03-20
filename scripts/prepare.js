@@ -45,7 +45,8 @@ async function main() {
       overwrite: true
     }
   );
-  // copy back json in case frontend wants to access
+  // copy back json and csv data in case frontend wants to access
+  await fs.copy(`forms/csv`, `${frontendPath}/src/assets/odk/csv`);
   await fs.copy(
     `${designerPath}/app/config/assets/framework/forms/framework/formDef.json`,
     `${frontendPath}/src/assets/odk/framework.json`
