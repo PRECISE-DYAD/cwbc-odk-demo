@@ -1,97 +1,46 @@
-# ODK Precise demo
+# CWBC ODK Demo
 
-## Useful Links
+This is a monorepo extension of ODK application designer. It contains a custom frontend application build in svelte, which compiles and is loaded into application designer as a custom ODK Tables interface.
 
--   Folder Structure  
-    https://docs.opendatakit.org/odk-x/app-designer-directories/
--   Application Building Overview
-    https://docs.opendatakit.org/odk-x/build-app/?highlight=framework#building-an-application
--   Form Design
-    https://docs.opendatakit.org/odk-x/xlsx-converter-intro/
--   UI Design
-    https://docs.opendatakit.org/odk-x/tables-web-pages/
+An additional forms folder is used to simplify the process of adding and updating forms within the designer, and a set of scripts to facilitate.
 
-## PreRequisites
+## Prerequisites
 
--   Install Node
--   Download or clone this repo
+- Node  
+  https://nodejs.org/en/download/
 
 ## Installation
-
-Install dependencies
 
 ```
 npm install
 ```
 
-Start server (grunt task runner)
+This will install core dependencies, and trigger the `postinstall` script which installs dependencies of the child application designer and frontend directories.
+
+## Development
 
 ```
-grunt
+npm run start
 ```
 
-## Adding tables and forms
+This will present options to run start scripts for either the frontend or designer folders, bypassed by providing as an argument, i.e. `npm run start frontend`.
 
-Each survey form must be placed within a table parent directory.
-A new table can be created using the following command
+### Frontend
 
-```
-grunt addtable:tableId
-```
+### App designer
 
-This will generated placeholder folders and odk-tables view templates. From here two more files must be generated and processed:
-
-### {formName}.xlsx
-
-This will be placed at `app/config/tables/{tableID}/forms/{formName}/{formname.xlsx}` (note, folder name must match form name). The file defines the form questions and metadata. An example is provided in the `app/config/_examples` folder, and should be modified to ensure the correct `tableId` is specified as above.
-
-More info at: https://docs.opendatakit.org/odk-x/build-app/#creating-an-xlsx-form
-
-_CC Note_ - Currently it appears that every table needs at least one form with the same
-name as the table itself (tbc)
-
-### framework.xlsx
-
-This will be placed in the the `app/config/assets/framework/forms` folder and defines the full list of forms available to the app (so if it already exists will only require modification).
-An example is provided in the `app/config/_examples` folder.
-
-More info at: https://docs.opendatakit.org/odk-x/build-app/#creating-framework-xlsx
-
-To process these (and any other) xlsx files run
+## Build
 
 ```
-grunt xlsx-convert-all
+npm run build
 ```
 
-## Testing on device
+This will trigger build scripts to build the frontend, copy frontend and forms to the application designer, and run scripts to process forms for use within the ODK app.
 
-Forms can be fully viewed from the application designer, however the odk-tables interface is not directly viewable.
+## Deploy
 
-The easiest way to preview the full application is by copying it onto an android device
-running the odk tables application. This can be done manually via copy-paste (the entire app contents into the `sdcard/opendatakit/default` folder), or if configured for `adb` then executing `grunt adbpush`
+```
+npm run deploy
+```
 
-Alternatively, html files can be previewed locally using a local webserver (e.g. http-server, xampp, python simple server), however any functionality that depends on database interactions is unlikely to work.
-
----
-
-ODK Application Designer Docs  
-v2.1.6
-
-This repository contains the ODK-X Application Designer software.
-
-Complete Android apps, including data entry, synchronization, and distribution,
-can be written using HTML and JavaScript files. ODK-X Tables and ODK-X Survey will
-serve these files as the skin of your app.
-
-Projects intending to write a Tables app can clone this repository and use it
-as a starting point.
-
-Much of the boilerplate of app creation can be avoided by employing the Grunt
-tasks specified in the Gruntfile.
-
-For a more complete description of how to use this repository, please see our
-user documentation at:
-
-https://docs.opendatakit.org/odk-x/app-designer-intro/
-
-Requires NodeJS 12 or higher.
+Once build the application can be pushed to a mobile device for testing with ODK Tables. This requires `adb` to be installed and an android device connected with ODK Tables, Survey and Sync applciations installed.

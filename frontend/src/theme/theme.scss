@@ -1,0 +1,25 @@
+@import "~@angular/material/theming";
+@include mat-core();
+// see https://material.angular.io/guide/theming
+
+// Precise/default theme
+$precise-app-primary: mat-palette($mat-indigo);
+$precise-app-accent: mat-palette($mat-light-blue, A100, A50, A200);
+$precise-theme: mat-light-theme($precise-app-primary, $precise-app-accent);
+
+// Dyad/alternative.
+$dyad-primary: mat-palette($mat-blue-grey);
+$dyad-accent: mat-palette($mat-amber, A100, A50, A200);
+$dyad-warn: mat-palette($mat-deep-orange);
+$dyad-theme: mat-dark-theme($dyad-primary, $dyad-accent, $dyad-warn);
+
+// specify classes to trigger different themes
+.theme-default {
+  @include angular-material-theme($precise-theme);
+}
+.theme-precise {
+  @include angular-material-theme($precise-theme);
+}
+.theme-dyad {
+  @include angular-material-theme($dyad-theme);
+}
