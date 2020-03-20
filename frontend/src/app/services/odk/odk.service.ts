@@ -1,6 +1,7 @@
 import { Injectable } from "@angular/core";
 import OdkDataClass from "./odkData";
 import OdkCommonClass from "./odkCommon";
+import OdkTablesClass from "./odkTables";
 import { HttpClient } from "@angular/common/http";
 import { IODKQueryResult } from "src/app/types/odk.types";
 
@@ -26,7 +27,19 @@ export class OdkService {
     if (!window.odkData || !window.odkCommon) {
       window.odkCommon = new OdkCommonClass();
       window.odkData = new OdkDataClass(http);
+      window.odkTables = new OdkTablesClass();
     }
+  }
+
+  addRowWithSurvey(tableId: string, formId: string, screenPath?, jsonMap?) {
+    // window.history.replaceState(location.pathname, null, "/");
+    return window.odkTables.addRowWithSurvey(
+      null,
+      tableId,
+      formId,
+      screenPath,
+      jsonMap
+    );
   }
 
   /**

@@ -27,6 +27,9 @@ export class OdkTableRowsComponent implements OnInit {
   rowSelected(row) {
     console.log("row selected", row);
   }
+  addRecord() {
+    this.odk.addRowWithSurvey("exampleTable", "exampleTable");
+  }
   applyFilter(event: Event) {
     const filterValue = (event.target as HTMLInputElement).value;
     this.dataSource.filter = filterValue.trim().toLowerCase();

@@ -1,7 +1,18 @@
-<mat-form-field>
-  <mat-label>Search</mat-label>
-  <input matInput (keyup)="applyFilter($event)" placeholder="Search" />
-</mat-form-field>
+<div style="display: flex; ">
+  <mat-form-field style="flex:1; margin-left: 1em;">
+    <mat-label>Search</mat-label>
+    <input matInput (keyup)="applyFilter($event)" placeholder="Search" />
+  </mat-form-field>
+  <button
+    mat-flat-button
+    color="accent"
+    (click)="addRecord()"
+    style="margin:1em"
+  >
+    <mat-icon svgIcon="add"></mat-icon>
+    Add Record
+  </button>
+</div>
 <div class="mat-elevation-z8" style="flex:1">
   <table mat-table [dataSource]="dataSource" matSort>
     <!-- Data columns -->

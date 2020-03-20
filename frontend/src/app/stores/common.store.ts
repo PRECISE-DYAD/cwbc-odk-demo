@@ -28,7 +28,9 @@ export class CommonStore {
   }
 
   @action async getFramework() {
-    const framework = await this.http.get("../odk/framework.json").toPromise();
+    const framework = await this.http
+      .get("../../assets/odk/framework.json")
+      .toPromise();
     this.framework = framework;
   }
 }
