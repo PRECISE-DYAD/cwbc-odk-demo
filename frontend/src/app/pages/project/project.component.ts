@@ -9,7 +9,7 @@ import { IODkTableRowData } from "src/app/types/odk.types";
   styleUrls: ["./project.component.scss"]
 })
 export class ProjectComponent {
-  tableColumns: string[] = ["_id", "name"];
+  tableColumns: string[] = ["phoneNum", "ptid"];
   constructor(
     store: CommonStore,
     private route: ActivatedRoute,
@@ -20,6 +20,5 @@ export class ProjectComponent {
 
   handleRowClick(row: IODkTableRowData) {
     this.router.navigate([row._id], { relativeTo: this.route });
-    console.log("row clicked", row);
   }
 }

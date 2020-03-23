@@ -1,1 +1,48 @@
-<p>detail works!</p>
+<div style="padding:1em" *ngIf="details">
+  <mat-card style="padding:1em">
+    <mat-card-content>
+      <div class="card-title">
+        <h1>Summary</h1>
+        <button mat-button (click)="editProfile()">
+          <mat-icon svgIcon="edit" style="margin-right: 5px;"></mat-icon>
+          Update
+        </button>
+      </div>
+      <table>
+        <th></th>
+        <th></th>
+        <tr *ngFor="let el of detailsArr">
+          <td class="field">{{ el[0] | titlecase }}</td>
+          <td class="value">{{ el[1] | titlecase }}</td>
+        </tr>
+      </table>
+
+      <mat-expansion-panel name="expansion" id="expansion" class="no-shadow">
+        <mat-expansion-panel-header>
+          <mat-panel-description>Additional Information </mat-panel-description>
+        </mat-expansion-panel-header>
+        <div *ngFor="let el of detailsMetaArr">
+          <span>{{ el[0] }}: </span>
+          <span>{{ el[1] }}</span>
+        </div>
+      </mat-expansion-panel>
+    </mat-card-content>
+  </mat-card>
+  <hr />
+  <mat-grid-list rowHeight="100px" [cols]="gridCols" gutterSize="10px">
+    <mat-grid-tile
+      [class.disabled]="form.disabled"
+      [class.completed]="form.completed"
+      *ngFor="let form of forms"
+      colspan="1"
+      rowspan="1"
+      (click)="openForm(form)"
+    >
+      <div class="form-card">
+        <mat-icon class="form-icon" [svgIcon]="form.icon"></mat-icon>
+        <h3 style="margin-bottom: 0;">{{ form.title }}</h3>
+      </div>
+    </mat-grid-tile>
+    <p *ngIf="details === undefined">Details not found</p>
+  </mat-grid-list>
+</div>

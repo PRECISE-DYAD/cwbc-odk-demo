@@ -1,0 +1,59 @@
+td,
+th {
+  padding: 5px;
+}
+td.field {
+  font-weight: bold;
+}
+#expansion {
+  box-shadow: none;
+}
+#expansion > mat-expansion-panel-header {
+  padding: 0 16px 0 5px;
+}
+.card-title {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.card-title > h1 {
+  margin-bottom: 0;
+}
+mat-grid-tile:hover {
+  transform: scale(1.05);
+}
+mat-grid-tile {
+  transition: all 0.2s ease-in-out;
+  background: white;
+}
+mat-grid-tile.disabled {
+  transform: none;
+  pointer-events: none;
+  opacity: 0.5;
+}
+mat-grid-tile.completed {
+  background-color: green;
+  color: white;
+}
+.form-card {
+  height: 100%;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+}
+.form-complete-button {
+  position: absolute;
+  top: 0;
+  right: 0;
+  color: green;
+}
+.form-complete-button:disabled {
+  color: var(--color-light);
+}
+.form-icon {
+  height: 36px;
+  width: 36px;
+}
