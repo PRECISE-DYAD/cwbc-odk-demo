@@ -10,8 +10,12 @@ forms/framework.xlsx
 forms/~$framework.xlsx
 forms/tables/*
 !forms/tables/config
-!*.gitkeep
 !forms/tables/exampleTable
+forms/csv/*
+!forms/csv/tables.sample.init
+
+!*.gitkeep
+
 
 .env
 frontend/src/assets/odk
