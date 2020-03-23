@@ -47,7 +47,6 @@ export class BreadcrumbComponent {
     filter(event => event instanceof NavigationEnd),
     distinctUntilChanged(),
     map((event: NavigationEnd) => {
-      console.log("route event", event);
       return this.buildBreadCrumb(event.url);
     })
   );

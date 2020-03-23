@@ -14,13 +14,20 @@ import remotedev from "mobx-remotedev";
 import { CommonStore } from "./stores/common.store";
 // custom components
 import { ComponentsModule } from "./components/components.module";
-import { DetailComponent } from './pages/detail/detail.component';
+import { DetailComponent } from "./pages/detail/detail.component";
+import { CommonModule } from "@angular/common";
 
 @NgModule({
-  declarations: [AppComponent, HomeComponent, ProjectComponent, DetailComponent],
+  declarations: [
+    AppComponent,
+    HomeComponent,
+    ProjectComponent,
+    DetailComponent
+  ],
   imports: [
     BrowserModule,
     AppRoutingModule,
+    CommonModule,
     RouterModule,
     HttpClientModule,
     MobxAngularModule,
