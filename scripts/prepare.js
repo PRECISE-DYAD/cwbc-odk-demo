@@ -9,16 +9,15 @@ const frontendPath = path.join(rootPath, "frontend");
 
 async function main() {
   console.log("copying data...");
-  // populate framework and tables.init from example if not present
-  const defaultFiles = {
+  // populate sample files if not already present, {destination:source} mapping
+  const sampleFiles = {
     "forms/framework.xlsx": "forms/framework.sample.xlsx",
     "forms/csv/tables.init": "forms/csv/tables.sample.init"
   };
-  for (let defaultFile of Object.entries(defaultFiles)) {
-    const exists = await fs.exists(defaultFile[0]);
+  for (let [destination, source] of Object.entries(sampleFiles)) {
+    const exists = await fs.exists(source);
     if (!exists) {
-      console.log("copying", defaultFile[1], ":", defaultFile[0]);
-      await fs.copyFile(defaultFile[1], defaultFile[0]);
+      await fs.copyFile(source, destination);
     }
   }
   // copy forms
