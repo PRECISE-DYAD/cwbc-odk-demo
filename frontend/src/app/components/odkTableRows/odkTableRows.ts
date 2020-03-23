@@ -70,3 +70,48 @@ export class OdkTableRowsComponent implements OnInit {
     return rows;
   }
 }
+/*
+[
+  {
+    "\"_id\"": "uuid:d82d4651-04dc-46c5-b23b-ed746ae94cdc",
+    "\"_form_id\"": "profile",
+    "\"_locale\"": "en_GB",
+    "\"_savepoint_type\"": "COMPLETE",
+    "\"_savepoint_timestamp\"": "2020-03-23T16:48:49.128000000",
+    "\"_savepoint_creator\"": "anonymous",
+    "\"edd\"": "13/08/2021",
+    "\"fullName\"": "Jane Doe",
+    "\"ga\"": "Jdhbdbzj",
+    "\"phoneNum\"": "798940725",
+    "\"ptid\"": "Id-001",
+    "\"_default_access\"": "FULL",
+    "\"_group_modify\"": "",
+    "\"_group_privileged\"": "",
+    "\"_group_read_only\"": "",
+    "\"_row_etag\"": "",
+    "\"_row_owner\"": "anonymous",
+    "\"completed_visit1\"": "TRUE"
+  },
+  {
+    "\"_id\"": "uuid:d82d4651-04dc-46c5-b23b-ed746ae94cde",
+    "\"_form_id\"": "profile",
+    "\"_locale\"": "en_GB",
+    "\"_savepoint_type\"": "COMPLETE",
+    "\"_savepoint_timestamp\"": "2020-03-23T16:48:49.128000000",
+    "\"_savepoint_creator\"": "anonymous",
+    "\"edd\"": "13/08/2021",
+    "\"fullName\"": "Hannah Foe",
+    "\"ga\"": "assdfa",
+    "\"phoneNum\"": "901342959",
+    "\"ptid\"": "Id-002",
+    "\"_default_access\"": "FULL",
+    "\"_group_modify\"": "",
+    "\"_group_privileged\"": "",
+    "\"_group_read_only\"": "",
+    "\"_row_etag\"": "",
+    "\"_row_owner\"": "anonymous",
+    "\"completed_visit1\"": "FALSE"
+  }
+]
+
+*/
