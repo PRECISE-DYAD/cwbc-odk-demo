@@ -1,27 +1,27 @@
 [
   {
     "title": "Precise Visit 1",
-    "formId": "visit1",
-    "tableId": "visit1",
+    "formId": "visit_1",
+    "tableId": "visit_1",
     "icon": "visit"
   },
   {
     "title": "Precise Visit 2",
-    "formId": "visit2",
-    "tableId": "visit2",
+    "formId": "visit_2",
+    "tableId": "visit_2",
     "icon": "visit",
     "disabled": true
   },
   {
     "title": "ToD at ANC 1",
-    "formId": "tod1",
-    "tableId": "tod1",
+    "formId": "tod_1",
+    "tableId": "tod_1",
     "icon": "visit"
   },
   {
     "title": "ToD at ANC 2",
-    "formId": "tod2",
-    "tableId": "tod2",
+    "formId": "tod_2",
+    "tableId": "tod_2",
     "icon": "visit",
     "disabled": true
   },

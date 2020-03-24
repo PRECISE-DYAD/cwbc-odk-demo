@@ -36,7 +36,7 @@ export class DetailComponent {
       : this.odk.addRowWithSurvey(tableId, formId, null, {
           // specify corresponding form ids to match this one
           // TODO - doocument parent-child linking (and revise possible strategies)
-          _id: this.details._id
+          ptid: this.details.ptid
         });
   }
   markCompletedForms() {

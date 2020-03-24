@@ -90,7 +90,7 @@ export class OdkTableRowsComponent implements OnInit {
     "\"_group_read_only\"": "",
     "\"_row_etag\"": "",
     "\"_row_owner\"": "anonymous",
-    "\"completed_visit1\"": "TRUE"
+    "\"completed_visit_1\"": "TRUE"
   },
   {
     "\"_id\"": "uuid:d82d4651-04dc-46c5-b23b-ed746ae94cde",
@@ -110,7 +110,7 @@ export class OdkTableRowsComponent implements OnInit {
     "\"_group_read_only\"": "",
     "\"_row_etag\"": "",
     "\"_row_owner\"": "anonymous",
-    "\"completed_visit1\"": "FALSE"
+    "\"completed_visit_1\"": "FALSE"
   }
 ]
 
