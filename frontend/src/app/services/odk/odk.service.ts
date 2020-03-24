@@ -3,7 +3,7 @@ import OdkDataClass from "./odkData";
 import OdkCommonClass from "./odkCommon";
 import OdkTablesClass from "./odkTables";
 import { HttpClient } from "@angular/common/http";
-import { IODKQueryResult } from "src/app/types/odk.types";
+import { IODKQueryResult, IODkTableRowData } from "src/app/types/odk.types";
 
 // When running on device the following methods are automatically added
 // to the window object. When running in development some mocking methods
@@ -11,7 +11,7 @@ import { IODKQueryResult } from "src/app/types/odk.types";
 declare const window: Window & {
   odkData: OdkDataClass;
   odkCommon: OdkCommonClass;
-  odkTables: any;
+  odkTables: OdkTablesClass;
 };
 
 /**
@@ -32,7 +32,6 @@ export class OdkService {
   }
 
   addRowWithSurvey(tableId: string, formId: string, screenPath?, jsonMap?) {
-    // window.history.replaceState(location.pathname, null, "/");
     return window.odkTables.addRowWithSurvey(
       null,
       tableId,
@@ -41,11 +40,20 @@ export class OdkService {
       jsonMap
     );
   }
+  editRowWithSurvey(tableId, rowId, formId) {
+    return window.odkTables.editRowWithSurvey(
+      null,
+      tableId,
+      rowId,
+      formId,
+      null
+    );
+  }
 
   /**
    * Use ODKData Query to return all rows for a specific table
    */
-  getTableRows(tableId: string): Promise<any[]> {
+  getTableRows(tableId: string): Promise<IODkTableRowData[]> {
     return new Promise((resolve, reject) => {
       window.odkData.query(
         tableId,
@@ -76,7 +84,7 @@ export class OdkService {
  * This function merges into a single JSON object array
  * @param res - result object passed from ODK
  */
-function queryResultToJsonArray(res: IODKQueryResult) {
+function queryResultToJsonArray(res: IODKQueryResult): IODkTableRowData[] {
   // query execution returns a queue reference, which needs to be used to retrieve data
   const { metadata, data } = res.resultObj;
   const cols = {};
@@ -87,7 +95,7 @@ function queryResultToJsonArray(res: IODKQueryResult) {
   const mapped = data.map(row => {
     const json = {};
     row.forEach((val, i) => (json[cols[i]] = val));
-    return json;
+    return json as IODkTableRowData;
   });
   return mapped;
 }

@@ -19,6 +19,24 @@ export interface IODKQueryResult {
     callbackJSON?: string;
   };
 }
+// ODK table data combines metadata with survey field values
+export interface IODkTableRowData extends IODKTableRowMetaData {
+  [field: string]: any;
+}
+interface IODKTableRowMetaData {
+  _id: string;
+  _form_id: string;
+  _locale: string;
+  _savepoint_type: string;
+  _savepoint_timestamp: string;
+  _savepoint_creator: string;
+  _default_access: string;
+  _group_modify: string;
+  _group_privileged: string;
+  _group_read_only: string;
+  _row_etag: string;
+  "_row_owner ": string;
+}
 
 /************************************************************************
  *  Examples
@@ -92,4 +110,18 @@ const MOCK_ODK_QUERY_RESULT: IODKQueryResult = {
     ],
     callbackJSON: "0"
   }
+};
+const MOCK_ODK_TABLE_ROW_METADATA = {
+  _id: "uuid:810cbb50-e330-4d51-8766-3a3ce7b46d34",
+  _form_id: "exampleTable",
+  _locale: "en_GB",
+  _savepoint_type: "COMPLETE",
+  _savepoint_timestamp: "2020-03-19T17:09:38.716000000",
+  _savepoint_creator: "anonymous",
+  _default_access: "FULL",
+  _group_modify: "",
+  _group_privileged: "",
+  _group_read_only: "",
+  _row_etag: "",
+  "_row_owner ": "anonymous"
 };
