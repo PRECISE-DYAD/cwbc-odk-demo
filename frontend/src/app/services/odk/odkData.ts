@@ -1,5 +1,6 @@
 import { HttpClient } from "@angular/common/http";
 import { IODKQueryResult } from "src/app/types/odk.types";
+import Papa from "papaparse";
 
 // tslint:disable variable-name
 
@@ -31,27 +32,33 @@ class OdkDataClass {
     successCallbackFn,
     failureCallbackFn
   ) {
-    console.log("data query mock");
     // retrieve csv, convert text to data array and reformat to match expected
     // response format
     this.http
       .get(`../assets/odk/csv/${tableId}.csv`, { responseType: "text" })
       .toPromise()
       .then(csvText => {
-        let rows = csvText.split("\n").map(el => el.split(","));
-        const headers = rows.splice(0, 1)[0];
-        // remove empty rows
-        console.log(rows, headers.length);
-        rows = rows.filter(r => r.length === headers.length);
-        const elementKeyMap = {};
-        headers.forEach((v, i) => (elementKeyMap[v] = i));
-        const res: IODKQueryResult = {
-          resultObj: {
-            data: rows,
-            metadata: { elementKeyMap }
+        Papa.parse(csvText, {
+          header: true,
+          skipEmptyLines: true,
+          error: err => failureCallbackFn(err),
+          complete: r => {
+            // const headers = r.data.splice(0, 1)[0];
+            const headers = r.meta.fields;
+            const rows = r.data.map(el => Object.values(el)) as string[][];
+            const elementKeyMap = {};
+            headers.forEach((v, i) => {
+              elementKeyMap[v] = i;
+            });
+            const res: IODKQueryResult = {
+              resultObj: {
+                data: rows,
+                metadata: { elementKeyMap }
+              }
+            };
+            successCallbackFn(res);
           }
-        };
-        successCallbackFn(res);
+        });
       })
       .catch(err => failureCallbackFn(err));
   }

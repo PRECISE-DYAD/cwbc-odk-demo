@@ -11,3 +11,9 @@ td,
 th {
   width: 25%;
 }
+tr {
+  cursor: pointer;
+}
+.mat-row:hover {
+  background-color: #efefef;
+}

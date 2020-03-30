@@ -18,7 +18,7 @@
     <!-- Data columns -->
     <ng-container *ngFor="let col of columns" [matColumnDef]="col">
       <th mat-header-cell *matHeaderCellDef mat-sort-header>{{col}}</th>
-      <td mat-cell *matCellDef="let row" (click)="rowSelected(row)">
+      <td mat-cell *matCellDef="let row" (click)="handleRowClicked(row)">
         {{ row[col] }}
       </td>
     </ng-container>
