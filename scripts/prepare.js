@@ -15,7 +15,7 @@ async function main() {
     "forms/csv/tables.init": "forms/csv/tables.sample.init"
   };
   for (let [destination, source] of Object.entries(sampleFiles)) {
-    const exists = await fs.exists(source);
+    const exists = await fs.exists(destination);
     if (!exists) {
       await fs.copyFile(source, destination);
     }
