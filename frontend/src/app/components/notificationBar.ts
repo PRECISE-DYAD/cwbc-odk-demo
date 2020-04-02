@@ -1,4 +1,4 @@
-import { Component, Inject } from "@angular/core";
+import { Component, Inject, ViewEncapsulation } from "@angular/core";
 import {
   MatSnackBarRef,
   MAT_SNACK_BAR_DATA
@@ -6,10 +6,12 @@ import {
 
 @Component({
   selector: "app-notification-display-component",
+  // allow styles to be passed down directly
+  encapsulation: ViewEncapsulation.None,
   template: `
     <mat-card class="notification-main" [ngClass]="data.notificationType">
       <mat-icon style="margin-right:5px">{{ data.notificationType }}</mat-icon>
-      <p class="notification-message">{{ data.message }}</p>
+      <div class="notification-message" [innerHtml]="data.message"></div>
       <button class="notification-button" mat-button (click)="dismiss()">
         Dismiss
       </button>
@@ -17,18 +19,17 @@ import {
   `,
   styles: [
     `
-      .notification-main {
+      mat-card.notification-main {
         display: flex;
         justify-content: space-between;
         overflow: hidden;
-        background: white;
         padding: 5px;
       }
-      .notification-main.error {
+      mat-card.notification-main.error {
         background: #ec3c3c;
         color: white;
       }
-      .notification-main.information {
+      mat-card.notification-main.information {
         background: #17a28b;
         color: white;
       }
@@ -38,11 +39,15 @@ import {
         padding: 5px;
         margin-bottom: 0;
         width: 100%;
-        white-space: normal;
         word-break: break-word;
       }
       .notification-button {
         margin: auto;
+        margin-bottom: auto !important;
+      }
+      /* Directly passed by some messages */
+      .font-size-smaller {
+        font-size: smaller;
       }
     `
   ]
