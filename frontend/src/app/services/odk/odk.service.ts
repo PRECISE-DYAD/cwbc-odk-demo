@@ -4,6 +4,7 @@ import OdkCommonClass from "./odkCommon";
 import OdkTablesClass from "./odkTables";
 import { HttpClient } from "@angular/common/http";
 import { IODKQueryResult, IODkTableRowData } from "src/app/types/odk.types";
+import { NotificationService } from "./notification/notification.service";
 
 // When running on device the following methods are automatically added
 // to the window object. When running in development some mocking methods
@@ -22,13 +23,18 @@ declare const window: Window & {
 })
 export class OdkService {
   tables: string[];
-  constructor(http: HttpClient) {
+  constructor(http: HttpClient, private notifications: NotificationService) {
     // when running on device use native odkData function (injected)
     if (!window.odkData || !window.odkCommon) {
       window.odkCommon = new OdkCommonClass();
       window.odkData = new OdkDataClass(http);
       window.odkTables = new OdkTablesClass();
     }
+  }
+  handleError(err: Error) {
+    console.log("handling error");
+    console.error(err);
+    return this.notifications.handleError(err);
   }
 
   addRowWithSurvey(tableId: string, formId: string, screenPath?, jsonMap?) {
@@ -71,7 +77,7 @@ export class OdkService {
           resolve(resultsJson);
         },
         err => {
-          handleError(err);
+          this.handleError(err);
           reject(err);
         }
       );
@@ -98,8 +104,4 @@ function queryResultToJsonArray(res: IODKQueryResult): IODkTableRowData[] {
     return json as IODkTableRowData;
   });
   return mapped;
-}
-
-function handleError(err) {
-  console.error(err);
 }

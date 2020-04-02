@@ -5,9 +5,16 @@ import { MaterialComponentsModule } from "./material.components";
 import { OdkTableRowsComponent } from "./odkTableRows/odkTableRows";
 import { CommonModule } from "@angular/common";
 import { RouterModule } from "@angular/router";
+import { NotificationBarComponent } from "./notificationBar";
+
+const customComponents = [
+  BreadcrumbComponent,
+  NotificationBarComponent,
+  OdkTableRowsComponent
+];
 
 @NgModule({
-  declarations: [BreadcrumbComponent, OdkTableRowsComponent],
+  declarations: [...customComponents],
   imports: [
     MaterialComponentsModule,
     BrowserAnimationsModule,
@@ -15,10 +22,6 @@ import { RouterModule } from "@angular/router";
     RouterModule,
     MaterialComponentsModule
   ],
-  exports: [
-    BreadcrumbComponent,
-    OdkTableRowsComponent,
-    MaterialComponentsModule
-  ]
+  exports: [...customComponents, MaterialComponentsModule]
 })
 export class ComponentsModule {}

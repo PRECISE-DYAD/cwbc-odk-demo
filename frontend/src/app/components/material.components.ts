@@ -11,6 +11,7 @@ import { MatInputModule } from "@angular/material/input";
 import { MatSortModule } from "@angular/material/sort";
 import { MatGridListModule } from "@angular/material/grid-list";
 import { MatIconModule, MatIconRegistry } from "@angular/material/icon";
+import { MatSnackBarModule } from "@angular/material/snack-bar";
 import { DomSanitizer } from "@angular/platform-browser";
 
 @NgModule({
@@ -27,6 +28,7 @@ import { DomSanitizer } from "@angular/platform-browser";
     MatPaginatorModule,
     MatInputModule,
     MatSortModule,
+    MatSnackBarModule,
     MatIconModule,
     MatGridListModule
   ],
@@ -40,6 +42,7 @@ import { DomSanitizer } from "@angular/platform-browser";
     MatPaginatorModule,
     MatInputModule,
     MatSortModule,
+    MatSnackBarModule,
     MatIconModule,
     MatGridListModule
   ]
