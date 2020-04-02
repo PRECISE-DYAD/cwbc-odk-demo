@@ -4,18 +4,18 @@ import { CommonStore } from "src/app/stores/common.store";
 import { IODkTableRowData } from "src/app/types/odk.types";
 
 @Component({
-  selector: "app-project",
-  templateUrl: "./project.component.html",
-  styleUrls: ["./project.component.scss"]
+  selector: "app-precise-home",
+  templateUrl: "./precise.component.html",
+  styleUrls: ["./precise.component.scss"]
 })
-export class ProjectComponent {
+export class PreciseHomeComponent {
   tableColumns: string[] = ["phoneNum", "ptid"];
   constructor(
     store: CommonStore,
     private route: ActivatedRoute,
     private router: Router
   ) {
-    store.setProjectById(this.route.snapshot.params.projectId);
+    store.setProjectById("precise");
   }
 
   handleRowClick(row: IODkTableRowData) {

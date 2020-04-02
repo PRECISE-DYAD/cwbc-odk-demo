@@ -6,11 +6,11 @@ import ALL_FORMS from "src/app/data/forms.json";
 import { IFormMeta } from "src/app/types/types";
 
 @Component({
-  selector: "app-detail",
-  templateUrl: "./detail.component.html",
-  styleUrls: ["./detail.component.scss"]
+  selector: "app-precise-profile",
+  templateUrl: "./profile.component.html",
+  styleUrls: ["./profile.component.scss"]
 })
-export class DetailComponent {
+export class PreciseProfileComponent {
   details: IODkTableRowData = null;
   detailsMetaArr: any[] = [];
   detailsArr: any[] = [];

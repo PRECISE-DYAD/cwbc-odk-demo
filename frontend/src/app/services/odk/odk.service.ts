@@ -4,7 +4,7 @@ import OdkCommonClass from "./odkCommon";
 import OdkTablesClass from "./odkTables";
 import { HttpClient } from "@angular/common/http";
 import { IODKQueryResult, IODkTableRowData } from "src/app/types/odk.types";
-import { NotificationService } from "./notification/notification.service";
+import { NotificationService } from "../notification/notification.service";
 
 // When running on device the following methods are automatically added
 // to the window object. When running in development some mocking methods
@@ -28,7 +28,7 @@ export class OdkService {
     if (!window.odkData || !window.odkCommon) {
       window.odkCommon = new OdkCommonClass();
       window.odkData = new OdkDataClass(http);
-      window.odkTables = new OdkTablesClass();
+      window.odkTables = new OdkTablesClass(notifications);
     }
   }
   handleError(err: Error) {

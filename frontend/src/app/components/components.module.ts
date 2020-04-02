@@ -19,8 +19,7 @@ const customComponents = [
     MaterialComponentsModule,
     BrowserAnimationsModule,
     CommonModule,
-    RouterModule,
-    MaterialComponentsModule
+    RouterModule
   ],
   exports: [...customComponents, MaterialComponentsModule]
 })

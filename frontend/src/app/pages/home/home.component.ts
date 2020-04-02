@@ -1,6 +1,5 @@
 import { Component } from "@angular/core";
-import ALL_PROJECTS from "../../data/projects.json";
-import { IProjectMeta } from "src/app/types/types.js";
+import { CommonStore } from "src/app/stores/common.store";
 
 @Component({
   selector: "app-home",
@@ -8,5 +7,5 @@ import { IProjectMeta } from "src/app/types/types.js";
   styleUrls: ["./home.component.scss"]
 })
 export class HomeComponent {
-  projects: IProjectMeta[] = ALL_PROJECTS;
+  constructor(public store: CommonStore) {}
 }

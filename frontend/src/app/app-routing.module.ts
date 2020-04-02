@@ -1,8 +1,8 @@
 import { NgModule } from "@angular/core";
 import { Routes, RouterModule } from "@angular/router";
 import { HomeComponent } from "./pages/home/home.component";
-import { ProjectComponent } from "./pages/project/project.component";
-import { DetailComponent } from "./pages/detail/detail.component";
+import { PreciseHomeComponent } from "./pages/precise/precise.component";
+import { PreciseProfileComponent } from "./pages/precise/profile/profile.component";
 
 const routes: Routes = [
   {
@@ -15,13 +15,13 @@ const routes: Routes = [
     redirectTo: ""
   },
   {
-    path: "projects/:projectId",
-    component: ProjectComponent,
-    data: { breadcrumb: ":projectId" }
+    path: "projects/precise",
+    component: PreciseHomeComponent,
+    data: { breadcrumb: "precise" }
   },
   {
-    path: "projects/:projectId/:participantId",
-    component: DetailComponent,
+    path: "projects/precise/:participantId",
+    component: PreciseProfileComponent,
     data: { breadcrumb: ":participantId" }
   }
 ];

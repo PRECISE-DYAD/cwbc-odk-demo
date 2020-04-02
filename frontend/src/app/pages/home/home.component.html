@@ -1,6 +1,6 @@
 <div *mobxAutorun style="display: contents;">
   <a
-    *ngFor="let project of projects"
+    *ngFor="let project of store.projects"
     [routerLink]="['/', 'projects', project.id]"
   >
     <mat-card style="height: 10em">

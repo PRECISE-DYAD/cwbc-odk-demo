@@ -1,10 +1,27 @@
+import { NotificationService } from "../notification/notification.service";
+
 class OdkTables {
-  constructor() {}
+  constructor(private notifications: NotificationService) {}
   addRowWithSurvey(dispatchStruct, tableId, formId, screenPath?, jsonMap?) {
-    alert(`[device only] - opening [${tableId}:${formId}]`);
+    return this.notifications.showMessage(
+      `
+      <div>Surveys will only show when running on Android device</div>
+      <hr>
+      <div class="font-size-smaller">Form: ${formId}</div>
+      `
+    );
   }
   editRowWithSurvey(dispatchStruct, tableId, rowId, formId, screenPath) {
-    alert(`[device only] - edit [${tableId}:${formId}:${rowId}]`);
+    return this.notifications.showMessage(
+      `
+      <div>Surveys will only show when running on Android device</div>
+      <hr>
+      <div class="font-size-smaller">
+        <div>Form: ${formId}</div>
+        <div>Row:  ${rowId}</div>
+      </div>
+      `
+    );
   }
 }
 export default OdkTables;

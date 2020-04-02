@@ -1,9 +1,14 @@
 import { observable, action, computed } from "mobx-angular";
 import { Injectable } from "@angular/core";
-import ALL_PROJECTS from "../data/projects.json";
 import { IProjectMeta } from "../types/types";
 import { HttpClient } from "@angular/common/http";
-
+const ALL_PROJECTS: IProjectMeta[] = [
+  {
+    image: "assets/precise.png",
+    name: "Precise",
+    id: "precise"
+  }
+];
 @Injectable()
 export class CommonStore {
   constructor(private http: HttpClient) {
@@ -23,6 +28,7 @@ export class CommonStore {
   @action doSomething() {}
 
   @action setProjectById(id: IProjectMeta["id"]) {
+    console.log("setting project by id", id);
     this.projectMeta$ = ALL_PROJECTS.find(p => p.id === id);
     this.title = this.projectMeta$.name;
   }
