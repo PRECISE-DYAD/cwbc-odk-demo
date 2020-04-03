@@ -9,7 +9,16 @@ import { IODkTableRowData } from "src/app/types/odk.types";
   styleUrls: ["./precise.component.scss"]
 })
 export class PreciseHomeComponent {
-  tableColumns: string[] = ["phoneNum", "ptid"];
+  tableColumns: string[] = [
+    "f2a_participant_id",
+    "f2a_full_name",
+    "f2a_national_id",
+    "f2a_hdss",
+    "f2a_phone",
+    "f2a_phone_number",
+    "f2a_phone_2",
+    "f2a_phone_number_2"
+  ];
   constructor(
     store: CommonStore,
     private route: ActivatedRoute,

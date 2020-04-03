@@ -28,7 +28,6 @@ export class CommonStore {
   @action doSomething() {}
 
   @action setProjectById(id: IProjectMeta["id"]) {
-    console.log("setting project by id", id);
     this.projectMeta$ = ALL_PROJECTS.find(p => p.id === id);
     this.title = this.projectMeta$.name;
   }
