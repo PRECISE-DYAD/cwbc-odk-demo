@@ -7,7 +7,20 @@ table {
   width: 100%;
 }
 
-td,
-th {
-  width: 25%;
+.info-row {
+  display: flex;
+  padding: 5px;
+  align-items: center;
+}
+.info-row > mat-icon {
+  margin-right: 10px;
+}
+tr {
+  cursor: pointer;
+}
+tr.mat-header-row {
+  cursor: unset;
+}
+.mat-row:hover {
+  background-color: #efefef;
 }
