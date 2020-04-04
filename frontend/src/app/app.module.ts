@@ -8,7 +8,8 @@ import { RouterModule } from "@angular/router";
 // stores
 import { MobxAngularModule } from "mobx-angular";
 import remotedev from "mobx-remotedev";
-import { CommonStore } from "./stores/common.store";
+import { CommonStore, PreciseStore } from "./stores";
+import { OdkService } from "./services/odk/odk.service";
 // custom components
 import { ComponentsModule } from "./components/components.module";
 import { CommonModule } from "@angular/common";
@@ -22,7 +23,7 @@ import { PreciseProfileComponent } from "./pages/precise/profile/profile.compone
     AppComponent,
     HomeComponent,
     PreciseHomeComponent,
-    PreciseProfileComponent
+    PreciseProfileComponent,
   ],
   imports: [
     BrowserModule,
@@ -31,15 +32,20 @@ import { PreciseProfileComponent } from "./pages/precise/profile/profile.compone
     RouterModule,
     HttpClientModule,
     MobxAngularModule,
-    ComponentsModule
+    ComponentsModule,
   ],
   providers: [
     {
       provide: CommonStore,
       useClass: remotedev(CommonStore, { global: true, onlyActions: true }),
-      deps: [HttpClient]
-    }
+      deps: [HttpClient],
+    },
+    {
+      provide: PreciseStore,
+      useClass: remotedev(PreciseStore, { global: true, onlyActions: true }),
+      deps: [OdkService],
+    },
   ],
-  bootstrap: [AppComponent]
+  bootstrap: [AppComponent],
 })
 export class AppModule {}
