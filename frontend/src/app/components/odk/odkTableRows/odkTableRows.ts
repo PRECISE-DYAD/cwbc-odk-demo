@@ -5,7 +5,7 @@ import {
   ViewChild,
   Output,
   EventEmitter,
-  ChangeDetectionStrategy
+  ChangeDetectionStrategy,
 } from "@angular/core";
 import { MatSort } from "@angular/material/sort";
 import { MatPaginator } from "@angular/material/paginator";
@@ -13,11 +13,14 @@ import { MatTableDataSource } from "@angular/material/table";
 import { IODkTableRowData } from "src/app/types/odk.types";
 import { OdkService } from "src/app/services/odk/odk.service";
 
+/**
+ * Looks up a given odk table by id and returns a html table of values
+ */
 @Component({
   selector: "app-odk-table-rows",
   templateUrl: "./odkTableRows.html",
   styleUrls: ["./odkTableRows.scss"],
-  changeDetection: ChangeDetectionStrategy.OnPush
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class OdkTableRowsComponent implements OnInit {
   /**
@@ -68,9 +71,9 @@ export class OdkTableRowsComponent implements OnInit {
     if (this.columns) {
       // when columns specified pre filter data to only matching column values
       // for more efficient render and filter
-      rows = rows.map(r => {
+      rows = rows.map((r) => {
         const filteredObj: any = {};
-        this.columns.forEach(v => {
+        this.columns.forEach((v) => {
           filteredObj[v] = r[v];
         });
         return filteredObj;

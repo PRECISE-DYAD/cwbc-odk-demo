@@ -7,6 +7,7 @@ import { MatTableModule } from "@angular/material/table";
 import { MatExpansionModule } from "@angular/material/expansion";
 import { MatFormFieldModule } from "@angular/material/form-field";
 import { MatPaginatorModule } from "@angular/material/paginator";
+import { MatProgressBarModule } from "@angular/material/progress-bar";
 import { MatInputModule } from "@angular/material/input";
 import { MatSortModule } from "@angular/material/sort";
 import { MatGridListModule } from "@angular/material/grid-list";
@@ -17,7 +18,6 @@ import { DomSanitizer } from "@angular/platform-browser";
 @NgModule({
   declarations: [],
   imports: [
-    // Material components
     BrowserAnimationsModule,
     MatCardModule,
     MatButtonModule,
@@ -30,7 +30,8 @@ import { DomSanitizer } from "@angular/platform-browser";
     MatSortModule,
     MatSnackBarModule,
     MatIconModule,
-    MatGridListModule
+    MatGridListModule,
+    MatProgressBarModule,
   ],
   exports: [
     MatCardModule,
@@ -44,8 +45,9 @@ import { DomSanitizer } from "@angular/platform-browser";
     MatSortModule,
     MatSnackBarModule,
     MatIconModule,
-    MatGridListModule
-  ]
+    MatGridListModule,
+    MatProgressBarModule,
+  ],
 })
 export class MaterialComponentsModule {
   constructor(iconRegistry: MatIconRegistry, sanitizer: DomSanitizer) {
@@ -61,9 +63,9 @@ export class MaterialComponentsModule {
       "check",
       "birth",
       "fetus",
-      "lab"
+      "lab",
     ];
-    icons.forEach(i => {
+    icons.forEach((i) => {
       iconRegistry.addSvgIcon(
         i,
         sanitizer.bypassSecurityTrustResourceUrl(`assets/icons/${i}.svg`)

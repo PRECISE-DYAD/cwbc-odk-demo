@@ -6,14 +6,16 @@ const ALL_PROJECTS: IProjectMeta[] = [
   {
     image: "assets/precise.png",
     name: "Precise",
-    id: "precise"
-  }
+    id: "precise",
+  },
 ];
+/**
+ * The CommonStore manages persisted data and operations across the entire application,
+ * such as home page, app theme and page titles
+ */
 @Injectable()
 export class CommonStore {
-  constructor(private http: HttpClient) {
-    this.getFramework();
-  }
+  constructor(private http: HttpClient) {}
   @observable projectMeta$: IProjectMeta;
   @observable title = "Select A Project";
   @observable projects: IProjectMeta[] = ALL_PROJECTS;
@@ -23,14 +25,18 @@ export class CommonStore {
       : "theme-default";
   }
 
-  @observable framework: any;
-
-  @action doSomething() {}
-
-  @action setProjectById(id: IProjectMeta["id"]) {
-    this.projectMeta$ = ALL_PROJECTS.find(p => p.id === id);
+  @action async setProjectById(id: IProjectMeta["id"]) {
+    this.projectMeta$ = ALL_PROJECTS.find((p) => p.id === id);
     this.title = this.projectMeta$.name;
   }
+}
+
+/*************************************************************************************
+ * Deprected (retained simply for reference)
+ * ***********************************************************************************/
+
+/*
+  @observable framework: any;
 
   @action async getFramework() {
     const framework = await this.http
@@ -38,4 +44,4 @@ export class CommonStore {
       .toPromise();
     this.framework = framework;
   }
-}
+  */
