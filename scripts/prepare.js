@@ -38,8 +38,8 @@ async function main() {
   await fs.ensureDir(`${designerPath}/app/config/tables`);
   await fs.emptyDir(`${designerPath}/app/config/tables`);
   await fs.copy("forms/tables", `${designerPath}/app/config/tables`);
-  // process forms
-  child.spawnSync("grunt", ["xlsx-convert-all"], {
+  // process forms, call npx in case not installed globally
+  child.spawnSync("npx grunt", ["xlsx-convert-all"], {
     cwd: designerPath,
     stdio: ["ignore", "inherit", "inherit"],
     shell: true

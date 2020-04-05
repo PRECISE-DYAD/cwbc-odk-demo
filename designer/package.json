@@ -2,7 +2,6 @@
     "name": "odk-precise-demo",
     "version": "1.0.0",
     "scripts": {
-        "grunt": "grunt",
         "serve": "node app/scripts/serve.js"
     },
     "dependencies": {
