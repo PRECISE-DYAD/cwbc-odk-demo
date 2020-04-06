@@ -14,6 +14,7 @@ import { MatGridListModule } from "@angular/material/grid-list";
 import { MatIconModule, MatIconRegistry } from "@angular/material/icon";
 import { MatSnackBarModule } from "@angular/material/snack-bar";
 import { DomSanitizer } from "@angular/platform-browser";
+import { registerIcons } from './icons';
 
 @NgModule({
   declarations: [],
@@ -52,24 +53,6 @@ import { DomSanitizer } from "@angular/platform-browser";
 export class MaterialComponentsModule {
   constructor(iconRegistry: MatIconRegistry, sanitizer: DomSanitizer) {
     // register icons
-    this.registerIcons(iconRegistry, sanitizer);
-  }
-  registerIcons(iconRegistry, sanitizer) {
-    const icons = [
-      "pregnant",
-      "add",
-      "edit",
-      "visit",
-      "check",
-      "birth",
-      "fetus",
-      "lab",
-    ];
-    icons.forEach((i) => {
-      iconRegistry.addSvgIcon(
-        i,
-        sanitizer.bypassSecurityTrustResourceUrl(`assets/icons/${i}.svg`)
-      );
-    });
+    registerIcons(iconRegistry, sanitizer);
   }
 }

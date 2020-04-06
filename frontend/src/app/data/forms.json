@@ -13,62 +13,28 @@
     "disabled": true
   },
   {
-    "title": "ToD at ANC 1",
-    "formId": "tod_1",
-    "tableId": "tod_1",
-    "icon": "visit"
-  },
-  {
-    "title": "ToD at ANC 2",
-    "formId": "tod_2",
-    "tableId": "tod_2",
-    "icon": "visit",
-    "disabled": true
-  },
-  {
-    "title": "ToD at ANC 3",
-    "formId": "tod3",
-    "tableId": "tod3",
-    "icon": "visit",
-    "disabled": true
+    "title": "ToD at ANC",
+    "formId": "tod",
+    "tableId": "tod",
+    "icon": "disease"
   },
   {
     "title": "Birth Mother",
     "formId": "birthMother",
     "tableId": "birthMother",
-    "icon": "birth",
+    "icon": "mother",
     "disabled": true
   },
   {
-    "title": "Birth Baby 1",
-    "formId": "birthBaby1",
-    "tableId": "birthBaby1",
-    "icon": "birth"
+    "title": "Birth Baby",
+    "formId": "birthBaby",
+    "tableId": "birthBaby",
+    "icon": "baby"
   },
   {
-    "title": "Birth Baby 2",
-    "formId": "birthBaby2",
-    "tableId": "birthBaby2",
-    "icon": "birth",
-    "disabled": true
-  },
-  {
-    "title": "Birth Baby 3",
-    "formId": "birthBaby3",
-    "tableId": "birthBaby2",
-    "icon": "birth",
-    "disabled": true
-  },
-  {
-    "title": "Laboratory 1",
-    "formId": "lab1",
-    "tableId": "lab1",
-    "icon": "lab"
-  },
-  {
-    "title": "Laboratory 2",
-    "formId": "lab2",
-    "tableId": "lab2",
+    "title": "Laboratory",
+    "formId": "lab",
+    "tableId": "lab",
     "icon": "lab",
     "disabled": true
   }
