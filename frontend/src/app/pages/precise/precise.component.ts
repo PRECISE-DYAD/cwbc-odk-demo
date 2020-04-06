@@ -2,13 +2,10 @@ import {
   Component,
   OnInit,
   ViewChild,
-  ChangeDetectionStrategy,
 } from "@angular/core";
 import { ActivatedRoute, Router } from "@angular/router";
-import { CommonStore } from "src/app/stores/common.store";
-import { IODkTableRowData } from "src/app/types/odk.types";
 import { MatPaginator } from "@angular/material/paginator";
-import { PreciseStore, IParticipantSummary } from "src/app/stores";
+import { PreciseStore, CommonStore, IParticipantSummary } from "src/app/stores";
 import { MatTableDataSource } from "@angular/material/table";
 
 /**
@@ -31,7 +28,7 @@ export class PreciseHomeComponent implements OnInit {
     public store: PreciseStore,
     private route: ActivatedRoute,
     private router: Router
-  ) {}
+  ) { }
 
   ngOnInit(): void {
     this.commonStore.setProjectById("precise");
@@ -50,10 +47,20 @@ export class PreciseHomeComponent implements OnInit {
     this.store.launchParticipantForm();
   }
 
-  applyFilter($event) {}
+  /**
+   * Use default settings to search all data fields for matching string
+   * Note, could refine with custom filter function
+   * https://stackoverflow.com/questions/48506606/custom-filter-in-mat-table
+   */
+  applyFilter(event: Event) {
+    const filterValue = (event.target as HTMLInputElement).value;
+    this.dataSource.filter = filterValue.trim().toLowerCase();
+    if (this.dataSource.paginator) {
+      this.dataSource.paginator.firstPage();
+    }
+  }
 
-  handleRowClicked(row: IODkTableRowData) {
-    console.log("row clicked", row);
+  handleRowClicked(row) {
     this.router.navigate([row.f2a_participant_id], { relativeTo: this.route });
   }
 }

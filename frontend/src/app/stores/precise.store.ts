@@ -1,6 +1,7 @@
-import { observable, action } from "mobx-angular";
+import { observable, action, computed, } from "mobx-angular";
 import { Injectable } from "@angular/core";
 import { OdkService } from "../services/odk/odk.service";
+import { toJS } from 'mobx';
 
 /**
  * The PreciseStore manages persisted data and operations across the entire application,
@@ -8,15 +9,18 @@ import { OdkService } from "../services/odk/odk.service";
  */
 @Injectable()
 export class PreciseStore {
-  private allParticipants: IParticipant[];
 
   constructor(private odk: OdkService) {
     this.loadParticipants();
   }
 
+  @observable allParticipantsHashmap: IParticipantsHashmap;
+  @computed get allParticipants() {
+    return Object.values(this.allParticipantsHashmap)
+  }
   @observable participantSummaries$: IParticipantSummary[];
   @observable dataLoaded$ = false;
-  @observable activeParticipant$: IActiveParticipant;
+  @observable activeParticipant: IParticipant
 
   /**
    * Called on initial load, pull full participant data from main table
@@ -26,14 +30,23 @@ export class PreciseStore {
     const participants = (await this.odk.getTableRows(
       tables.ALL_PARTICIPANTS
     )) as any;
-    this.participantSummaries$ = participants.map((p, i) =>
+    const merged = this._mergeParticipantRows(participants)
+    this.participantSummaries$ = Object.values(merged).map((p, i) =>
       this.generateParticipantSummary(p, i)
     );
-    this.allParticipants = participants;
+    this.allParticipantsHashmap = merged;
     this.dataLoaded$ = true;
   }
-  @action setActiveParticipant(i: number) {
-    this.activeParticipant$ = { ...this.allParticipants[i], _index: i };
+
+  // used as part of router methods in web preview
+  @action setActiveParticipantById(ptid: string) {
+    // skip if already selected
+    if (this.activeParticipant && this.activeParticipant.f2a_participant_id === ptid) return
+    // crude way to ensure participants loaded.
+    if (!this.allParticipantsHashmap) return setTimeout(() => {
+      return this.setActiveParticipantById(ptid)
+    }, 200);
+    this.activeParticipant = this.allParticipantsHashmap[ptid]
   }
 
   @action updateParticipant(index: number, value: any) {
@@ -73,6 +86,29 @@ export class PreciseStore {
     });
     return summary as IParticipantSummary;
   }
+
+
+
+  /**
+   * Legacy ODK data is split in 3 separate rows per participant
+   * Function to merge and return hashmap of results
+   * TODO - remove once using new table structures
+   */
+  private _mergeParticipantRows(participants: IParticipant[]): IParticipantsHashmap {
+    const merged: IParticipantsHashmap = {}
+    participants.forEach(p => {
+      if (!merged[p.f2a_participant_id]) {
+        merged[p.f2a_participant_id] = {} as any
+      }
+      // avoid overwriting "" fields with falsy check
+      Object.entries(p).forEach(([field, fieldValue]) => {
+        if (fieldValue) {
+          merged[p.f2a_participant_id][field] = fieldValue
+        }
+      })
+    })
+    return merged
+  }
 }
 
 /********************************************************************************
@@ -102,14 +138,9 @@ const PARTICIPANT_SUMMARY_FIELDS = [
 type IParticipantSummaryField = typeof PARTICIPANT_SUMMARY_FIELDS[number];
 
 // placeholder interface to reflect all fields available within participant table
-export type IParticipant = { [K in IParticipantSummaryField]: boolean };
+export type IParticipant = { [K in IParticipantSummaryField]: string };
 
-// when setting a participant as active also retain index within all participants list
-interface IActiveParticipant extends IParticipant {
-  _index: number;
-}
+// summary contains partial participant
+export type IParticipantSummary = Partial<IParticipant>
 
-// summary contains partial participant alongside index (for full participant lookup)
-export interface IParticipantSummary extends Partial<IParticipant> {
-  _index: number;
-}
+type IParticipantsHashmap = { [ptid: string]: IParticipant }
