@@ -18,7 +18,7 @@ async function main() {
   console.log("building app...");
   await fs.ensureDir(`${designerAssetsPath}/build`);
   await fs.emptyDir(`${designerAssetsPath}/build`);
-  child.spawnSync("ng build --prod --baseHref=/default/config/assets/build/", {
+  child.spawnSync("npm run build:odk", {
     cwd: frontendPath,
     stdio: "inherit",
     shell: true

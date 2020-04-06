@@ -32,8 +32,6 @@ export class OdkService {
     }
   }
   handleError(err: Error) {
-    console.log("handling error");
-    console.error(err);
     return this.notifications.handleError(err);
   }
 

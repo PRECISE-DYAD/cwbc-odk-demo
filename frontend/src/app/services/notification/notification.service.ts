@@ -9,7 +9,7 @@ import {
   providedIn: "root"
 })
 export class NotificationService {
-  constructor(private snackbar: MatSnackBar) {}
+  constructor(private snackbar: MatSnackBar) { }
 
   showMessage(message: string, data?: ISnackbarData) {
     return this.snackbar.openFromComponent(NotificationBarComponent, {
@@ -18,7 +18,8 @@ export class NotificationService {
   }
 
   handleError(err: Error) {
-    const message = err.message ? err.message : "Error Occured";
+    console.error(err);
+    const message = typeof err === 'string' ? err : err.message ? err.message : "Error Occured";
     return this.showMessage(message, { notificationType: "error", message });
   }
 }
