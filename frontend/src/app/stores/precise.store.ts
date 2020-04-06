@@ -1,7 +1,8 @@
-import { observable, action, computed, } from "mobx-angular";
+import { observable, action, computed } from "mobx-angular";
 import { Injectable } from "@angular/core";
 import { OdkService } from "../services/odk/odk.service";
-import { toJS } from 'mobx';
+import { reaction } from 'mobx';
+
 
 /**
  * The PreciseStore manages persisted data and operations across the entire application,
@@ -9,18 +10,16 @@ import { toJS } from 'mobx';
  */
 @Injectable()
 export class PreciseStore {
-
   constructor(private odk: OdkService) {
     this.loadParticipants();
   }
-
   @observable allParticipantsHashmap: IParticipantsHashmap;
   @computed get allParticipants() {
     return Object.values(this.allParticipantsHashmap)
   }
-  @observable participantSummaries$: IParticipantSummary[];
-  @observable dataLoaded$ = false;
+  @observable participantSummaries: IParticipantSummary[];
   @observable activeParticipant: IParticipant
+  @observable dataLoaded = false
 
   /**
    * Called on initial load, pull full participant data from main table
@@ -31,27 +30,33 @@ export class PreciseStore {
       tables.ALL_PARTICIPANTS
     )) as any;
     const merged = this._mergeParticipantRows(participants)
-    this.participantSummaries$ = Object.values(merged).map((p, i) =>
+    this.participantSummaries = Object.values(merged).map((p, i) =>
       this.generateParticipantSummary(p, i)
     );
     this.allParticipantsHashmap = merged;
-    this.dataLoaded$ = true;
+    this.dataLoaded = true
   }
 
   // used as part of router methods in web preview
   @action setActiveParticipantById(ptid: string) {
     // skip if already selected
     if (this.activeParticipant && this.activeParticipant.f2a_participant_id === ptid) return
-    // crude way to ensure participants loaded.
-    if (!this.allParticipantsHashmap) return setTimeout(() => {
-      return this.setActiveParticipantById(ptid)
-    }, 200);
+    // ensure participants loaded, use a 'reaction' to subscribe to changes,
+    // and unsubscribe (dispose) thereafter to avoid memory leak.
+    if (!this.allParticipantsHashmap) {
+      return reaction(() => this.dataLoaded, (isLoaded, r) => {
+        if (isLoaded) {
+          r.dispose()
+          return this.setActiveParticipantById(ptid)
+        }
+      })
+    }
     this.activeParticipant = this.allParticipantsHashmap[ptid]
   }
 
   @action updateParticipant(index: number, value: any) {
     this.allParticipants[index] = value;
-    this.participantSummaries$[index] = this.generateParticipantSummary(
+    this.participantSummaries[index] = this.generateParticipantSummary(
       value,
       index
     );

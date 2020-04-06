@@ -10,7 +10,6 @@ import { MatTableDataSource } from "@angular/material/table";
 
 /**
  * Homepage of precise project
- * TODO - move table/list display to odk component
  */
 @Component({
   selector: "app-precise-home",
@@ -38,7 +37,7 @@ export class PreciseHomeComponent implements OnInit {
    * Load as a table data source.
    */
   setDatasource() {
-    this.dataSource = new MatTableDataSource(this.store.participantSummaries$);
+    this.dataSource = new MatTableDataSource(this.store.participantSummaries);
     this.dataSource.paginator = this.paginator;
   }
 

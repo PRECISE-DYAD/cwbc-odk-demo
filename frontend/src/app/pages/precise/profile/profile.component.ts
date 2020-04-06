@@ -24,7 +24,6 @@ export class PreciseProfileComponent {
     if (this.store.activeParticipant) {
       this.details = this.store.activeParticipant
       this.detailsMetaArr = Object.entries(this.store.activeParticipant)
-      console.log('details', this.details)
     }
 
   }
