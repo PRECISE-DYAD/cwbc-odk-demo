@@ -1,8 +1,4 @@
-import {
-  Component,
-  OnInit,
-  ViewChild,
-} from "@angular/core";
+import { Component, OnInit, ViewChild } from "@angular/core";
 import { ActivatedRoute, Router } from "@angular/router";
 import { MatPaginator } from "@angular/material/paginator";
 import { PreciseStore, CommonStore, IParticipantSummary } from "src/app/stores";
@@ -27,7 +23,7 @@ export class PreciseHomeComponent implements OnInit {
     public store: PreciseStore,
     private route: ActivatedRoute,
     private router: Router
-  ) { }
+  ) {}
 
   ngOnInit(): void {
     this.commonStore.setProjectById("precise");
@@ -42,8 +38,7 @@ export class PreciseHomeComponent implements OnInit {
   }
 
   addRecord() {
-    console.log("adding record");
-    this.store.launchParticipantForm();
+    this.store.addParticipant();
   }
 
   /**
