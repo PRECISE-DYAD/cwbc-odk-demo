@@ -55,9 +55,12 @@ class OdkDataClass {
           skipEmptyLines: true,
           error: (err) => failureCallbackFn(err),
           complete: (r) => {
-            // const headers = r.data.splice(0, 1)[0];
+            // TODO - make general where clause
+            if (whereClause && sqlBindParams) {
+              r.data = _executeSQLFilter(r.data, whereClause, sqlBindParams);
+            }
             const headers = r.meta.fields;
-            const rows = r.data.map((el) => Object.values(el)) as string[][];
+            let rows = r.data.map((el) => Object.values(el)) as string[][];
             const elementKeyMap = {};
             headers.forEach((v, i) => {
               elementKeyMap[v] = i;
@@ -76,3 +79,27 @@ class OdkDataClass {
   }
 }
 export default OdkDataClass;
+
+/**
+ * Rough implementation of an sql query
+ * TODO - improve to make more general
+ * @param data
+ * @param whereClause
+ * @param sqlBindParams
+ */
+function _executeSQLFilter(
+  data: any[],
+  whereClause: string,
+  sqlBindParams: string[]
+) {
+  const split = whereClause.split(" ");
+  const field = split[0];
+  const operator = split[1];
+  const value = split[2].replace("?", sqlBindParams[0]);
+  switch (operator) {
+    case "=":
+      return data.filter((v) => v[field] === value);
+    default:
+      alert("query not available in web version");
+  }
+}

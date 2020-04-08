@@ -84,11 +84,25 @@ export class OdkService {
    * Use ODKData Query to return all rows for a specific table
    */
   getTableRows<T>(tableId: string): Promise<(IODkTableRowData & T)[]> {
+    return this.query(tableId);
+  }
+
+  /**
+   * Execute direct queries on database
+   * @param whereClause - sql logical comparison
+   * @param sqlBindParams - variables to replace in whereclause
+   * @example query('someTable','_id = ?',[123])
+   */
+  query<T>(
+    tableId: string,
+    whereClause: string = null,
+    sqlBindParams: string[] = null
+  ): Promise<(IODkTableRowData & T)[]> {
     return new Promise((resolve, reject) => {
       window.odkData.query(
         tableId,
-        null,
-        null,
+        whereClause,
+        sqlBindParams,
         null,
         null,
         null,
