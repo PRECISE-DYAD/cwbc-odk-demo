@@ -1,8 +1,8 @@
 import { Component } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
-import ALL_FORMS from "src/app/data/forms.json";
 import { IFormMeta } from "src/app/types/types";
-import { PreciseStore, IParticipant } from "src/app/stores";
+import { PreciseStore, IParticipant, PARTICIPANT_FORMS } from "src/app/stores";
+import { IODkTableRowData } from "src/app/types/odk.types";
 
 @Component({
   selector: "app-precise-profile",
@@ -10,26 +10,41 @@ import { PreciseStore, IParticipant } from "src/app/stores";
   styleUrls: ["./profile.component.scss"],
 })
 export class PreciseProfileComponent {
-  details: IParticipant = null;
-  detailsMetaArr: any[] = [];
-  detailsArr: any[] = [];
-  forms: IFormMeta[] = ALL_FORMS;
+  participant: IParticipant = null;
+  participantFields: { fieldName: string; value: string }[] = [];
+  participantTableData: { [tableId: string]: IODkTableRowData[] } = {};
+  forms: IFormMeta[] = PARTICIPANT_FORMS;
   gridCols = Math.ceil(window.innerWidth / 200);
   participantRevisions: IParticipant[];
   constructor(public store: PreciseStore, route: ActivatedRoute) {
     this.store.setActiveParticipantById(route.snapshot.params.participantId);
   }
 
+  /**
+   * Triggered on update from the template, set active participant and convert
+   * key:value data to array for easier display
+   */
   async participantLoaded() {
     if (this.store.activeParticipant) {
-      this.details = this.store.activeParticipant;
-      this.detailsMetaArr = Object.entries(this.store.activeParticipant);
-      this.participantRevisions = await this.store.getParticipantRevisions();
+      this.participant = this.store.activeParticipant;
+      this.participantFields = this._objToFieldArray(this.participant);
+      console.log("participant", { ...this.participant });
+      this.processParticipant(this.participant);
     }
+  }
+  /**
+   * After participant load process additional details
+   */
+  async processParticipant(participant: IParticipant) {
+    // get all data rows
+    this.participantTableData = await this.store.getParticipantTableData(
+      participant
+    );
+    console.log("participant table data", this.participantTableData);
   }
 
   editProfile() {
-    this.store.editParticipant(this.details);
+    this.store.editParticipant(this.participant);
   }
   openForm(form: IFormMeta) {
     const { tableId, formId } = form;
@@ -47,5 +62,11 @@ export class PreciseProfileComponent {
     //   ...f,
     //   completed: this.details[`completed_${f.formId}`] ? true : false
     // }));
+  }
+
+  private _objToFieldArray(obj: { [field: string]: string }) {
+    return Object.entries(obj).map(([fieldName, value]) => {
+      return { fieldName, value };
+    });
   }
 }

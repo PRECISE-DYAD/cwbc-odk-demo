@@ -31,14 +31,16 @@ export class PreciseStore {
    * and generate summary to be used within display components
    */
   @action async loadParticipants() {
-    const participants = (await this.odk.getTableRows(
+    const participantRows = await this.odk.getTableRows<IParticipant>(
       tables.ALL_PARTICIPANTS
-    )) as any;
-    const merged = this._mergeParticipantRows(participants);
-    this.participantSummaries = Object.values(merged).map((p, i) =>
+    );
+    this.participantSummaries = Object.values(participantRows).map((p, i) =>
       this.generateParticipantSummary(p, i)
     );
-    this.allParticipantsHashmap = merged;
+    this.allParticipantsHashmap = this._arrToHashmap(
+      participantRows,
+      "f2a_participant_id"
+    );
     this.dataLoaded = true;
   }
 
@@ -104,17 +106,26 @@ export class PreciseStore {
       }
     );
   }
-  async getParticipantRevisions() {
-    const allRevisions = await this.odk.getTableRows<IParticipant>(
-      tables.ALL_PARTICIPANTS__REVISIONS
-    );
-    console.log("allRevs", allRevisions);
-    const participantRevs = allRevisions.filter(
-      (rows) => rows._guid === this.activeParticipant.guid
-    );
-    console.log("participantRevs", participantRevs);
-    return participantRevs;
+
+  /**
+   * query batch to get rows from other tables linked by participant guid
+   */
+  async getParticipantTableData(participant: IParticipant) {
+    const { f2_guid } = participant;
+    // const participantTables = tables.ALL_PARTICIPANT_TABLES
+    const participantTables = ["genInfo", "genInfoRevisions"];
+    const tableRows: { [tableId: string]: IODkTableRowData[] } = {};
+    const promises = participantTables.map(async (tableId) => {
+      const particpantRows = await this.odk.query(tableId, "f2_guid = ?", [
+        f2_guid,
+      ]);
+      tableRows[tableId] = particpantRows;
+    });
+    await Promise.all(promises);
+    console.log("tableRows", tableRows);
+    return tableRows;
   }
+
   /**
    *
    * @param editableEntry - include full row details to load data into survey for editing
@@ -147,29 +158,6 @@ export class PreciseStore {
     return summary as IParticipantSummary;
   }
 
-  /**
-   * Legacy ODK data is split in 3 separate rows per participant
-   * Function to merge and return hashmap of results
-   * TODO - remove once using new table structures
-   */
-  private _mergeParticipantRows(
-    participants: IParticipant[]
-  ): IParticipantsHashmap {
-    const merged: IParticipantsHashmap = {};
-    participants.forEach((p) => {
-      if (!merged[p.f2a_participant_id]) {
-        merged[p.f2a_participant_id] = {} as any;
-      }
-      // avoid overwriting "" fields with falsy check
-      Object.entries(p).forEach(([field, fieldValue]) => {
-        if (fieldValue) {
-          merged[p.f2a_participant_id][field] = fieldValue;
-        }
-      });
-    });
-    return merged;
-  }
-
   private _stripOdkMeta<T>(data: IODkTableRowData & T): T {
     // TODO - decide on full meta to remove and move to odk methods
     const stripped = { ...data };
@@ -181,16 +169,70 @@ export class PreciseStore {
     });
     return stripped as T;
   }
+  /**
+   * Convert an array to an object with keys corresponding to specific
+   * array field
+   * @param hashField - field within all array elements to use as hash key
+   */
+  private _arrToHashmap(arr: any[], hashKey: string) {
+    const hash = {};
+    arr.forEach((el) => {
+      hash[el[hashKey]] = el;
+    });
+    return hash;
+  }
 }
 
 /********************************************************************************
  * Constants
  ********************************************************************************/
-// mapping to reference different table fields in case of changes
+export const PARTICIPANT_FORMS = [
+  {
+    title: "Precise Visit 1",
+    formId: "Visit1",
+    tableId: "Visit1",
+    icon: "visit",
+  },
+  {
+    title: "Precise Visit 2",
+    formId: "Visit2",
+    tableId: "Visit2",
+    icon: "visit",
+  },
+  {
+    title: "ToD at ANC",
+    formId: "tod",
+    tableId: "tod",
+    icon: "disease",
+    disabled: true,
+  },
+  {
+    title: "Birth Mother",
+    formId: "birthMother",
+    tableId: "birthMother",
+    icon: "mother",
+    disabled: true,
+  },
+  {
+    title: "Birth Baby",
+    formId: "birthBaby",
+    tableId: "birthBaby",
+    icon: "baby",
+    disabled: true,
+  },
+  {
+    title: "Laboratory",
+    formId: "lab",
+    tableId: "lab",
+    icon: "lab",
+    disabled: true,
+  },
+];
+// mapping to reference different tables and table groups
 const tables = {
   ALL_PARTICIPANTS: "genInfo",
   ALL_PARTICIPANTS__REVISIONS: "genInfoRevisions",
-  LEGACY_DATA: "demoLegacyData",
+  ALL_PARTICIPANT_TABLES: PARTICIPANT_FORMS.map((f) => f.tableId),
 };
 // fields used in summary views and search
 // _guid used to uniquely identify participant across all forms
@@ -221,4 +263,5 @@ export type IParticipant = IODkTableRowData &
 // summary contains partial participant
 export type IParticipantSummary = Partial<IParticipant>;
 
-type IParticipantsHashmap = { [ptid: string]: IParticipant };
+// hashmap to provide quick lookup of participant by participant id
+type IParticipantsHashmap = { [f2a_participant_id: string]: IParticipant };
