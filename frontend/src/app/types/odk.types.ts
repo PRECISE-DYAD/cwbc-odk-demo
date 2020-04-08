@@ -24,19 +24,39 @@ export interface IODkTableRowData extends IODKTableRowMetaData {
   [field: string]: any;
 }
 interface IODKTableRowMetaData {
-  _id: string;
-  _form_id: string;
-  _locale: string;
-  _savepoint_type: string;
-  _savepoint_timestamp: string;
-  _savepoint_creator: string;
-  _default_access: string;
-  _group_modify: string;
-  _group_privileged: string;
-  _group_read_only: string;
-  _row_etag: string;
-  "_row_owner ": string;
+  _default_access: string,
+  _form_id: string,
+  _id: string,
+  _locale: string,
+  _row_owner: string,
+  _savepoint_creator: string,
+  _savepoint_timestamp: string,
+  _savepoint_type: string,
+  _sync_state: string,
+  _effective_access: string,
+  _group_modify?: string,
+  _group_privileged?: string,
+  _group_read_only?: string,
+  _row_etag?: string,
 }
+
+export const ODK_META_EXAMPLE: IODKTableRowMetaData = {
+  _default_access: "FULL",
+  _form_id: "genInfo",
+  _id: "uuid:d7d3c67a-2672-4b9c-a4a7-a8a26a4c3d42",
+  _locale: "en_GB",
+  _row_owner: "anonymous",
+  _savepoint_creator: "anonymous",
+  _savepoint_timestamp: "2020-04-07T20:46:14.902000000",
+  _savepoint_type: "COMPLETE",
+  _sync_state: "new_row",
+  _effective_access: "rwd",
+  // only from data export
+  _group_modify: "TRUE",
+  _group_privileged: "(...)",
+  _group_read_only: "TRUE",
+  _row_etag: "",
+};
 
 /************************************************************************
  *  Examples
@@ -60,7 +80,7 @@ const MOCK_ODK_QUERY_RESULT: IODKQueryResult = {
         _id: 6,
         _row_owner: 9,
         _default_access: 1,
-        _locale: 7
+        _locale: 7,
       },
       lastSyncTime: "-1",
       offset: -1,
@@ -68,7 +88,7 @@ const MOCK_ODK_QUERY_RESULT: IODKQueryResult = {
       tableId: "exampleTable",
       schemaETag: null,
       lastDataETag: null,
-      canCreateRow: true
+      canCreateRow: true,
     },
     data: [
       [
@@ -87,7 +107,7 @@ const MOCK_ODK_QUERY_RESULT: IODKQueryResult = {
         "COMPLETE",
         "new_row",
         "Chris Clarke",
-        "rwd"
+        "rwd",
       ],
       [
         null,
@@ -105,11 +125,11 @@ const MOCK_ODK_QUERY_RESULT: IODKQueryResult = {
         "COMPLETE",
         "new_row",
         "Someone Else",
-        "rwd"
-      ]
+        "rwd",
+      ],
     ],
-    callbackJSON: "0"
-  }
+    callbackJSON: "0",
+  },
 };
 const MOCK_ODK_TABLE_ROW_METADATA = {
   _id: "uuid:810cbb50-e330-4d51-8766-3a3ce7b46d34",
@@ -123,5 +143,5 @@ const MOCK_ODK_TABLE_ROW_METADATA = {
   _group_privileged: "",
   _group_read_only: "",
   _row_etag: "",
-  "_row_owner ": "anonymous"
+  "_row_owner ": "anonymous",
 };

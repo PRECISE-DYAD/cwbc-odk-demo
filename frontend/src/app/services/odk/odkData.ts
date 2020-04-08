@@ -14,6 +14,18 @@ class OdkDataClass {
     console.error("getAllTableIds not implemented");
     return [];
   }
+  _getTableMetadataRevision(tableId: string) {
+    console.error("_getTableMetadataRevision not implemented");
+    return null;
+  }
+  getOdkDataIf() {
+    console.error("getOdkDataIf not implemented");
+    return {} as any;
+  }
+  queueRequest(requestType: string, successCallbackFn, failureCallbackFn) {
+    console.error("queueRequest not implemented");
+    return { _callbackId: null };
+  }
   /**
    * For mock implementation return any data as defined in the `forms/csv`
    * folder for the corresponding table (no sort/filter logic applied)
@@ -37,15 +49,15 @@ class OdkDataClass {
     this.http
       .get(`../assets/odk/csv/${tableId}.csv`, { responseType: "text" })
       .toPromise()
-      .then(csvText => {
+      .then((csvText) => {
         Papa.parse(csvText, {
           header: true,
           skipEmptyLines: true,
-          error: err => failureCallbackFn(err),
-          complete: r => {
+          error: (err) => failureCallbackFn(err),
+          complete: (r) => {
             // const headers = r.data.splice(0, 1)[0];
             const headers = r.meta.fields;
-            const rows = r.data.map(el => Object.values(el)) as string[][];
+            const rows = r.data.map((el) => Object.values(el)) as string[][];
             const elementKeyMap = {};
             headers.forEach((v, i) => {
               elementKeyMap[v] = i;
@@ -53,14 +65,14 @@ class OdkDataClass {
             const res: IODKQueryResult = {
               resultObj: {
                 data: rows,
-                metadata: { elementKeyMap }
-              }
+                metadata: { elementKeyMap },
+              },
             };
             successCallbackFn(res);
-          }
+          },
         });
       })
-      .catch(err => failureCallbackFn(err));
+      .catch((err) => failureCallbackFn(err));
   }
 }
 export default OdkDataClass;
