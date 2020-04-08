@@ -17,6 +17,7 @@ import { CommonModule } from "@angular/common";
 import { HomeComponent } from "./pages/home/home.component";
 import { PreciseHomeComponent } from "./pages/precise/precise.component";
 import { PreciseProfileComponent } from "./pages/precise/profile/profile.component";
+import { NotificationService } from "./services/notification/notification.service";
 
 @NgModule({
   declarations: [
@@ -43,7 +44,7 @@ import { PreciseProfileComponent } from "./pages/precise/profile/profile.compone
     {
       provide: PreciseStore,
       useClass: remotedev(PreciseStore, { global: true, onlyActions: true }),
-      deps: [OdkService],
+      deps: [OdkService, NotificationService],
     },
   ],
   bootstrap: [AppComponent],

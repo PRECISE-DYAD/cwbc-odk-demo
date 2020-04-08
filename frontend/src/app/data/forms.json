@@ -1,22 +1,22 @@
 [
   {
     "title": "Precise Visit 1",
-    "formId": "visit_1",
-    "tableId": "visit_1",
+    "formId": "Visit1",
+    "tableId": "Visit1",
     "icon": "visit"
   },
   {
     "title": "Precise Visit 2",
-    "formId": "visit_2",
-    "tableId": "visit_2",
-    "icon": "visit",
-    "disabled": true
+    "formId": "Visit2",
+    "tableId": "Visit2",
+    "icon": "visit"
   },
   {
     "title": "ToD at ANC",
     "formId": "tod",
     "tableId": "tod",
-    "icon": "disease"
+    "icon": "disease",
+    "disabled":true
   },
   {
     "title": "Birth Mother",
@@ -29,7 +29,8 @@
     "title": "Birth Baby",
     "formId": "birthBaby",
     "tableId": "birthBaby",
-    "icon": "baby"
+    "icon": "baby",
+    "disabled": true
   },
   {
     "title": "Laboratory",
