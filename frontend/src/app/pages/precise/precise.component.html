@@ -1,5 +1,5 @@
 <!-- Participant Search -->
-<div style="display: flex;">
+<div style="display: flex;" *mobxAutorun>
   <mat-form-field style="flex: 1; margin-left: 1em;">
     <mat-label>Search</mat-label>
     <input matInput (keyup)="applyFilter($event)" placeholder="Search" />
@@ -14,46 +14,49 @@
     Add Record
   </button>
 </div>
-<!-- Participants List -->
-<div class="mat-elevation-z8" style="flex: 1;" *mobxAutorun>
-  <mat-progress-bar
-    mode="indeterminate"
-    *ngIf="!store.dataLoaded"
-  ></mat-progress-bar>
-  <table
-    mat-table
-    [dataSource]="dataSource"
-    *mobxReaction="setDatasource.bind(this)"
-  >
-    <ng-container matColumnDef="f2a_participant_id">
-      <th mat-header-cell *matHeaderCellDef>Participant ID</th>
-      <td mat-cell *matCellDef="let row" (click)="handleRowClicked(row)">
-        <div style="display: flex;">
-          <div style="width: 100px; font-weight: bold;">
-            {{ row["f2a_participant_id"] }}
+<!--  -->
+<mat-progress-bar
+  mode="indeterminate"
+  *ngIf="!store.dataLoaded"
+></mat-progress-bar>
+<table mat-table [dataSource]="dataSource" matSort class="mat-elevation-z8">
+  <!-- Position Column -->
+  <ng-container matColumnDef="f2a_participant_id">
+    <th mat-header-cell *matHeaderCellDef mat-sort-header>Participant ID</th>
+    <td
+      mat-cell
+      *matCellDef="let row"
+      style="width: 100px; font-weight: bold;"
+      (click)="handleRowClicked(row)"
+    >
+      {{ row["f2a_participant_id"] }}
+    </td>
+  </ng-container>
+  <!-- Info Column -->
+  <ng-container matColumnDef="f2_guid">
+    <th mat-header-cell *matHeaderCellDef></th>
+    <td mat-cell *matCellDef="let row" (click)="handleRowClicked(row)">
+      <div class="info-row">
+        <mat-icon>folder_shared</mat-icon>
+        <div>{{ row["f2a_national_id"] }}</div>
+      </div>
+      <div class="info-row">
+        <mat-icon>phone</mat-icon>
+        <div>
+          <div>
+            {{ row["f2a_phone_number"] }}
           </div>
           <div>
-            <div class="info-row">
-              <mat-icon>folder_shared</mat-icon>
-              <div>{{ row["f2a_national_id"] }}</div>
-            </div>
-            <div class="info-row">
-              <mat-icon>phone</mat-icon>
-              <div>
-                <div>
-                  {{ row["f2a_phone_number"] }}
-                </div>
-                <div>
-                  {{ row["f2a_phone_number_2"] }}
-                </div>
-              </div>
-            </div>
+            {{ row["f2a_phone_number_2"] }}
           </div>
         </div>
-      </td>
-    </ng-container>
-    <tr mat-header-row *matHeaderRowDef="columns; sticky: true"></tr>
-    <tr mat-row *matRowDef="let row; columns: columns"></tr>
-  </table>
-</div>
+      </div>
+    </td>
+  </ng-container>
+  <!-- header -->
+  <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+  <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+</table>
 <mat-paginator [pageSizeOptions]="[10, 25, 50, 100]"></mat-paginator>
+<!-- Call to refresh data - kept outside table as breaks sort -->
+<div *mobxReaction="setDatasource.bind(this)"></div>

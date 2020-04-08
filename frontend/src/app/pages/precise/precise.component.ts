@@ -3,6 +3,7 @@ import { ActivatedRoute, Router } from "@angular/router";
 import { MatPaginator } from "@angular/material/paginator";
 import { PreciseStore, CommonStore, IParticipantSummary } from "src/app/stores";
 import { MatTableDataSource } from "@angular/material/table";
+import { MatSort } from "@angular/material/sort";
 
 /**
  * Homepage of precise project
@@ -15,9 +16,11 @@ import { MatTableDataSource } from "@angular/material/table";
 })
 export class PreciseHomeComponent implements OnInit {
   participants: any[];
-  columns = ["f2a_participant_id"];
-  dataSource: MatTableDataSource<IParticipantSummary>;
+  columns = ["f2a_participant_id", "f2_guid"];
+  displayedColumns = ["f2a_participant_id", "f2_guid"];
+  dataSource = new MatTableDataSource<IParticipantSummary>();
   @ViewChild(MatPaginator, { static: true }) paginator: MatPaginator;
+  @ViewChild(MatSort, { static: true }) sort: MatSort;
   constructor(
     private commonStore: CommonStore,
     public store: PreciseStore,
@@ -27,14 +30,23 @@ export class PreciseHomeComponent implements OnInit {
 
   ngOnInit(): void {
     this.commonStore.setProjectById("precise");
+    this.dataSource.sort = this.sort;
+    this.dataSource.paginator = this.paginator;
+    // run fresh sort on load
+    this.dataSource.sort.sort({
+      start: "desc",
+      disableClear: false,
+      id: "f2a_participant_id",
+    });
   }
   /**
    * Triggered as a reaction from component when new data available from store
    * Load as a table data source.
    */
   setDatasource() {
-    this.dataSource = new MatTableDataSource(this.store.participantSummaries);
-    this.dataSource.paginator = this.paginator;
+    if (this.store.participantSummaries) {
+      this.dataSource.data = this.store.participantSummaries;
+    }
   }
 
   addRecord() {
