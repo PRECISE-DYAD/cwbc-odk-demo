@@ -5,6 +5,7 @@ import OdkTablesClass from "./odkTables";
 import { HttpClient } from "@angular/common/http";
 import { IODKQueryResult, IODkTableRowData } from "src/app/types/odk.types";
 import { NotificationService } from "../notification/notification.service";
+import { BehaviorSubject } from "rxjs";
 
 // When running on device the following methods are automatically added
 // to the window object. When running in development some mocking methods
@@ -19,7 +20,7 @@ declare const window: Window & {
  * This service provides a wrap around common odk methods and custom odk interactions
  */
 @Injectable({
-  providedIn: "root"
+  providedIn: "root",
 })
 export class OdkService {
   tables: string[];
@@ -54,10 +55,35 @@ export class OdkService {
     );
   }
 
+  addRow(
+    tableId: string,
+    columnNameValueMap,
+    rowId: string,
+    successCallbackFn,
+    failureCallbackFn
+  ) {
+    const revision = window.odkData._getTableMetadataRevision(tableId);
+    console.log("revision", revision);
+    const req = window.odkData.queueRequest(
+      "addRow",
+      successCallbackFn,
+      failureCallbackFn
+    );
+    return window.odkData
+      .getOdkDataIf()
+      .addRow(
+        tableId,
+        JSON.stringify(columnNameValueMap),
+        rowId,
+        revision,
+        req._callbackId
+      );
+  }
+
   /**
    * Use ODKData Query to return all rows for a specific table
    */
-  getTableRows(tableId: string): Promise<IODkTableRowData[]> {
+  getTableRows<T>(tableId: string): Promise<(IODkTableRowData & T)[]> {
     return new Promise((resolve, reject) => {
       window.odkData.query(
         tableId,
@@ -71,10 +97,10 @@ export class OdkService {
         null,
         null,
         (res: IODKQueryResult) => {
-          const resultsJson = queryResultToJsonArray(res);
+          const resultsJson = queryResultToJsonArray<T>(res);
           resolve(resultsJson);
         },
-        err => {
+        (err) => {
           this.handleError(err);
           reject(err);
         }
@@ -88,7 +114,9 @@ export class OdkService {
  * This function merges into a single JSON object array
  * @param res - result object passed from ODK
  */
-function queryResultToJsonArray(res: IODKQueryResult): IODkTableRowData[] {
+function queryResultToJsonArray<T>(
+  res: IODKQueryResult
+): (IODkTableRowData & T)[] {
   // query execution returns a queue reference, which needs to be used to retrieve data
   const { metadata, data } = res.resultObj;
   const cols = {};
@@ -96,10 +124,10 @@ function queryResultToJsonArray(res: IODKQueryResult): IODkTableRowData[] {
     cols[value as any] = key;
   }
   // data contains array of row values, convert to json with column keys
-  const mapped = data.map(row => {
+  const mapped = data.map((row) => {
     const json = {};
     row.forEach((val, i) => (json[cols[i]] = val));
-    return json as IODkTableRowData;
+    return json as IODkTableRowData & T;
   });
   return mapped;
 }
