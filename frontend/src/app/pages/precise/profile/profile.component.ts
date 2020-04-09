@@ -57,15 +57,19 @@ export class PreciseProfileComponent {
       `${this.participantCollatedData.genInfoRevisions.length} Revisions Recorded`
     );
   }
+  /**
+   * Launch a form, passing the participant f2_guid variable for pre-population
+   */
   openForm(form: IFormMeta) {
     // TODO - handle editing value
     const { tableId, formId } = form;
+    const { f2_guid } = this.participant;
     // get editable row id if form already completed
     // TODO - add better handling for cases where there will be multiple instances
     const existing = form.completed
       ? this.participantCollatedData[tableId][0]._id
       : null;
-    return this.store.launchForm(tableId, formId, existing);
+    return this.store.launchForm(tableId, formId, existing, { f2_guid });
   }
 
   private _objToFieldArray(obj: { [field: string]: string }) {
