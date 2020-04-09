@@ -76,7 +76,10 @@ export class PreciseStore {
   @action async loadParticipantTableData(participant: IParticipant) {
     const { f2_guid } = participant;
     // const participantTables = tables.PARTICIPANT_TABLES
-    const participantTables = ["genInfo", "genInfoRevisions"];
+    const participantTables = [
+      "genInfoRevisions",
+      ...tables.PARTICIPANT_TABLES,
+    ];
     const collated: { [tableId: string]: IODkTableRowData[] } = {};
     const promises = participantTables.map(async (tableId) => {
       const particpantRows = await this.odk.query(tableId, "f2_guid = ?", [
@@ -134,19 +137,23 @@ export class PreciseStore {
 
   /**
    *
-   * @param editableEntry - include full row details to load data into survey for editing
+   * @param editRowId - row to load into survey for editing
    * @param jsonMap - fields to prepopulate
    */
   launchForm(
     tableId: string,
     formId: string,
-    editableEntry?: IODkTableRowData,
+    editRowId?: string,
     jsonMap?: any
   ) {
-    if (editableEntry) {
-      return this.odk.editRowWithSurvey(tableId, editableEntry._id, formId);
+    console.log("launching form", jsonMap);
+
+    if (editRowId) {
+      return this.odk.editRowWithSurvey(tableId, editRowId, formId);
     }
-    return this.odk.addRowWithSurvey(tableId, formId, null, jsonMap);
+    // NOTE - always passes current participant f2_guid to form
+    const json = { ...jsonMap, f2_guid: this.activeParticipant.f2_guid };
+    return this.odk.addRowWithSurvey(tableId, formId, null, json);
   }
 
   /**
@@ -215,17 +222,15 @@ export const PARTICIPANT_FORMS = [
   },
   {
     title: "Birth Mother",
-    formId: "birthMother",
-    tableId: "birthMother",
+    formId: "Birthmother",
+    tableId: "Birthmother",
     icon: "mother",
-    disabled: true,
   },
   {
     title: "Birth Baby",
-    formId: "birthBaby",
-    tableId: "birthBaby",
+    formId: "Birthbaby",
+    tableId: "Birthbaby",
     icon: "baby",
-    disabled: true,
   },
   {
     title: "Laboratory",
@@ -239,7 +244,10 @@ export const PARTICIPANT_FORMS = [
 const tables = {
   PARTICIPANTS: "genInfo",
   PARTICIPANTS_REVISIONS: "genInfoRevisions",
-  PARTICIPANT_TABLES: PARTICIPANT_FORMS.map((f) => f.tableId),
+  // TODO - once all forms available can remove disabled filter
+  PARTICIPANT_TABLES: PARTICIPANT_FORMS.filter((f) => !f.disabled).map(
+    (f) => f.tableId
+  ),
 };
 // fields used in summary views and search
 // _guid used to uniquely identify participant across all forms

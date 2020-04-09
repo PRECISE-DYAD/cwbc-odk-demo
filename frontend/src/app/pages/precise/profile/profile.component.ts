@@ -39,7 +39,12 @@ export class PreciseProfileComponent {
       this.participantCollatedData = this.store.participantCollatedData;
       this.forms = this.forms.map((f) => ({
         ...f,
-        completed: this.participantCollatedData[f.tableId] ? true : false,
+        completed:
+          // TODO - can remove existence check when all forms defined
+          this.participantCollatedData[f.tableId] &&
+          this.participantCollatedData[f.tableId].length > 0
+            ? true
+            : false,
       }));
     }
   }
@@ -55,14 +60,12 @@ export class PreciseProfileComponent {
   openForm(form: IFormMeta) {
     // TODO - handle editing value
     const { tableId, formId } = form;
-    return this.store.launchForm(tableId, formId);
-    // return form.completed
-    //   ? this.odk.editRowWithSurvey(tableId, this.details._id, formId)
-    //   : this.odk.addRowWithSurvey(tableId, formId, null, {
-    //     // specify corresponding form ids to match this one
-    //     // TODO - doocument parent-child linking (and revise possible strategies)
-    //     ptid: this.details.ptid
-    //   });
+    // get editable row id if form already completed
+    // TODO - add better handling for cases where there will be multiple instances
+    const existing = form.completed
+      ? this.participantCollatedData[tableId][0]._id
+      : null;
+    return this.store.launchForm(tableId, formId, existing);
   }
 
   private _objToFieldArray(obj: { [field: string]: string }) {
