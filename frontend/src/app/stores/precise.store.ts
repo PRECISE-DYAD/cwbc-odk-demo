@@ -1,7 +1,7 @@
 import { observable, action, computed } from "mobx-angular";
 import { Injectable } from "@angular/core";
 import { OdkService } from "../services/odk/odk.service";
-import { reaction } from "mobx";
+import { reaction, toJS } from "mobx";
 import { IODkTableRowData, ODK_META_EXAMPLE } from "../types/odk.types";
 import { NotificationService } from "../services/notification/notification.service";
 import { uuidv4 } from "../utils/guid";
@@ -25,6 +25,12 @@ export class PreciseStore {
   @observable participantSummaries: IParticipantSummary[];
   @observable activeParticipant: IParticipant;
   @observable dataLoaded = false;
+  @observable participantCollatedData: IParticipantCollatedData;
+
+  @action clearActiveParticipant() {
+    this.activeParticipant = undefined;
+    this.participantCollatedData = undefined;
+  }
 
   /**
    * Called on initial load, pull full participant data from main table
@@ -32,7 +38,7 @@ export class PreciseStore {
    */
   @action async loadParticipants() {
     const participantRows = await this.odk.getTableRows<IParticipant>(
-      tables.ALL_PARTICIPANTS
+      tables.PARTICIPANTS
     );
     this.participantSummaries = Object.values(participantRows).map((p, i) =>
       this.generateParticipantSummary(p, i)
@@ -46,12 +52,7 @@ export class PreciseStore {
 
   // used as part of router methods in web preview
   @action setActiveParticipantById(ptid: string) {
-    // skip if already selected
-    if (
-      this.activeParticipant &&
-      this.activeParticipant.f2a_participant_id === ptid
-    )
-      return;
+    this.clearActiveParticipant();
     // ensure participants loaded, use a 'reaction' to subscribe to changes,
     // and unsubscribe (dispose) thereafter to avoid memory leak.
     if (!this.allParticipantsHashmap) {
@@ -66,6 +67,26 @@ export class PreciseStore {
       );
     }
     this.activeParticipant = this.allParticipantsHashmap[ptid];
+    console.log("activeParticipant", { ...this.activeParticipant });
+    this.loadParticipantTableData(this.activeParticipant);
+  }
+  /**
+   * query batch to get rows from other tables linked by participant guid
+   */
+  @action async loadParticipantTableData(participant: IParticipant) {
+    const { f2_guid } = participant;
+    // const participantTables = tables.PARTICIPANT_TABLES
+    const participantTables = ["genInfo", "genInfoRevisions"];
+    const collated: { [tableId: string]: IODkTableRowData[] } = {};
+    const promises = participantTables.map(async (tableId) => {
+      const particpantRows = await this.odk.query(tableId, "f2_guid = ?", [
+        f2_guid,
+      ]);
+      collated[tableId] = particpantRows;
+    });
+    await Promise.all(promises);
+    console.log("collated", collated);
+    this.participantCollatedData = collated;
   }
 
   /**
@@ -74,8 +95,8 @@ export class PreciseStore {
    * throughout all forms
    */
   addParticipant() {
-    const tableId = tables.ALL_PARTICIPANTS;
-    const formId = tables.ALL_PARTICIPANTS;
+    const tableId = tables.PARTICIPANTS;
+    const formId = tables.PARTICIPANTS;
     const f2_guid = uuidv4();
     console.log("f2_guid", f2_guid);
     return this.launchForm(tableId, formId, null, { f2_guid });
@@ -84,46 +105,31 @@ export class PreciseStore {
    * When editing a participant also create a revision entry
    */
   async editParticipant(participant: IParticipant) {
-    // remove meta fields to create revision
-    const tableId = tables.ALL_PARTICIPANTS;
-    const formId = tables.ALL_PARTICIPANTS;
+    await this.backupParticipant(participant);
+    const tableId = tables.PARTICIPANTS;
+    const formId = tables.PARTICIPANTS;
     const rowId = participant._id;
-    const backup = this._stripOdkMeta(participant);
-    console.log("editing participant", participant);
-    // TODO - find ways to only create if doesn't already exist
-    // Perhaps checking ETags...
-    await this.odk.addRow(
-      "genInfoRevisions",
-      backup,
-      rowId,
-      (res) => {
-        this.notifications.showMessage("backup success");
-        console.log("res", res);
-        this.odk.editRowWithSurvey(tableId, rowId, formId);
-      },
-      (err) => {
-        this.notifications.handleError(err);
-      }
-    );
+    this.odk.editRowWithSurvey(tableId, rowId, formId);
   }
 
   /**
-   * query batch to get rows from other tables linked by participant guid
+   * Compare existing user revisions, creating a backup where no match
+   * exists
    */
-  async getParticipantTableData(participant: IParticipant) {
-    const { f2_guid } = participant;
-    // const participantTables = tables.ALL_PARTICIPANT_TABLES
-    const participantTables = ["genInfo", "genInfoRevisions"];
-    const tableRows: { [tableId: string]: IODkTableRowData[] } = {};
-    const promises = participantTables.map(async (tableId) => {
-      const particpantRows = await this.odk.query(tableId, "f2_guid = ?", [
-        f2_guid,
-      ]);
-      tableRows[tableId] = particpantRows;
-    });
-    await Promise.all(promises);
-    console.log("tableRows", tableRows);
-    return tableRows;
+  async backupParticipant(participant: IParticipant) {
+    const newBackup = this._stripOdkMeta(participant);
+    const allBackups = this.participantCollatedData[
+      tables.PARTICIPANTS_REVISIONS
+    ];
+    const latestBackup = this._stripOdkMeta(allBackups.pop());
+    // Simple object comparison as strings. More complex diffs available
+    // via 3rd party libs such as diff, lodash or deep-compare. Skip if same.
+    if (JSON.stringify(latestBackup) == JSON.stringify(newBackup)) return;
+    else {
+      console.log("backing up", latestBackup, newBackup);
+      const rowId = `${participant._id}_${allBackups.length}`;
+      return this.odk.addRow("genInfoRevisions", newBackup, rowId);
+    }
   }
 
   /**
@@ -148,6 +154,8 @@ export class PreciseStore {
    * not all fields set to display. Map participants so only the subset of
    * searchable information is displayed.
    * @param participant Full participant table data
+   * NOTE - can possibly be removed as tables only have a few columns
+   * (legacy data had over 100)
    */
   private generateParticipantSummary(participant: IParticipant, index: number) {
     const summary: any = {};
@@ -159,7 +167,6 @@ export class PreciseStore {
   }
 
   private _stripOdkMeta<T>(data: IODkTableRowData & T): T {
-    // TODO - decide on full meta to remove and move to odk methods
     const stripped = { ...data };
     const odkMetaFields = Object.keys(ODK_META_EXAMPLE);
     odkMetaFields.forEach((field) => {
@@ -230,22 +237,18 @@ export const PARTICIPANT_FORMS = [
 ];
 // mapping to reference different tables and table groups
 const tables = {
-  ALL_PARTICIPANTS: "genInfo",
-  ALL_PARTICIPANTS__REVISIONS: "genInfoRevisions",
-  ALL_PARTICIPANT_TABLES: PARTICIPANT_FORMS.map((f) => f.tableId),
+  PARTICIPANTS: "genInfo",
+  PARTICIPANTS_REVISIONS: "genInfoRevisions",
+  PARTICIPANT_TABLES: PARTICIPANT_FORMS.map((f) => f.tableId),
 };
 // fields used in summary views and search
 // _guid used to uniquely identify participant across all forms
 const PARTICIPANT_SUMMARY_FIELDS = [
   "f2_guid",
   "f2a_participant_id",
-  "f2a_full_name",
   "f2a_national_id",
   "f2a_hdss",
-  "f2a_phone",
   "f2a_phone_number",
-  "f2a_phone_2",
-  "f2a_phone_number_2",
 ] as const;
 
 /********************************************************************************
@@ -265,3 +268,8 @@ export type IParticipantSummary = Partial<IParticipant>;
 
 // hashmap to provide quick lookup of participant by participant id
 type IParticipantsHashmap = { [f2a_participant_id: string]: IParticipant };
+
+// collated info of all participant data across tables
+export type IParticipantCollatedData = {
+  [tableId: string]: IODkTableRowData[];
+};

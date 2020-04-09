@@ -3,7 +3,18 @@
     <mat-card style="padding: 1em;">
       <mat-card-content>
         <div class="card-title">
-          <h1>Summary</h1>
+          <h1 style="flex: 1;">Summary</h1>
+          <button
+            mat-button
+            (click)="viewRevisions()"
+            [disabled]="
+              !participantCollatedData ||
+              participantCollatedData.genInfoRevisions.length === 0
+            "
+          >
+            <mat-icon style="margin-right: 5px;">history</mat-icon>
+            Revisions
+          </button>
           <button mat-button (click)="editProfile()">
             <mat-icon svgIcon="edit" style="margin-right: 5px;"></mat-icon>
             Update

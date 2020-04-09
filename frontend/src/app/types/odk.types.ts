@@ -24,20 +24,21 @@ export interface IODkTableRowData extends IODKTableRowMetaData {
   [field: string]: any;
 }
 interface IODKTableRowMetaData {
-  _default_access: string,
-  _form_id: string,
-  _id: string,
-  _locale: string,
-  _row_owner: string,
-  _savepoint_creator: string,
-  _savepoint_timestamp: string,
-  _savepoint_type: string,
-  _sync_state: string,
-  _effective_access: string,
-  _group_modify?: string,
-  _group_privileged?: string,
-  _group_read_only?: string,
-  _row_etag?: string,
+  _default_access: string;
+  _form_id: string;
+  _id: string;
+  _locale: string;
+  _row_owner: string;
+  _savepoint_creator: string;
+  _savepoint_timestamp: string;
+  _savepoint_type: string;
+  _sync_state: string;
+  _effective_access: string;
+  _group_modify?: string;
+  _group_privileged?: string;
+  _group_read_only?: string;
+  _row_etag?: string;
+  _conflict_type?: string;
 }
 
 export const ODK_META_EXAMPLE: IODKTableRowMetaData = {
@@ -56,6 +57,7 @@ export const ODK_META_EXAMPLE: IODKTableRowMetaData = {
   _group_privileged: "(...)",
   _group_read_only: "TRUE",
   _row_etag: "",
+  _conflict_type: null,
 };
 
 /************************************************************************

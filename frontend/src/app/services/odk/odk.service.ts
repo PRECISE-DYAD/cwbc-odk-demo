@@ -55,29 +55,28 @@ export class OdkService {
     );
   }
 
-  addRow(
-    tableId: string,
-    columnNameValueMap,
-    rowId: string,
-    successCallbackFn,
-    failureCallbackFn
-  ) {
-    const revision = window.odkData._getTableMetadataRevision(tableId);
-    console.log("revision", revision);
-    const req = window.odkData.queueRequest(
-      "addRow",
-      successCallbackFn,
-      failureCallbackFn
-    );
-    return window.odkData
-      .getOdkDataIf()
-      .addRow(
-        tableId,
-        JSON.stringify(columnNameValueMap),
-        rowId,
-        revision,
-        req._callbackId
+  addRow(tableId: string, columnNameValueMap, rowId: string) {
+    return new Promise((resolve, reject) => {
+      const revision = window.odkData._getTableMetadataRevision(tableId);
+      console.log("revision", revision);
+      const req = window.odkData.queueRequest(
+        "addRow",
+        (res) => resolve(res),
+        (err) => {
+          this.handleError(err);
+          reject(err);
+        }
       );
+      window.odkData
+        .getOdkDataIf()
+        .addRow(
+          tableId,
+          JSON.stringify(columnNameValueMap),
+          rowId,
+          revision,
+          req._callbackId
+        );
+    });
   }
 
   /**

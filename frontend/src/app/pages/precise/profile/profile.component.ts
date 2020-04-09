@@ -1,8 +1,12 @@
 import { Component } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
 import { IFormMeta } from "src/app/types/types";
-import { PreciseStore, IParticipant, PARTICIPANT_FORMS } from "src/app/stores";
-import { IODkTableRowData } from "src/app/types/odk.types";
+import {
+  PreciseStore,
+  IParticipant,
+  PARTICIPANT_FORMS,
+  IParticipantCollatedData,
+} from "src/app/stores";
 
 @Component({
   selector: "app-precise-profile",
@@ -12,7 +16,7 @@ import { IODkTableRowData } from "src/app/types/odk.types";
 export class PreciseProfileComponent {
   participant: IParticipant = null;
   participantFields: { fieldName: string; value: string }[] = [];
-  participantTableData: { [tableId: string]: IODkTableRowData[] } = {};
+  participantCollatedData: IParticipantCollatedData;
   forms: IFormMeta[] = PARTICIPANT_FORMS;
   gridCols = Math.ceil(window.innerWidth / 200);
   participantRevisions: IParticipant[];
@@ -25,28 +29,31 @@ export class PreciseProfileComponent {
    * key:value data to array for easier display
    */
   async participantLoaded() {
+    // participant has loaded
     if (this.store.activeParticipant) {
       this.participant = this.store.activeParticipant;
       this.participantFields = this._objToFieldArray(this.participant);
-      console.log("participant", { ...this.participant });
-      this.processParticipant(this.participant);
     }
-  }
-  /**
-   * After participant load process additional details
-   */
-  async processParticipant(participant: IParticipant) {
-    // get all data rows
-    this.participantTableData = await this.store.getParticipantTableData(
-      participant
-    );
-    console.log("participant table data", this.participantTableData);
+    // full data from all linked tables has loaded
+    if (this.store.participantCollatedData) {
+      this.participantCollatedData = this.store.participantCollatedData;
+      this.forms = this.forms.map((f) => ({
+        ...f,
+        completed: this.participantCollatedData[f.tableId] ? true : false,
+      }));
+    }
   }
 
   editProfile() {
     this.store.editParticipant(this.participant);
   }
+  viewRevisions() {
+    alert(
+      `${this.participantCollatedData.genInfoRevisions.length} Revisions Recorded`
+    );
+  }
   openForm(form: IFormMeta) {
+    // TODO - handle editing value
     const { tableId, formId } = form;
     return this.store.launchForm(tableId, formId);
     // return form.completed
@@ -56,12 +63,6 @@ export class PreciseProfileComponent {
     //     // TODO - doocument parent-child linking (and revise possible strategies)
     //     ptid: this.details.ptid
     //   });
-  }
-  markCompletedForms() {
-    // this.forms = this.forms.map(f => ({
-    //   ...f,
-    //   completed: this.details[`completed_${f.formId}`] ? true : false
-    // }));
   }
 
   private _objToFieldArray(obj: { [field: string]: string }) {
