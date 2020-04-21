@@ -1,5 +1,5 @@
 {
-  "name": "cwbc-odk-demo",
+  "name": "cwbc-odkx-app",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
@@ -7,23 +7,23 @@
     "build": "npm run prepare && node scripts/build.js",
     "postinstall": "node scripts/postinstall.js",
     "prepare": "node scripts/prepare.js",
-    "start": "npm run prepare && node scripts/start.js",
+    "start": "npm run prepare && node scripts/start.js --watch",
     "deploy": "node scripts/deploy.js"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/chrismclarke/cwbc-odk-demo.git"
+    "url": "git+https://github.com/PRECISE-DYAD/cwbc-odkx-app.git"
   },
   "author": "",
-  "license": "ISC",
+  "license": "GNU General Public License v3.0",
   "bugs": {
-    "url": "https://github.com/chrismclarke/cwbc-odk-demo/issues"
+    "url": "https://github.com/PRECISE-DYAD/cwbc-odkx-app.git/issues"
   },
-  "homepage": "https://github.com/chrismclarke/cwbc-odk-demo#readme",
+  "homepage": "https://github.com/PRECISE-DYAD/cwbc-odkx-app.git#readme",
   "devDependencies": {
     "dotenv": "^8.2.0",
     "fs-extra": "^8.1.0",
-    "inquirer": "^7.1.0"
-  },
-  "dependencies": {}
+    "inquirer": "^7.1.0",
+    "node-watch": "^0.6.3"
+  }
 }
