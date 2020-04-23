@@ -21,3 +21,5 @@ forms/csv/*
 .env
 frontend/src/assets/odk
 
+# avoid use of yarn, prefer npm
+**/yarn.lock

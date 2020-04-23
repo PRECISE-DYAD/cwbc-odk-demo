@@ -12,6 +12,7 @@ function main() {
   if (shouldWatch) {
     watchFormChanges();
   }
+
   const appName = process.argv.pop();
   switch (appName) {
     case "designer":
@@ -19,11 +20,13 @@ function main() {
     case "frontend":
       return startFrontend();
     default:
-      return promptInput();
+      // start both processes
+      startDesigner();
+      startFrontend();
   }
 }
 function startDesigner() {
-  spawn("grunt", {
+  spawn("npx grunt", {
     cwd: "./designer",
     stdio: ["ignore", "inherit", "inherit"],
     shell: true,
@@ -42,21 +45,28 @@ function watchFormChanges() {
     shell: true,
   });
 }
-function promptInput() {
-  inquirer
-    .prompt([
-      {
-        type: "list",
-        name: "appSelected",
-        message: "Select application",
-        choices: ["frontend", "designer"],
-      },
-    ])
-    .then(({ appSelected }) => {
-      child.spawn("npm", ["run", "start", appSelected], {
-        stdio: ["ignore", "inherit", "inherit"],
-        shell: true,
-      });
-    });
-}
+
 main();
+
+/**
+ * 2020-04-23 Deprecated
+ * Previously used to show prompt to start either designer or frontend
+ * but now default behaviour is to display both. Keeping purely for reference
+ */
+// function promptInput() {
+//   inquirer
+//     .prompt([
+//       {
+//         type: "list",
+//         name: "appSelected",
+//         message: "Select application",
+//         choices: ["frontend", "designer"],
+//       },
+//     ])
+//     .then(({ appSelected }) => {
+//       child.spawn("npm", ["run", "start", appSelected], {
+//         stdio: ["ignore", "inherit", "inherit"],
+//         shell: true,
+//       });
+//     });
+// }
