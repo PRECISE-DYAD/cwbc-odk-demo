@@ -39,7 +39,7 @@ import { NotificationService } from "./services/notification/notification.servic
     {
       provide: CommonStore,
       useClass: remotedev(CommonStore, { global: true, onlyActions: true }),
-      deps: [HttpClient],
+      deps: [],
     },
     {
       provide: PreciseStore,

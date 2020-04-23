@@ -13,27 +13,11 @@ import { MatSortModule } from "@angular/material/sort";
 import { MatGridListModule } from "@angular/material/grid-list";
 import { MatIconModule, MatIconRegistry } from "@angular/material/icon";
 import { MatSnackBarModule } from "@angular/material/snack-bar";
+import { MatDialogModule } from "@angular/material/dialog";
 import { DomSanitizer } from "@angular/platform-browser";
-import { registerIcons } from './icons';
+import { registerIcons } from "./icons";
 
 @NgModule({
-  declarations: [],
-  imports: [
-    BrowserAnimationsModule,
-    MatCardModule,
-    MatButtonModule,
-    MatToolbarModule,
-    MatExpansionModule,
-    MatTableModule,
-    MatFormFieldModule,
-    MatPaginatorModule,
-    MatInputModule,
-    MatSortModule,
-    MatSnackBarModule,
-    MatIconModule,
-    MatGridListModule,
-    MatProgressBarModule,
-  ],
   exports: [
     MatCardModule,
     MatButtonModule,
@@ -48,7 +32,9 @@ import { registerIcons } from './icons';
     MatIconModule,
     MatGridListModule,
     MatProgressBarModule,
+    MatDialogModule,
   ],
+  imports: [BrowserAnimationsModule],
 })
 export class MaterialComponentsModule {
   constructor(iconRegistry: MatIconRegistry, sanitizer: DomSanitizer) {

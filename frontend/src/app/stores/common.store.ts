@@ -1,7 +1,6 @@
 import { observable, action, computed } from "mobx-angular";
 import { Injectable } from "@angular/core";
 import { IProjectMeta } from "../types/types";
-import { HttpClient } from "@angular/common/http";
 const ALL_PROJECTS: IProjectMeta[] = [
   {
     image: "assets/precise.png",
@@ -15,7 +14,7 @@ const ALL_PROJECTS: IProjectMeta[] = [
  */
 @Injectable()
 export class CommonStore {
-  constructor(private http: HttpClient) {}
+  constructor() {}
   @observable projectMeta$: IProjectMeta;
   @observable title = "Select A Project";
   @observable projects: IProjectMeta[] = ALL_PROJECTS;

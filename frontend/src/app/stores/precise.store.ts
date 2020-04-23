@@ -1,9 +1,8 @@
 import { observable, action, computed } from "mobx-angular";
 import { Injectable } from "@angular/core";
 import { OdkService } from "../services/odk/odk.service";
-import { reaction, toJS } from "mobx";
+import { reaction } from "mobx";
 import { IODkTableRowData, ODK_META_EXAMPLE } from "../types/odk.types";
-import { NotificationService } from "../services/notification/notification.service";
 import { uuidv4 } from "../utils/guid";
 
 /**
@@ -12,10 +11,7 @@ import { uuidv4 } from "../utils/guid";
  */
 @Injectable()
 export class PreciseStore {
-  constructor(
-    private odk: OdkService,
-    private notifications: NotificationService
-  ) {
+  constructor(private odk: OdkService) {
     this.loadParticipants();
   }
   @observable allParticipantsHashmap: IParticipantsHashmap;
@@ -75,7 +71,6 @@ export class PreciseStore {
    */
   @action async loadParticipantTableData(participant: IParticipant) {
     const { f2_guid } = participant;
-    // const participantTables = tables.PARTICIPANT_TABLES
     const participantTables = [
       "genInfoRevisions",
       ...tables.PARTICIPANT_TABLES,
