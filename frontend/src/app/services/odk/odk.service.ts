@@ -5,7 +5,7 @@ import OdkTablesClass from "./odkTables";
 import { HttpClient } from "@angular/common/http";
 import { IODKQueryResult, IODkTableRowData } from "src/app/types/odk.types";
 import { NotificationService } from "../notification/notification.service";
-import { BehaviorSubject } from "rxjs";
+import { MatDialog } from "@angular/material/dialog";
 
 // When running on device the following methods are automatically added
 // to the window object. When running in development some mocking methods
@@ -24,12 +24,16 @@ declare const window: Window & {
 })
 export class OdkService {
   tables: string[];
-  constructor(http: HttpClient, private notifications: NotificationService) {
+  constructor(
+    http: HttpClient,
+    private notifications: NotificationService,
+    private dialog: MatDialog
+  ) {
     // when running on device use native odkData function (injected)
     if (!window.odkData || !window.odkCommon) {
       window.odkCommon = new OdkCommonClass();
       window.odkData = new OdkDataClass(http);
-      window.odkTables = new OdkTablesClass(notifications);
+      window.odkTables = new OdkTablesClass(notifications, this.dialog);
     }
   }
   handleError(err: Error) {

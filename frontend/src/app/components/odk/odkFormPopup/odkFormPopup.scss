@@ -1,0 +1,17 @@
+.popup-container {
+  height: 100%;
+  width: 100%;
+  background-color: white;
+}
+.popup-title-bar {
+  height: 48px;
+}
+.close-button {
+  margin-right: -16px;
+}
+iframe {
+  flex: 1;
+  width: 100%;
+  height: calc(100% - 48px);
+  border: none;
+}

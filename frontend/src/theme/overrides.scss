@@ -1,3 +1,12 @@
 .cdk-overlay-pane > .mat-snack-bar-container {
   max-width: 50vw;
 }
+
+/* Specific classes for displaying form popup/overlay content */
+.odk-form-popup-panel {
+  width: 100vw;
+  height: 100vh;
+}
+.odk-form-popup-panel > mat-dialog-container {
+  padding: 0;
+}

@@ -1,0 +1,16 @@
+<div class="popup-container theme-default">
+  <mat-toolbar color="accent">
+    <span>Form Preview</span>
+    <span style="flex: 1;"></span>
+    <button
+      mat-button
+      class="close-button"
+      aria-label="close"
+      (click)="close()"
+    >
+      Close
+      <mat-icon>close</mat-icon>
+    </button>
+  </mat-toolbar>
+  <iframe #iframe [src]="iframeUrl"></iframe>
+</div>
