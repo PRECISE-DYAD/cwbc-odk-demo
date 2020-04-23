@@ -1,18 +1,19 @@
 const fs = require("fs-extra");
 const path = require("path");
 const child = require("child_process");
+const { recFindByExt } = require("./utils");
 
 const rootPath = process.cwd();
 const designerPath = path.join(rootPath, "designer");
 const designerAssetsPath = path.join(designerPath, "app/config/assets");
 const frontendPath = path.join(rootPath, "frontend");
 
-async function main() {
+async function run() {
   console.log("copying data...");
   // populate sample files if not already present, {destination:source} mapping
   const sampleFiles = {
     "forms/framework.xlsx": "forms/framework.sample.xlsx",
-    "forms/csv/tables.init": "forms/csv/tables.sample.init"
+    "forms/csv/tables.init": "forms/csv/tables.sample.init",
   };
   for (let [destination, source] of Object.entries(sampleFiles)) {
     const exists = await fs.exists(destination);
@@ -28,7 +29,7 @@ async function main() {
       "forms/framework.xlsx",
       `${designerAssetsPath}/framework/forms/framework/framework.xlsx`
     )
-    .catch(err => {
+    .catch((err) => {
       console.error(
         "\x1b[31m",
         "ERROR: No Framework.xlsx provided in forms directory"
@@ -42,7 +43,7 @@ async function main() {
   child.spawnSync("npx grunt", ["xlsx-convert-all"], {
     cwd: designerPath,
     stdio: ["ignore", "inherit", "inherit"],
-    shell: true
+    shell: true,
   });
   // copy preload data
   await fs.ensureDir(`${designerAssetsPath}/csv`);
@@ -52,7 +53,7 @@ async function main() {
     `${designerAssetsPath}/csv/tables.init`,
     `${designerAssetsPath}/tables.init`,
     {
-      overwrite: true
+      overwrite: true,
     }
   );
   // copy back json and csv data in case frontend wants to access
@@ -72,22 +73,4 @@ async function main() {
     await fs.copy(filepath, destination);
   }
 }
-main();
-
-// find files by a given extension recursively, returning full paths
-async function recFindByExt(base, ext, files, result) {
-  files = files || (await fs.readdir(base));
-  result = result || [];
-  for (const file of files) {
-    const newbase = path.join(base, file);
-    if (fs.statSync(newbase).isDirectory()) {
-      const newFiles = await fs.readdir(newbase);
-      result = await recFindByExt(newbase, ext, newFiles, result);
-    } else {
-      if (file.split(".").pop() === ext) {
-        result.push(newbase);
-      }
-    }
-  }
-  return result;
-}
+run();
