@@ -8,7 +8,7 @@ interface IBreadCrumb {
 @Component({
   selector: "app-breadcrumb",
   template: `
-    <ol class="breadcrumb">
+    <ol class="breadcrumb custom-theme">
       <li
         *ngFor="let breadcrumb of breadcrumbs$ | async; last as isLast"
         class="breadcrumb-item"
@@ -30,10 +30,9 @@ interface IBreadCrumb {
       }
       li + li:before {
         content: " > ";
-        color: black;
       }
       a {
-        color: black;
+        color: unset;
         text-decoration: none;
       }
       a.active {

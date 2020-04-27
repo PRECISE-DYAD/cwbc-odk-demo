@@ -1,10 +1,12 @@
 <div *mobxAutorun style="display: contents;" [class]="store.activeTheme">
-  <mat-toolbar color="primary">
-    <mat-toolbar-row>
-      <app-back-button style="margin-left: -16px;"></app-back-button>
-      <h1>{{ store.title | titlecase }}</h1>
-    </mat-toolbar-row>
-  </mat-toolbar>
-  <app-breadcrumb></app-breadcrumb>
-  <router-outlet></router-outlet>
+  <div class="primary">
+    <mat-toolbar color="primary">
+      <mat-toolbar-row>
+        <app-back-button style="margin-left: -16px;"></app-back-button>
+        <h1>{{ store.title | titlecase }}</h1>
+      </mat-toolbar-row>
+    </mat-toolbar>
+    <!-- <app-breadcrumb></app-breadcrumb> -->
+    <router-outlet></router-outlet>
+  </div>
 </div>

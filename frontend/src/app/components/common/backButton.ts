@@ -11,7 +11,6 @@ import { Location } from "@angular/common";
   >
     <mat-icon>arrow_back</mat-icon>
   </button>`,
-  styles: [``],
 })
 export class BackButtonComponent {
   constructor(public location: Location) {
