@@ -50,32 +50,46 @@ class OdkDataClass {
       .get(`../assets/odk/csv/${tableId}.csv`, { responseType: "text" })
       .toPromise()
       .then((csvText) => {
-        Papa.parse(csvText, {
-          header: true,
-          skipEmptyLines: true,
-          error: (err) => failureCallbackFn(err),
-          complete: (r) => {
-            // TODO - make general where clause
-            if (whereClause && sqlBindParams) {
-              r.data = _executeSQLFilter(r.data, whereClause, sqlBindParams);
-            }
-            const headers = r.meta.fields;
-            let rows = r.data.map((el) => Object.values(el)) as string[][];
-            const elementKeyMap = {};
-            headers.forEach((v, i) => {
-              elementKeyMap[v] = i;
-            });
-            const res: IODKQueryResult = {
-              resultObj: {
-                data: rows,
-                metadata: { elementKeyMap },
-              },
-            };
-            successCallbackFn(res);
-          },
-        });
+        csvToODKQueryResult(csvText);
       })
-      .catch((err) => failureCallbackFn(err));
+      .catch((err) => {
+        if (err.status === 404) {
+          // no csv preloaded, just return empty
+          // TODO - check with tables.init to see if should be available
+          csvToODKQueryResult("");
+        } else {
+          failureCallbackFn(err);
+        }
+      });
+
+    function csvToODKQueryResult(csvText: string) {
+      Papa.parse(csvText, {
+        header: true,
+        skipEmptyLines: true,
+        error: (err) => {
+          failureCallbackFn(err);
+        },
+        complete: (r) => {
+          // TODO - make general where clause
+          if (whereClause && sqlBindParams) {
+            r.data = _executeSQLFilter(r.data, whereClause, sqlBindParams);
+          }
+          const headers = r.meta.fields;
+          let rows = r.data.map((el) => Object.values(el)) as string[][];
+          const elementKeyMap = {};
+          headers.forEach((v, i) => {
+            elementKeyMap[v] = i;
+          });
+          const res: IODKQueryResult = {
+            resultObj: {
+              data: rows,
+              metadata: { elementKeyMap },
+            },
+          };
+          successCallbackFn(res);
+        },
+      });
+    }
   }
 }
 export default OdkDataClass;
