@@ -62,6 +62,10 @@ class OdkDataClass {
         }
       });
 
+    /**
+     * CSV text must be parsed to get the underlying data format,
+     * and return in the same way that ODK does
+     */
     function csvToODKQueryResult(csvText: string) {
       Papa.parse(csvText, {
         header: true,
@@ -95,7 +99,8 @@ class OdkDataClass {
 export default OdkDataClass;
 
 /**
- * Rough implementation of an sql query
+ * Rough implementation of an sql query, purely to support
+ * a single where equal filter clause
  * TODO - improve to make more general
  * @param data
  * @param whereClause
