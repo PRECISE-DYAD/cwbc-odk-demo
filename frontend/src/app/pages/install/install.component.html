@@ -1,0 +1,15 @@
+<div style="padding: 5px;">
+  <h1>
+    Download ODK apps
+  </h1>
+
+  <a
+    *ngFor="let link of links"
+    download
+    [href]="link.url"
+    target="_blank"
+    rel="noopener noreferrer nofollow"
+  >
+    <mat-card>{{ link.text }}</mat-card>
+  </a>
+</div>
