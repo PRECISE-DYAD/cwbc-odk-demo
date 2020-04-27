@@ -22,23 +22,12 @@ async function run() {
     }
   }
   // copy forms
-  await fs.ensureDir(`${designerAssetsPath}/framework/forms`);
-  await fs.emptyDir(`${designerAssetsPath}/framework/forms`);
-  await fs
-    .copy(
-      "forms/framework.xlsx",
-      `${designerAssetsPath}/framework/forms/framework/framework.xlsx`
-    )
-    .catch((err) => {
-      console.error(
-        "\x1b[31m",
-        "ERROR: No Framework.xlsx provided in forms directory"
-      );
-      process.exit(1);
-    });
-  await fs.ensureDir(`${designerPath}/app/config/tables`);
-  await fs.emptyDir(`${designerPath}/app/config/tables`);
-  await fs.copy("forms/tables", `${designerPath}/app/config/tables`);
+  await cleanCopy(
+    "forms/framework.xlsx",
+    `${designerAssetsPath}/framework/forms/framework/framework.xlsx`
+  );
+
+  await cleanCopy("forms/tables", `${designerPath}/app/config/tables`);
   // process forms, call npx in case not installed globally
   child.spawnSync("npx grunt", ["xlsx-convert-all"], {
     cwd: designerPath,
@@ -46,9 +35,7 @@ async function run() {
     shell: true,
   });
   // copy preload data
-  await fs.ensureDir(`${designerAssetsPath}/csv`);
-  await fs.emptyDir(`${designerAssetsPath}/csv`);
-  await fs.copy("forms/csv", `${designerAssetsPath}/csv`);
+  await cleanCopy("forms/csv", `${designerAssetsPath}/csv`);
   await fs.move(
     `${designerAssetsPath}/csv/tables.init`,
     `${designerAssetsPath}/tables.init`,
@@ -57,8 +44,8 @@ async function run() {
     }
   );
   // copy back json and csv data in case frontend wants to access
-  await fs.copy(`forms/csv`, `${frontendPath}/src/assets/odk/csv`);
-  await fs.copy(
+  await fs.cleanCopy(`forms/csv`, `${frontendPath}/src/assets/odk/csv`);
+  await fs.cleanCopy(
     `${designerPath}/app/config/assets/framework/forms/framework/formDef.json`,
     `${frontendPath}/src/assets/odk/framework.json`
   );
@@ -74,3 +61,16 @@ async function run() {
   }
 }
 run();
+
+/**
+ * Copy files, ensuring target folder exists and overwriting any existing data
+ */
+async function cleanCopy(src, dest) {
+  const isDirectory = (await fs.stat(src)).isDirectory();
+  const destDirectory = isDirectory ? dest : path.dirname(dest);
+  await fs.ensureDir(destDirectory);
+  await fs.copy(src, dest, { overwrite: true }).catch((err) => {
+    console.error("\x1b[31m", `ERROR: could not copy ${src} -> ${dest}`);
+    process.exitCode = 1;
+  });
+}
