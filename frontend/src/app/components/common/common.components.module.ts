@@ -4,12 +4,17 @@ import { BreadcrumbComponent } from "./breadcrumb";
 import { NotificationBarComponent } from "./notificationBar";
 import { CommonModule } from "@angular/common";
 import { RouterModule } from "@angular/router";
+import { BackButtonComponent } from "./backButton";
 
-const customComponents = [BreadcrumbComponent, NotificationBarComponent];
+const customComponents = [
+  BreadcrumbComponent,
+  NotificationBarComponent,
+  BackButtonComponent,
+];
 
 @NgModule({
   declarations: [customComponents],
   imports: [MaterialComponentsModule, CommonModule, RouterModule],
-  exports: [customComponents]
+  exports: [customComponents],
 })
 export class CommonComponentsModule {}

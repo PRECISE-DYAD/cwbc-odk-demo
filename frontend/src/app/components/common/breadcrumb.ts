@@ -39,12 +39,12 @@ interface IBreadCrumb {
       a.active {
         text-decoration: underline;
       }
-    `
-  ]
+    `,
+  ],
 })
 export class BreadcrumbComponent {
   breadcrumbs$ = this.router.events.pipe(
-    filter(event => event instanceof NavigationEnd),
+    filter((event) => event instanceof NavigationEnd),
     distinctUntilChanged(),
     map((event: NavigationEnd) => {
       return this.buildBreadCrumb(event.url);

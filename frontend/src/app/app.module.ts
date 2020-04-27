@@ -4,7 +4,7 @@ import { HttpClientModule, HttpClient } from "@angular/common/http";
 
 import { AppRoutingModule } from "./app-routing.module";
 import { AppComponent } from "./app.component";
-import { RouterModule } from "@angular/router";
+import { RouterModule, Router } from "@angular/router";
 // stores
 import { MobxAngularModule } from "mobx-angular";
 import remotedev from "mobx-remotedev";
@@ -18,6 +18,7 @@ import { HomeComponent } from "./pages/home/home.component";
 import { PreciseHomeComponent } from "./pages/precise/precise.component";
 import { PreciseProfileComponent } from "./pages/precise/profile/profile.component";
 import { NotificationService } from "./services/notification/notification.service";
+import { InstallComponent } from "./pages/install/install.component";
 
 @NgModule({
   declarations: [
@@ -25,6 +26,7 @@ import { NotificationService } from "./services/notification/notification.servic
     HomeComponent,
     PreciseHomeComponent,
     PreciseProfileComponent,
+    InstallComponent,
   ],
   imports: [
     BrowserModule,
@@ -39,7 +41,7 @@ import { NotificationService } from "./services/notification/notification.servic
     {
       provide: CommonStore,
       useClass: remotedev(CommonStore, { global: true, onlyActions: true }),
-      deps: [],
+      deps: [Router],
     },
     {
       provide: PreciseStore,
