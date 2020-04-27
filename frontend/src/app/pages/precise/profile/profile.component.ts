@@ -6,6 +6,7 @@ import {
   IParticipant,
   PARTICIPANT_FORMS,
   IParticipantCollatedData,
+  CommonStore,
 } from "src/app/stores";
 
 @Component({
@@ -20,8 +21,13 @@ export class PreciseProfileComponent {
   forms: IFormMeta[] = PARTICIPANT_FORMS;
   gridCols = Math.ceil(window.innerWidth / 200);
   participantRevisions: IParticipant[];
-  constructor(public store: PreciseStore, route: ActivatedRoute) {
+  constructor(
+    public store: PreciseStore,
+    route: ActivatedRoute,
+    public common: CommonStore
+  ) {
     this.store.setActiveParticipantById(route.snapshot.params.participantId);
+    this.common.setPageTitle(route.snapshot.params.participantId);
   }
 
   /**

@@ -1,6 +1,7 @@
 import { observable, action, computed } from "mobx-angular";
 import { Injectable } from "@angular/core";
 import { IProjectMeta } from "../types/types";
+import { Router, ChildActivationEnd } from "@angular/router";
 const ALL_PROJECTS: IProjectMeta[] = [
   {
     image: "assets/precise.png",
@@ -14,9 +15,11 @@ const ALL_PROJECTS: IProjectMeta[] = [
  */
 @Injectable()
 export class CommonStore {
-  constructor() {}
+  constructor(router: Router) {
+    this._subscribeToRouteChanges(router);
+  }
   @observable projectMeta$: IProjectMeta;
-  @observable title = "Select A Project";
+  @observable title = "";
   @observable projects: IProjectMeta[] = ALL_PROJECTS;
   @computed get activeTheme() {
     return this.projectMeta$
@@ -26,7 +29,21 @@ export class CommonStore {
 
   @action async setProjectById(id: IProjectMeta["id"]) {
     this.projectMeta$ = ALL_PROJECTS.find((p) => p.id === id);
-    this.title = this.projectMeta$.name;
+    this.setPageTitle(this.projectMeta$.name);
+  }
+  @action setPageTitle(title: string) {
+    this.title = title;
+  }
+
+  private _subscribeToRouteChanges(router: Router) {
+    router.events.subscribe((e) => {
+      if (e instanceof ChildActivationEnd) {
+        const { data } = e.snapshot.firstChild;
+        if (data.title) {
+          this.setPageTitle(data.title);
+        }
+      }
+    });
   }
 }
 
