@@ -1,5 +1,4 @@
 import { NgModule } from "@angular/core";
-import { BrowserAnimationsModule } from "@angular/platform-browser/animations";
 import { MaterialComponentsModule } from "./material.components";
 import { ODKComponentsModule } from "./odk/odk.components.module";
 import { CommonModule } from "@angular/common";
@@ -10,16 +9,15 @@ import { CommonComponentsModule } from "./common/common.components.module";
   declarations: [],
   imports: [
     MaterialComponentsModule,
-    BrowserAnimationsModule,
     CommonModule,
     RouterModule,
     ODKComponentsModule,
-    CommonComponentsModule
+    CommonComponentsModule,
   ],
   exports: [
     MaterialComponentsModule,
     ODKComponentsModule,
-    CommonComponentsModule
-  ]
+    CommonComponentsModule,
+  ],
 })
 export class ComponentsModule {}

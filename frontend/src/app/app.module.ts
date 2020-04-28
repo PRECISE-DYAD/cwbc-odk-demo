@@ -1,6 +1,6 @@
 import { BrowserModule } from "@angular/platform-browser";
 import { NgModule } from "@angular/core";
-import { HttpClientModule, HttpClient } from "@angular/common/http";
+import { HttpClientModule } from "@angular/common/http";
 
 import { AppRoutingModule } from "./app-routing.module";
 import { AppComponent } from "./app.component";
@@ -12,13 +12,13 @@ import { CommonStore, PreciseStore } from "./stores";
 import { OdkService } from "./services/odk/odk.service";
 // custom components
 import { ComponentsModule } from "./components/components.module";
-import { CommonModule } from "@angular/common";
 // pages
 import { HomeComponent } from "./pages/home/home.component";
 import { PreciseHomeComponent } from "./pages/precise/precise.component";
 import { PreciseProfileComponent } from "./pages/precise/profile/profile.component";
 import { NotificationService } from "./services/notification/notification.service";
 import { InstallComponent } from "./pages/install/install.component";
+import { BrowserAnimationsModule } from "@angular/platform-browser/animations";
 
 @NgModule({
   declarations: [
@@ -30,8 +30,8 @@ import { InstallComponent } from "./pages/install/install.component";
   ],
   imports: [
     BrowserModule,
+    BrowserAnimationsModule,
     AppRoutingModule,
-    CommonModule,
     RouterModule,
     HttpClientModule,
     MobxAngularModule,

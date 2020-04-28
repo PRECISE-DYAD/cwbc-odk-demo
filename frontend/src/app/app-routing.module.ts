@@ -1,7 +1,6 @@
 import { NgModule } from "@angular/core";
-import { Routes, RouterModule } from "@angular/router";
+import { Routes, RouterModule, PreloadAllModules } from "@angular/router";
 import { HomeComponent } from "./pages/home/home.component";
-import { PreciseHomeComponent } from "./pages/precise/precise.component";
 import { PreciseProfileComponent } from "./pages/precise/profile/profile.component";
 import { InstallComponent } from "./pages/install/install.component";
 
@@ -17,7 +16,8 @@ const routes: Routes = [
   },
   {
     path: "projects/precise",
-    component: PreciseHomeComponent,
+    loadChildren: () =>
+      import("./pages/precise/precise.module").then((m) => m.PreciseModule),
     data: { title: "Precise" },
   },
   {
@@ -36,7 +36,12 @@ const routes: Routes = [
 ];
 
 @NgModule({
-  imports: [RouterModule.forRoot(routes, { useHash: true })],
+  imports: [
+    RouterModule.forRoot(routes, {
+      useHash: true,
+      preloadingStrategy: PreloadAllModules,
+    }),
+  ],
   exports: [RouterModule],
 })
 export class AppRoutingModule {}
