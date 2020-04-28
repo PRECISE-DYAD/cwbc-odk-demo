@@ -18,6 +18,28 @@ export class PreciseProfileComponent {
   participant: IParticipant = null;
   participantFields: { fieldName: string; value: string }[] = [];
   participantCollatedData: IParticipantCollatedData;
+  sections = [
+    {
+      label: "Precise Visit",
+      icon: "visit",
+      url: "/visit",
+    },
+    {
+      label: "Birth",
+      icon: "baby",
+      url: "/birth",
+    },
+    {
+      label: "TOD",
+      icon: "disease",
+      url: "/tod",
+    },
+    {
+      label: "Lab",
+      icon: "lab",
+      url: "/lab",
+    },
+  ];
   forms: IFormMeta[] = PARTICIPANT_FORMS;
   gridCols = Math.ceil(window.innerWidth / 200);
   participantRevisions: IParticipant[];

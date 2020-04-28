@@ -4,82 +4,77 @@
   class="primary"
 >
   <div style="padding: 1em;" *ngIf="participant">
-    <mat-card style="padding: 1em;">
-      <mat-card-content>
-        <div class="card-title">
-          <h1 style="flex: 1;">Summary</h1>
-          <button
-            mat-button
-            (click)="viewRevisions()"
-            [disabled]="
-              !participantCollatedData ||
-              participantCollatedData.genInfoRevisions.length === 0
-            "
-          >
-            <mat-icon style="margin-right: 5px;">history</mat-icon>
-            Revisions
-          </button>
-          <button mat-button (click)="editProfile()">
-            <mat-icon svgIcon="edit" style="margin-right: 5px;"></mat-icon>
-            Update
-          </button>
+    <div class="summary-container">
+      <div class="card-title">
+        <h1 style="flex: 1;">Summary</h1>
+        <button
+          mat-button
+          (click)="viewRevisions()"
+          [disabled]="
+            !participantCollatedData ||
+            participantCollatedData.genInfoRevisions.length === 0
+          "
+        >
+          <mat-icon style="margin-right: 5px;">history</mat-icon>
+          Revisions
+        </button>
+        <button mat-button (click)="editProfile()">
+          <mat-icon svgIcon="edit" style="margin-right: 5px;"></mat-icon>
+          Update
+        </button>
+      </div>
+      <div style="display: flex;">
+        <div style="width: 100px; font-weight: bold;">
+          {{ participant["f2a_participant_id"] }}
         </div>
-        <div style="display: flex;">
-          <div style="width: 100px; font-weight: bold;">
-            {{ participant["f2a_participant_id"] }}
+        <div>
+          <div class="info-row">
+            <mat-icon>folder_shared</mat-icon>
+            <div>{{ participant["f2a_national_id"] }}</div>
           </div>
-          <div>
-            <div class="info-row">
-              <mat-icon>folder_shared</mat-icon>
-              <div>{{ participant["f2a_national_id"] }}</div>
-            </div>
-            <div class="info-row">
-              <mat-icon>phone</mat-icon>
+          <div class="info-row">
+            <mat-icon>phone</mat-icon>
+            <div>
               <div>
-                <div>
-                  {{ participant["f2a_phone_number"] }}
-                </div>
-                <div>
-                  {{ participant["f2a_phone_number_2"] }}
-                </div>
+                {{ participant["f2a_phone_number"] }}
+              </div>
+              <div>
+                {{ participant["f2a_phone_number_2"] }}
               </div>
             </div>
           </div>
         </div>
-
-        <mat-expansion-panel name="expansion" id="expansion" class="no-shadow">
-          <mat-expansion-panel-header>
-            <mat-panel-description
-              >Additional Information
-            </mat-panel-description>
-          </mat-expansion-panel-header>
-          <div *ngFor="let field of participantFields">
-            <span>{{ field.fieldName }}: </span>
-            <span>{{ field.value }}</span>
-          </div>
-        </mat-expansion-panel>
-      </mat-card-content>
-    </mat-card>
-    <hr />
-    <mat-grid-list rowHeight="100px" [cols]="gridCols" gutterSize="10px">
+      </div>
+      <mat-expansion-panel name="expansion" id="expansion" class="no-shadow">
+        <mat-expansion-panel-header>
+          <mat-panel-description>Additional Information </mat-panel-description>
+        </mat-expansion-panel-header>
+        <div *ngFor="let field of participantFields">
+          <span>{{ field.fieldName }}: </span>
+          <span>{{ field.value }}</span>
+        </div>
+      </mat-expansion-panel>
+    </div>
+    <hr style="margin-bottom: 3em;" />
+    <!-- Confirmation -->
+    <!-- Sections -->
+    <mat-grid-list rowHeight="150px" [cols]="gridCols" gutterSize="20px">
       <mat-grid-tile
-        [class.disabled]="form.disabled"
-        [class.completed]="form.completed"
-        *ngFor="let form of forms"
+        *ngFor="let section of sections; let i = index"
         colspan="1"
         rowspan="1"
-        (click)="openForm(form)"
+        [routerLink]="[section.url]"
+        [class]="'section-tile color-rotate-' + i"
       >
-        <div class="form-card">
-          <mat-icon class="form-icon" [svgIcon]="form.icon"></mat-icon>
-          <h3 style="margin-bottom: 0;">{{ form.title }}</h3>
+        <mat-grid-tile-header class="primary-inverted">
+          <mat-icon class="section-icon" [svgIcon]="section.icon"></mat-icon>
+          <span>{{ section.label }}</span></mat-grid-tile-header
+        >
+        <div class="section-details">
+          No Data Recorded
         </div>
       </mat-grid-tile>
-      <p *ngIf="participant === undefined">Participant not found</p>
     </mat-grid-list>
   </div>
-  <mat-progress-bar
-    mode="indeterminate"
-    *ngIf="!participant"
-  ></mat-progress-bar>
+  <p *ngIf="!participant">Participant not found</p>
 </div>

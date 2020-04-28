@@ -12,3 +12,26 @@ body {
 body {
   font-family: Roboto, "Helvetica Neue", sans-serif;
 }
+
+$rotateBase: 30;
+.color-rotate-0 {
+  filter: hue-rotate(0 * $rotateBase * 1deg);
+}
+.color-rotate-1 {
+  filter: hue-rotate(1 * $rotateBase * 1deg);
+}
+.color-rotate-2 {
+  filter: hue-rotate(2 * $rotateBase * 1deg);
+}
+.color-rotate-3 {
+  filter: hue-rotate(3 * $rotateBase * 1deg);
+}
+.color-rotate-4 {
+  filter: hue-rotate(4 * $rotateBase * 1deg);
+}
+.color-rotate-5 {
+  filter: hue-rotate(5 * $rotateBase * 1deg);
+}
+.color-rotate-6 {
+  filter: hue-rotate(6 * $rotateBase * 1deg);
+}

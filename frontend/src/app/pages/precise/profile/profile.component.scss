@@ -11,6 +11,9 @@ td.field {
 #expansion > mat-expansion-panel-header {
   padding: 0 16px 0 5px;
 }
+.summary-container {
+  color: var(--color-black);
+}
 .card-title {
   display: flex;
   justify-content: space-between;
@@ -25,38 +28,21 @@ mat-grid-tile:hover {
 mat-grid-tile {
   transition: all 0.2s ease-in-out;
   background: white;
+  border: 4px solid;
+  border-radius: 8px;
 }
 mat-grid-tile.disabled {
   transform: none;
   pointer-events: none;
   opacity: 0.5;
 }
-mat-grid-tile.completed {
-  background-color: green;
-  color: white;
+mat-grid-tile-header > .section-icon {
+  margin-right: 10px;
 }
-.form-card {
-  height: 100%;
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  cursor: pointer;
+.section-details {
+  color: var(--color-black);
 }
-.form-complete-button {
-  position: absolute;
-  top: 0;
-  right: 0;
-  color: green;
-}
-.form-complete-button:disabled {
-  color: var(--color-light);
-}
-.form-icon {
-  height: 36px;
-  width: 36px;
-}
+
 .info-row {
   display: flex;
   padding: 5px;

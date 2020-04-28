@@ -19,13 +19,13 @@ $dyad-theme: mat-dark-theme($dyad-primary, $dyad-accent, $dyad-warn);
   $primary: map-get($theme, primary);
   $accent: map-get($theme, accent);
   .primary {
-    background-color: white;
-    color: mat-color($primary);
+    background: white !important;
+    color: mat-color($primary) !important;
   }
-  .inverted {
+  .primary-inverted {
     // Use mat-color to extract individual colors from a palette.
-    background-color: mat-color($primary);
-    color: white;
+    background: mat-color($primary) !important;
+    color: white !important;
   }
 }
 
