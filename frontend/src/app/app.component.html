@@ -6,7 +6,8 @@
         <h1>{{ store.title | titlecase }}</h1>
       </mat-toolbar-row>
     </mat-toolbar>
-    <!-- <app-breadcrumb></app-breadcrumb> -->
-    <router-outlet></router-outlet>
+    <div [@routeAnimations]="getRouteAnimation(routerOutlet)">
+      <router-outlet #routerOutlet="outlet"></router-outlet>
+    </div>
   </div>
 </div>
