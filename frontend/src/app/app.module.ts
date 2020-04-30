@@ -8,26 +8,16 @@ import { RouterModule, Router } from "@angular/router";
 // stores
 import { MobxAngularModule } from "mobx-angular";
 import remotedev from "mobx-remotedev";
-import { CommonStore, PreciseStore } from "./stores";
-import { OdkService } from "./services/odk/odk.service";
+import { CommonStore } from "./stores";
 // custom components
-import { ComponentsModule } from "./components/components.module";
+import { CoreComponentsModule } from "./components";
 // pages
 import { HomeComponent } from "./pages/home/home.component";
-import { PreciseHomeComponent } from "./pages/precise/precise.component";
-import { PreciseProfileComponent } from "./pages/precise/profile/profile.component";
-import { NotificationService } from "./services/notification/notification.service";
 import { InstallComponent } from "./pages/install/install.component";
 import { BrowserAnimationsModule } from "@angular/platform-browser/animations";
 
 @NgModule({
-  declarations: [
-    AppComponent,
-    HomeComponent,
-    PreciseHomeComponent,
-    PreciseProfileComponent,
-    InstallComponent,
-  ],
+  declarations: [AppComponent, HomeComponent, InstallComponent],
   imports: [
     BrowserModule,
     BrowserAnimationsModule,
@@ -35,18 +25,13 @@ import { BrowserAnimationsModule } from "@angular/platform-browser/animations";
     RouterModule,
     HttpClientModule,
     MobxAngularModule,
-    ComponentsModule,
+    CoreComponentsModule,
   ],
   providers: [
     {
       provide: CommonStore,
       useClass: remotedev(CommonStore, { global: true, onlyActions: true }),
       deps: [Router],
-    },
-    {
-      provide: PreciseStore,
-      useClass: remotedev(PreciseStore, { global: true, onlyActions: true }),
-      deps: [OdkService, NotificationService],
     },
   ],
   bootstrap: [AppComponent],

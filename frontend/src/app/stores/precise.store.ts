@@ -62,9 +62,11 @@ export class PreciseStore {
         }
       );
     }
-    this.activeParticipant = this.allParticipantsHashmap[ptid];
-    console.log("activeParticipant", { ...this.activeParticipant });
-    this.loadParticipantTableData(this.activeParticipant);
+    if (this.allParticipantsHashmap[ptid]) {
+      this.activeParticipant = this.allParticipantsHashmap[ptid];
+      console.log("activeParticipant", { ...this.activeParticipant });
+      this.loadParticipantTableData(this.activeParticipant);
+    }
   }
   /**
    * query batch to get rows from other tables linked by participant guid

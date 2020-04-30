@@ -21,10 +21,6 @@ const routes: Routes = [
     data: { animation: "onLeft" },
   },
   // {
-  //   path: "projects/precise/:participantId",
-  //   component: PreciseProfileComponent,
-  // },
-  // {
   //   path: "guides",
   //   redirectTo: "",
   // },

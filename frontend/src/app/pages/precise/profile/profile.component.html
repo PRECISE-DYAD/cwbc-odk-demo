@@ -4,77 +4,33 @@
   class="primary"
 >
   <div style="padding: 1em;" *ngIf="participant">
-    <div class="summary-container">
-      <div class="card-title">
-        <h1 style="flex: 1;">Summary</h1>
-        <button
-          mat-button
-          (click)="viewRevisions()"
-          [disabled]="
-            !participantCollatedData ||
-            participantCollatedData.genInfoRevisions.length === 0
-          "
-        >
-          <mat-icon style="margin-right: 5px;">history</mat-icon>
-          Revisions
-        </button>
-        <button mat-button (click)="editProfile()">
-          <mat-icon svgIcon="edit" style="margin-right: 5px;"></mat-icon>
-          Update
-        </button>
-      </div>
-      <div style="display: flex;">
-        <div style="width: 100px; font-weight: bold;">
-          {{ participant["f2a_participant_id"] }}
-        </div>
-        <div>
-          <div class="info-row">
-            <mat-icon>folder_shared</mat-icon>
-            <div>{{ participant["f2a_national_id"] }}</div>
-          </div>
-          <div class="info-row">
-            <mat-icon>phone</mat-icon>
-            <div>
-              <div>
-                {{ participant["f2a_phone_number"] }}
-              </div>
-              <div>
-                {{ participant["f2a_phone_number_2"] }}
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-      <mat-expansion-panel name="expansion" id="expansion" class="no-shadow">
-        <mat-expansion-panel-header>
-          <mat-panel-description>Additional Information </mat-panel-description>
-        </mat-expansion-panel-header>
-        <div *ngFor="let field of participantFields">
-          <span>{{ field.fieldName }}: </span>
-          <span>{{ field.value }}</span>
-        </div>
-      </mat-expansion-panel>
-    </div>
-    <hr style="margin-bottom: 3em;" />
-    <!-- Confirmation -->
+    <precise-profile-summary
+      [participant]="participant"
+      [participantRevisions]="participantRevisions"
+      (shouldUpdate)="handleProfileUpdate($event)"
+      [profileConfirmed]="profileConfirmed"
+    ></precise-profile-summary>
+
     <!-- Sections -->
-    <mat-grid-list rowHeight="150px" [cols]="gridCols" gutterSize="20px">
-      <mat-grid-tile
-        *ngFor="let section of sections; let i = index"
-        colspan="1"
-        rowspan="1"
-        [routerLink]="[section.url]"
-        [class]="'section-tile color-rotate-' + i"
-      >
-        <mat-grid-tile-header class="primary-inverted">
-          <mat-icon class="section-icon" [svgIcon]="section.icon"></mat-icon>
-          <span>{{ section.label }}</span></mat-grid-tile-header
+    <div *ngIf="profileConfirmed" style="margin-top: 2em;">
+      <mat-grid-list rowHeight="150px" [cols]="gridCols" gutterSize="20px">
+        <mat-grid-tile
+          *ngFor="let section of sections; let i = index"
+          colspan="1"
+          rowspan="1"
+          [routerLink]="[section.url]"
+          [class]="'section-tile color-rotate-' + i"
         >
-        <div class="section-details">
-          No Data Recorded
-        </div>
-      </mat-grid-tile>
-    </mat-grid-list>
+          <mat-grid-tile-header class="primary-inverted">
+            <mat-icon class="section-icon" [svgIcon]="section.icon"></mat-icon>
+            <span>{{ section.label }}</span></mat-grid-tile-header
+          >
+          <div class="section-details">
+            No Data Recorded
+          </div>
+        </mat-grid-tile>
+      </mat-grid-list>
+    </div>
   </div>
   <p *ngIf="!participant">Participant not found</p>
 </div>

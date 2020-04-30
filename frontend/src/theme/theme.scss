@@ -4,7 +4,7 @@
 
 // Precise/default theme
 $precise-app-primary: mat-palette($mat-indigo);
-$precise-app-accent: mat-palette($mat-light-blue, A100, A50, A200);
+$precise-app-accent: mat-palette($mat-amber, A100, A50, A200);
 $precise-theme: mat-light-theme($precise-app-primary, $precise-app-accent);
 
 // Dyad/alternative.

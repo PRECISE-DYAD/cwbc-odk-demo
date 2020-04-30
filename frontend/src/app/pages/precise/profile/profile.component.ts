@@ -8,6 +8,7 @@ import {
   IParticipantCollatedData,
   CommonStore,
 } from "src/app/stores";
+import { toJS } from "mobx";
 
 @Component({
   selector: "app-precise-profile",
@@ -16,7 +17,6 @@ import {
 })
 export class PreciseProfileComponent {
   participant: IParticipant = null;
-  participantFields: { fieldName: string; value: string }[] = [];
   participantCollatedData: IParticipantCollatedData;
   sections = [
     {
@@ -42,7 +42,8 @@ export class PreciseProfileComponent {
   ];
   forms: IFormMeta[] = PARTICIPANT_FORMS;
   gridCols = Math.ceil(window.innerWidth / 200);
-  participantRevisions: IParticipant[];
+  participantRevisions: IParticipant[] = [];
+  profileConfirmed = false;
   constructor(
     public store: PreciseStore,
     route: ActivatedRoute,
@@ -60,11 +61,13 @@ export class PreciseProfileComponent {
     // participant has loaded
     if (this.store.activeParticipant) {
       this.participant = this.store.activeParticipant;
-      this.participantFields = this._objToFieldArray(this.participant);
     }
     // full data from all linked tables has loaded
     if (this.store.participantCollatedData) {
       this.participantCollatedData = this.store.participantCollatedData;
+      this.participantRevisions = toJS(
+        this.participantCollatedData.genInfoRevisions
+      ) as IParticipant[];
       this.forms = this.forms.map((f) => ({
         ...f,
         completed:
@@ -75,6 +78,13 @@ export class PreciseProfileComponent {
             : false,
       }));
     }
+  }
+
+  handleProfileUpdate(shouldUpdate: boolean) {
+    if (shouldUpdate) {
+      this.editProfile();
+    }
+    this.profileConfirmed = true;
   }
 
   editProfile() {
@@ -98,11 +108,5 @@ export class PreciseProfileComponent {
       ? this.participantCollatedData[tableId][0]._id
       : null;
     return this.store.launchForm(tableId, formId, existing, { f2_guid });
-  }
-
-  private _objToFieldArray(obj: { [field: string]: string }) {
-    return Object.entries(obj).map(([fieldName, value]) => {
-      return { fieldName, value };
-    });
   }
 }

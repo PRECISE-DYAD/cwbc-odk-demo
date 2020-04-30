@@ -1,27 +1,3 @@
-td,
-th {
-  padding: 5px;
-}
-td.field {
-  font-weight: bold;
-}
-#expansion {
-  box-shadow: none;
-}
-#expansion > mat-expansion-panel-header {
-  padding: 0 16px 0 5px;
-}
-.summary-container {
-  color: var(--color-black);
-}
-.card-title {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-.card-title > h1 {
-  margin-bottom: 0;
-}
 mat-grid-tile:hover {
   transform: scale(1.05);
 }
@@ -43,8 +19,9 @@ mat-grid-tile-header > .section-icon {
   color: var(--color-black);
 }
 
-.info-row {
-  display: flex;
-  padding: 5px;
-  align-items: center;
-}
+// #expansion {
+//   box-shadow: none;
+// }
+// #expansion > mat-expansion-panel-header {
+//   padding: 0 16px 0 5px;
+// }

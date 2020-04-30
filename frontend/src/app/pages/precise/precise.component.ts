@@ -22,14 +22,12 @@ export class PreciseHomeComponent implements OnInit {
   @ViewChild(MatPaginator, { static: true }) paginator: MatPaginator;
   @ViewChild(MatSort, { static: true }) sort: MatSort;
   constructor(
-    private commonStore: CommonStore,
     public store: PreciseStore,
     private route: ActivatedRoute,
     private router: Router
   ) {}
 
   ngOnInit(): void {
-    this.commonStore.setProjectById("precise");
     this.dataSource.sort = this.sort;
     this.dataSource.paginator = this.paginator;
     // run fresh sort on load

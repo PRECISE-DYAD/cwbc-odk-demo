@@ -20,4 +20,4 @@ import { CommonComponentsModule } from "./common/common.components.module";
     CommonComponentsModule,
   ],
 })
-export class ComponentsModule {}
+export class CoreComponentsModule {}
