@@ -1,14 +1,17 @@
 import { NgModule } from "@angular/core";
 
-import { PreciseProfileConfirmation } from "./components/profileConfirmation";
-import { PreciseProfileSummary } from "./components/profileSummary";
-import { ComponentsModule } from "src/app/components/components.module";
-import { Routes, RouterModule } from "@angular/router";
+import { CoreComponentsModule } from "src/app/components";
+import { Routes, RouterModule, Router } from "@angular/router";
 import { PreciseHomeComponent } from "./precise.component";
 import { CommonModule } from "@angular/common";
 import { PreciseProfileComponent } from "./profile/profile.component";
+import { PreciseComponentsModule } from "./components";
+import { MobxAngularModule } from "mobx-angular";
+import { PreciseStore, CommonStore } from "src/app/stores";
+import remotedev from "mobx-remotedev";
+import { OdkService } from "src/app/services/odk/odk.service";
+import { NotificationService } from "src/app/services/notification/notification.service";
 
-const PreciseComponents = [PreciseProfileConfirmation, PreciseProfileSummary];
 const routes: Routes = [
   {
     path: "",
@@ -23,8 +26,25 @@ const routes: Routes = [
 ];
 
 @NgModule({
-  imports: [ComponentsModule, CommonModule, RouterModule.forChild(routes)],
-  exports: PreciseComponents,
-  declarations: PreciseComponents,
+  declarations: [PreciseHomeComponent, PreciseProfileComponent],
+  imports: [
+    CoreComponentsModule,
+    CommonModule,
+    RouterModule.forChild(routes),
+    PreciseComponentsModule,
+    MobxAngularModule,
+  ],
+  providers: [
+    {
+      provide: CommonStore,
+      useClass: remotedev(CommonStore, { global: true, onlyActions: true }),
+      deps: [Router],
+    },
+    {
+      provide: PreciseStore,
+      useClass: remotedev(PreciseStore, { global: true, onlyActions: true }),
+      deps: [OdkService, NotificationService],
+    },
+  ],
 })
 export class PreciseModule {}
