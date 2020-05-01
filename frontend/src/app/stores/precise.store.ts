@@ -1,7 +1,7 @@
 import { observable, action, computed } from "mobx-angular";
 import { Injectable } from "@angular/core";
 import { OdkService } from "../services/odk/odk.service";
-import { reaction, toJS, runInAction } from "mobx";
+import { reaction, toJS } from "mobx";
 import { IODkTableRowData, ODK_META_EXAMPLE } from "../types/odk.types";
 import { uuidv4 } from "../utils/guid";
 import { IFormMeta } from "../types/types";
@@ -15,17 +15,18 @@ export class PreciseStore {
   constructor(private odk: OdkService) {
     this.loadParticipants();
   }
-  @observable allParticipantsHashmap: IParticipantsHashmap;
-  @computed get allParticipants() {
-    return Object.values(this.allParticipantsHashmap);
-  }
+  allParticipantsHash: IParticipantsHashmap;
+  participantFormsHash: IParticipantFormHash;
+
   @observable participantSummaries: IParticipantSummary[];
   @observable activeParticipant: IParticipant;
+  @observable participantForms: IParticipantForm[];
   @observable listDataLoaded = false;
   @observable participantDataLoaded = false;
-  @observable participantForms: IParticipantForm[];
 
-  participantFormsHash: IParticipantFormHash;
+  @computed get allParticipants() {
+    return Object.values(this.allParticipantsHash);
+  }
 
   @action clearActiveParticipant() {
     this.activeParticipant = undefined;
@@ -33,26 +34,25 @@ export class PreciseStore {
     this.participantFormsHash = undefined;
     this.participantDataLoaded = false;
   }
-
   /**
    * Called on initial load, pull full participant data from main table
    * and generate summary to be used within display components
    */
-  @action async loadParticipants() {
-    const participantRows = await this.odk.getTableRows<IParticipant>(
+  async loadParticipants() {
+    const rows = await this.odk.getTableRows<IParticipant>(
       PRECISE_FORMS.genInfo.formId
     );
-    // enable mobx state update from async function
-    runInAction(() => {
-      this.participantSummaries = Object.values(participantRows).map((p, i) =>
-        this.generateParticipantSummary(p, i)
-      );
-      this.allParticipantsHashmap = this._arrToHashmap(
-        participantRows,
-        "f2a_participant_id"
-      );
-      this.listDataLoaded = true;
-    });
+    this.setParticipantLists(rows);
+  }
+  @action setParticipantLists(participantRows: IParticipant[]) {
+    this.participantSummaries = Object.values(participantRows).map((p, i) =>
+      this.generateParticipantSummary(p, i)
+    );
+    this.allParticipantsHash = this._arrToHashmap(
+      participantRows,
+      "f2a_participant_id"
+    );
+    this.listDataLoaded = true;
   }
 
   // used as part of router methods in web preview
@@ -60,7 +60,7 @@ export class PreciseStore {
     this.clearActiveParticipant();
     // ensure participants loaded, use a 'reaction' to subscribe to changes,
     // and unsubscribe (dispose) thereafter to avoid memory leak.
-    if (!this.allParticipantsHashmap) {
+    if (!this.allParticipantsHash) {
       return reaction(
         () => this.listDataLoaded,
         (isLoaded, r) => {
@@ -71,8 +71,8 @@ export class PreciseStore {
         }
       );
     }
-    if (this.allParticipantsHashmap[ptid]) {
-      this.activeParticipant = this.allParticipantsHashmap[ptid];
+    if (this.allParticipantsHash[ptid]) {
+      this.activeParticipant = this.allParticipantsHash[ptid];
       this.loadParticipantTableData(this.activeParticipant);
     }
   }
