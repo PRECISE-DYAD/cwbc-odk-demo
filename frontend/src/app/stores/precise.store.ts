@@ -247,6 +247,7 @@ const PARTICIPANT_SUMMARY_FIELDS = [
   "f2a_national_id",
   "f2a_hdss",
   "f2a_phone_number",
+  "f2a_full_name",
 ] as const;
 
 /********************************************************************************
