@@ -7,7 +7,7 @@ import { CommonModule } from "@angular/common";
 import { PreciseProfileComponent } from "./profile/profile.component";
 import { PreciseComponentsModule } from "./components";
 import { MobxAngularModule } from "mobx-angular";
-import { PreciseStore, CommonStore } from "src/app/stores";
+import { PreciseStore } from "src/app/stores";
 import remotedev from "mobx-remotedev";
 import { OdkService } from "src/app/services/odk/odk.service";
 import { NotificationService } from "src/app/services/notification/notification.service";
@@ -35,11 +35,6 @@ const routes: Routes = [
     MobxAngularModule,
   ],
   providers: [
-    {
-      provide: CommonStore,
-      useClass: remotedev(CommonStore, { global: true, onlyActions: true }),
-      deps: [Router],
-    },
     {
       provide: PreciseStore,
       useClass: remotedev(PreciseStore, { global: true, onlyActions: true }),
