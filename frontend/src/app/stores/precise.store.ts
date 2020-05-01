@@ -82,7 +82,7 @@ export class PreciseStore {
       const particpantRows = await this.odk.query(tableId, "f2_guid = ?", [
         f2_guid,
       ]);
-      collated[tableId] = particpantRows;
+      collated[tableId] = particpantRows ? particpantRows : [];
     });
     await Promise.all(promises);
     console.log("collated", collated);
@@ -213,7 +213,6 @@ export const PARTICIPANT_FORMS = [
     formId: "tod",
     tableId: "tod",
     icon: "disease",
-    disabled: true,
   },
   {
     title: "Birth Mother",
@@ -232,17 +231,13 @@ export const PARTICIPANT_FORMS = [
     formId: "lab",
     tableId: "lab",
     icon: "lab",
-    disabled: true,
   },
 ];
 // mapping to reference different tables and table groups
 const tables = {
   PARTICIPANTS: "genInfo",
   PARTICIPANTS_REVISIONS: "genInfoRevisions",
-  // TODO - once all forms available can remove disabled filter
-  PARTICIPANT_TABLES: PARTICIPANT_FORMS.filter((f) => !f.disabled).map(
-    (f) => f.tableId
-  ),
+  PARTICIPANT_TABLES: PARTICIPANT_FORMS.map((f) => f.tableId),
 };
 // fields used in summary views and search
 // _guid used to uniquely identify participant across all forms

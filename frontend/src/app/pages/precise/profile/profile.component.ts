@@ -9,39 +9,20 @@ import {
   CommonStore,
 } from "src/app/stores";
 import { toJS } from "mobx";
+import * as Animations from "src/app/animations";
 
 @Component({
   selector: "app-precise-profile",
   templateUrl: "./profile.component.html",
   styleUrls: ["./profile.component.scss"],
+  animations: [Animations.fadeEntryExit],
 })
 export class PreciseProfileComponent {
   participant: IParticipant = null;
   participantCollatedData: IParticipantCollatedData;
-  sections = [
-    {
-      label: "Precise Visit",
-      icon: "visit",
-      url: "/visit",
-    },
-    {
-      label: "Birth",
-      icon: "baby",
-      url: "/birth",
-    },
-    {
-      label: "TOD",
-      icon: "disease",
-      url: "/tod",
-    },
-    {
-      label: "Lab",
-      icon: "lab",
-      url: "/lab",
-    },
-  ];
-  forms: IFormMeta[] = PARTICIPANT_FORMS;
-  gridCols = Math.ceil(window.innerWidth / 200);
+
+  forms: IFormMeta[] = PARTICIPANT_FORMS.map((f) => ({ ...f, entries: [] }));
+
   participantRevisions: IParticipant[] = [];
   profileConfirmed = false;
   constructor(
@@ -70,21 +51,18 @@ export class PreciseProfileComponent {
       ) as IParticipant[];
       this.forms = this.forms.map((f) => ({
         ...f,
-        completed:
-          // TODO - can remove existence check when all forms defined
-          this.participantCollatedData[f.tableId] &&
-          this.participantCollatedData[f.tableId].length > 0
-            ? true
-            : false,
+        entries: toJS(this.participantCollatedData[f.tableId]),
       }));
+      console.log("forms", this.forms);
     }
   }
 
   handleProfileUpdate(shouldUpdate: boolean) {
     if (shouldUpdate) {
-      this.editProfile();
+      return this.editProfile();
+    } else {
+      this.profileConfirmed = true;
     }
-    this.profileConfirmed = true;
   }
 
   editProfile() {
@@ -98,15 +76,9 @@ export class PreciseProfileComponent {
   /**
    * Launch a form, passing the participant f2_guid variable for pre-population
    */
-  openForm(form: IFormMeta) {
-    // TODO - handle editing value
+  openForm(form: IFormMeta, editRowId?: string) {
     const { tableId, formId } = form;
     const { f2_guid } = this.participant;
-    // get editable row id if form already completed
-    // TODO - add better handling for cases where there will be multiple instances
-    const existing = form.completed
-      ? this.participantCollatedData[tableId][0]._id
-      : null;
-    return this.store.launchForm(tableId, formId, existing, { f2_guid });
+    return this.store.launchForm(tableId, formId, editRowId, { f2_guid });
   }
 }

@@ -12,25 +12,14 @@
     ></precise-profile-summary>
 
     <!-- Sections -->
-    <div *ngIf="profileConfirmed" style="margin-top: 2em;">
-      <mat-grid-list rowHeight="150px" [cols]="gridCols" gutterSize="20px">
-        <mat-grid-tile
-          *ngFor="let section of sections; let i = index"
-          colspan="1"
-          rowspan="1"
-          [routerLink]="[section.url]"
-          [class]="'section-tile color-rotate-' + i"
-        >
-          <mat-grid-tile-header class="primary-inverted">
-            <mat-icon class="section-icon" [svgIcon]="section.icon"></mat-icon>
-            <span>{{ section.label }}</span></mat-grid-tile-header
-          >
-          <div class="section-details">
-            No Data Recorded
-          </div>
-        </mat-grid-tile>
-      </mat-grid-list>
+    <div
+      @fadeEntryExit
+      *ngIf="profileConfirmed && participantCollatedData"
+      style="margin-top: 2em;"
+    >
+      <precise-sections-summary
+        [participantForms]="forms"
+      ></precise-sections-summary>
     </div>
   </div>
-  <p *ngIf="!participant">Participant not found</p>
 </div>

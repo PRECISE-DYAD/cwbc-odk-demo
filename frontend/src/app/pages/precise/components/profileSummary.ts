@@ -33,7 +33,8 @@ import * as Animations from "src/app/animations";
     <!-- Confirmation -->
     <div
       class="confirmation-container"
-      [@flyInOut]="profileConfirmed ? 'out' : 'in'"
+      @fadeEntryExit
+      *ngIf="!profileConfirmed"
     >
       <div style="margin:1em 0">
         Is the information above
@@ -51,7 +52,7 @@ import * as Animations from "src/app/animations";
       </div>
     </div>
   `,
-  animations: [Animations.flyInOut],
+  animations: [Animations.fadeEntryExit],
   styles: [
     `
       .summary-container,

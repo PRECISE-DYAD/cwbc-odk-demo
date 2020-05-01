@@ -1,3 +1,5 @@
+import { IODkTableRowData } from "./odk.types";
+
 export interface IProjectMeta {
   image: string;
   name: string;
@@ -9,6 +11,6 @@ export interface IFormMeta {
   formId: string;
   tableId: string;
   icon: string;
-  disabled?: boolean;
-  completed?: boolean;
+  // Note, entries populated dynamically for a specific participant
+  entries: IODkTableRowData[];
 }

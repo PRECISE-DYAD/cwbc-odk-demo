@@ -1,23 +1,4 @@
-mat-grid-tile:hover {
-  transform: scale(1.05);
-}
-mat-grid-tile {
-  transition: all 0.2s ease-in-out;
-  background: white;
-  border: 4px solid;
-  border-radius: 8px;
-}
-mat-grid-tile.disabled {
-  transform: none;
-  pointer-events: none;
-  opacity: 0.5;
-}
-mat-grid-tile-header > .section-icon {
-  margin-right: 10px;
-}
-.section-details {
-  color: var(--color-black);
-}
+
 
 // #expansion {
 //   box-shadow: none;
