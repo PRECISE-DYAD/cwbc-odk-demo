@@ -3,7 +3,6 @@ import { MatCardModule } from "@angular/material/card";
 import { MatButtonModule } from "@angular/material/button";
 import { MatToolbarModule } from "@angular/material/toolbar";
 import { MatTableModule } from "@angular/material/table";
-import { MatExpansionModule } from "@angular/material/expansion";
 import { MatFormFieldModule } from "@angular/material/form-field";
 import { MatPaginatorModule } from "@angular/material/paginator";
 import { MatProgressBarModule } from "@angular/material/progress-bar";
@@ -21,7 +20,6 @@ import { registerIcons } from "./icons";
     MatCardModule,
     MatButtonModule,
     MatToolbarModule,
-    MatExpansionModule,
     MatTableModule,
     MatFormFieldModule,
     MatPaginatorModule,

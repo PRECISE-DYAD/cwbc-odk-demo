@@ -55,6 +55,7 @@ export class PreciseSectionsSummary {
   gridCols = Math.ceil(window.innerWidth / 400);
 
   ngOnInit() {
+    console.log("participantForms", this.participantForms);
     this.sections = Object.values(SECTIONS).map((s) => s);
   }
 }
@@ -66,7 +67,12 @@ const SECTIONS = {
     url: "/visit",
     forms: [
       {
-        id: "",
+        id: "Visit1",
+        allowRepeat: false,
+        allowEdit: true,
+      },
+      {
+        id: "Visit2",
         allowRepeat: false,
         allowEdit: true,
       },

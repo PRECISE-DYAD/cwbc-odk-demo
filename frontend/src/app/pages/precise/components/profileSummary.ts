@@ -145,24 +145,3 @@ export class PreciseProfileSummary {
     },
   ];
 }
-
-/* Deprecated - could use expansion panel to show all field information
-
-this.participantFields = this._objToFieldArray(this.participant);
-
-  private _objToFieldArray(obj: { [field: string]: string }) {
-    return Object.entries(obj).map(([fieldName, value]) => {
-      return { fieldName, value };
-    });
-  }
-
-<!-- <mat-expansion-panel name="expansion" id="expansion" class="no-shadow">
-        <mat-expansion-panel-header>
-          <mat-panel-description>Additional Information </mat-panel-description>
-        </mat-expansion-panel-header>
-        <div *ngFor="let field of participantFields">
-          <span>{{ field.fieldName }}: </span>
-          <span>{{ field.value }}</span>
-        </div>
-      </mat-expansion-panel> -->
-*/
