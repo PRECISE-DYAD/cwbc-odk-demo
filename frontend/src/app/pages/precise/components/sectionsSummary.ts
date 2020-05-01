@@ -52,7 +52,7 @@ import { IFormMeta } from "src/app/types/types";
 export class PreciseSectionsSummary {
   @Input() participantForms: IFormMeta[];
   sections: any[];
-  gridCols = Math.ceil(window.innerWidth / 200);
+  gridCols = Math.ceil(window.innerWidth / 400);
 
   ngOnInit() {
     this.sections = Object.values(SECTIONS).map((s) => s);

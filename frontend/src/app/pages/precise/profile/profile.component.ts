@@ -25,13 +25,14 @@ export class PreciseProfileComponent {
 
   participantRevisions: IParticipant[] = [];
   profileConfirmed = false;
+  participantDataLoaded = false;
   constructor(
     public store: PreciseStore,
-    route: ActivatedRoute,
-    public common: CommonStore
+    common: CommonStore,
+    route: ActivatedRoute
   ) {
     this.store.setActiveParticipantById(route.snapshot.params.participantId);
-    this.common.setPageTitle(route.snapshot.params.participantId);
+    common.setPageTitle(route.snapshot.params.participantId);
   }
 
   /**

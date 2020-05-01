@@ -1,5 +1,5 @@
 <!-- Participant Search -->
-<div style="display: flex; margin: 5px;" *mobxAutorun>
+<div style="display: flex; margin: 5px; flex-wrap: wrap;" *mobxAutorun>
   <mat-form-field style="flex: 1; margin-left: 1em;">
     <mat-label color="primary">Search</mat-label>
     <input matInput (keyup)="applyFilter($event)" placeholder="Search" />
