@@ -82,7 +82,8 @@ export class PreciseStore {
   async loadParticipantTableData(participant: IParticipant) {
     const { f2_guid } = participant;
     const collated: { [tableId: string]: IODkTableRowData[] } = {};
-    const promises = tables.PARTICIPANT_TABLES.map(async (tableId) => {
+    const tables = Object.values(PRECISE_FORMS).map((f) => f.tableId);
+    const promises = tables.map(async (tableId) => {
       const particpantRows = await this.odk.query(tableId, "f2_guid = ?", [
         f2_guid,
       ]);
@@ -103,11 +104,9 @@ export class PreciseStore {
       entries: collated[f.tableId],
     }));
     this.participantFormsHash = this._arrToHashmap(
-      toJS(this.participantForms),
+      this.participantForms,
       "formId"
-    ) as IParticipantFormHash;
-    console.log("participantForms", toJS(this.participantForms));
-    console.log("participantFormsHash", this.participantFormsHash);
+    );
     this.participantDataLoaded = true;
   }
 
@@ -119,7 +118,6 @@ export class PreciseStore {
   addParticipant() {
     const { tableId, formId } = PRECISE_FORMS.genInfo;
     const f2_guid = uuidv4();
-    console.log("f2_guid", f2_guid);
     return this.launchForm(tableId, formId, null, { f2_guid });
   }
   /**
@@ -207,13 +205,14 @@ export class PreciseStore {
     arr.forEach((el) => {
       hash[el[hashKey]] = el;
     });
-    return hash;
+    return hash as any;
   }
 }
 
 /********************************************************************************
  * Constants
  ********************************************************************************/
+// form list saved as hashmap instead of array to make easy direct form access via key
 export const PRECISE_FORMS = {
   genInfo: {
     title: "General Info",
@@ -269,33 +268,30 @@ export const PRECISE_FORMS = {
   },
 };
 
-// Groupings applied to forms
-export const PRECISE_FORM_SECTIONS = {
-  visit: {
+// Groupings applied to forms for display
+export const PRECISE_FORM_SECTIONS: IPreciseFormSection[] = [
+  {
     icon: "visit",
     label: "Precise Visit",
-    forms: [PRECISE_FORMS.Visit1, PRECISE_FORMS.Visit2],
+    forms: ["Visit1", "Visit2"],
   },
-  birth: {
-    icon: "birth",
+  {
+    icon: "baby",
     label: "Birth",
-    forms: [PRECISE_FORMS.Birthmother, PRECISE_FORMS.Birthbaby],
+    forms: ["Birthmother", "Birthbaby"],
   },
-  tod: {
+  {
     icon: "disease",
     label: "TOD",
-    forms: [PRECISE_FORMS.tod],
+    forms: ["tod"],
   },
-  lab: {
+  {
     icon: "lab",
     label: "Lab",
-    forms: [PRECISE_FORMS.lab],
+    forms: ["lab"],
   },
-};
-// mapping to reference different tables and table groups
-const tables = {
-  PARTICIPANT_TABLES: Object.values(PRECISE_FORMS).map((f) => f.tableId),
-};
+];
+
 // fields used in summary views and search
 // _guid used to uniquely identify participant across all forms
 const PARTICIPANT_SUMMARY_FIELDS = [
@@ -333,3 +329,10 @@ export interface IParticipantForm extends IFormMeta {
 type IParticipantFormHash = {
   [key in keyof typeof PRECISE_FORMS]: IParticipantForm;
 };
+type IPreciseFormId = keyof typeof PRECISE_FORMS;
+
+export interface IPreciseFormSection {
+  icon: string;
+  label: string;
+  forms: IPreciseFormId[];
+}

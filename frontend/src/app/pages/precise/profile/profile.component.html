@@ -21,9 +21,7 @@
       *ngIf="profileConfirmed && store.participantDataLoaded"
       style="margin-top: 2em;"
     >
-      <precise-sections-summary
-        [participantForms]="store.participantForms"
-      ></precise-sections-summary>
+      <precise-sections-summary></precise-sections-summary>
     </div>
   </div>
   <div *ngIf="store.listDataLoaded && !store.activeParticipant">

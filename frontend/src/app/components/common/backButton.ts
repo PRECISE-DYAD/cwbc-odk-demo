@@ -13,7 +13,5 @@ import { Location } from "@angular/common";
   </button>`,
 })
 export class BackButtonComponent {
-  constructor(public location: Location) {
-    console.log("location", location.path());
-  }
+  constructor(public location: Location) {}
 }

@@ -28,12 +28,10 @@ export class PreciseProfileComponent {
    * key:value data to array for easier display
    */
   async participantUpdated() {
-    console.log("participant updated");
     if (this.store.participantDataLoaded) {
       // full data from all linked tables has loaded
       this.participantForms = this.store.participantForms;
       this.participantRevisions = this.store.participantFormsHash.genInfoRevisions.entries;
-      console.log("revisions", this.participantRevisions);
     }
   }
 
