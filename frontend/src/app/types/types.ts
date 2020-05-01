@@ -10,7 +10,7 @@ export interface IFormMeta {
   title: string;
   formId: string;
   tableId: string;
-  icon: string;
-  // Note, entries populated dynamically for a specific participant
-  entries: IODkTableRowData[];
+  icon?: string;
+  // participant can fill multiple entries of same form
+  allowRepeats?: boolean;
 }

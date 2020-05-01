@@ -1,9 +1,10 @@
 import { observable, action, computed } from "mobx-angular";
 import { Injectable } from "@angular/core";
 import { OdkService } from "../services/odk/odk.service";
-import { reaction } from "mobx";
+import { reaction, toJS, runInAction } from "mobx";
 import { IODkTableRowData, ODK_META_EXAMPLE } from "../types/odk.types";
 import { uuidv4 } from "../utils/guid";
+import { IFormMeta } from "../types/types";
 
 /**
  * The PreciseStore manages persisted data and operations across the entire application,
@@ -20,12 +21,17 @@ export class PreciseStore {
   }
   @observable participantSummaries: IParticipantSummary[];
   @observable activeParticipant: IParticipant;
-  @observable dataLoaded = false;
-  @observable participantCollatedData: IParticipantCollatedData;
+  @observable listDataLoaded = false;
+  @observable participantDataLoaded = false;
+  @observable participantForms: IParticipantForm[];
+
+  participantFormsHash: IParticipantFormHash;
 
   @action clearActiveParticipant() {
     this.activeParticipant = undefined;
-    this.participantCollatedData = undefined;
+    this.participantForms = undefined;
+    this.participantFormsHash = undefined;
+    this.participantDataLoaded = false;
   }
 
   /**
@@ -34,16 +40,19 @@ export class PreciseStore {
    */
   @action async loadParticipants() {
     const participantRows = await this.odk.getTableRows<IParticipant>(
-      tables.PARTICIPANTS
+      PRECISE_FORMS.genInfo.formId
     );
-    this.participantSummaries = Object.values(participantRows).map((p, i) =>
-      this.generateParticipantSummary(p, i)
-    );
-    this.allParticipantsHashmap = this._arrToHashmap(
-      participantRows,
-      "f2a_participant_id"
-    );
-    this.dataLoaded = true;
+    // enable mobx state update from async function
+    runInAction(() => {
+      this.participantSummaries = Object.values(participantRows).map((p, i) =>
+        this.generateParticipantSummary(p, i)
+      );
+      this.allParticipantsHashmap = this._arrToHashmap(
+        participantRows,
+        "f2a_participant_id"
+      );
+      this.listDataLoaded = true;
+    });
   }
 
   // used as part of router methods in web preview
@@ -53,7 +62,7 @@ export class PreciseStore {
     // and unsubscribe (dispose) thereafter to avoid memory leak.
     if (!this.allParticipantsHashmap) {
       return reaction(
-        () => this.dataLoaded,
+        () => this.listDataLoaded,
         (isLoaded, r) => {
           if (isLoaded) {
             r.dispose();
@@ -64,29 +73,42 @@ export class PreciseStore {
     }
     if (this.allParticipantsHashmap[ptid]) {
       this.activeParticipant = this.allParticipantsHashmap[ptid];
-      console.log("activeParticipant", { ...this.activeParticipant });
       this.loadParticipantTableData(this.activeParticipant);
     }
   }
   /**
    * query batch to get rows from other tables linked by participant guid
    */
-  @action async loadParticipantTableData(participant: IParticipant) {
+  async loadParticipantTableData(participant: IParticipant) {
     const { f2_guid } = participant;
-    const participantTables = [
-      "genInfoRevisions",
-      ...tables.PARTICIPANT_TABLES,
-    ];
     const collated: { [tableId: string]: IODkTableRowData[] } = {};
-    const promises = participantTables.map(async (tableId) => {
+    const promises = tables.PARTICIPANT_TABLES.map(async (tableId) => {
       const particpantRows = await this.odk.query(tableId, "f2_guid = ?", [
         f2_guid,
       ]);
       collated[tableId] = particpantRows ? particpantRows : [];
     });
     await Promise.all(promises);
-    console.log("collated", collated);
-    this.participantCollatedData = collated;
+    this.setParticipantForms(collated);
+  }
+
+  /**
+   * Separate action from async load code to allow mobx to update synchronously
+   */
+  @action setParticipantForms(collated: {
+    [tableId: string]: IODkTableRowData[];
+  }) {
+    this.participantForms = Object.values(PRECISE_FORMS).map((f) => ({
+      ...f,
+      entries: collated[f.tableId],
+    }));
+    this.participantFormsHash = this._arrToHashmap(
+      toJS(this.participantForms),
+      "formId"
+    ) as IParticipantFormHash;
+    console.log("participantForms", toJS(this.participantForms));
+    console.log("participantFormsHash", this.participantFormsHash);
+    this.participantDataLoaded = true;
   }
 
   /**
@@ -95,8 +117,7 @@ export class PreciseStore {
    * throughout all forms
    */
   addParticipant() {
-    const tableId = tables.PARTICIPANTS;
-    const formId = tables.PARTICIPANTS;
+    const { tableId, formId } = PRECISE_FORMS.genInfo;
     const f2_guid = uuidv4();
     console.log("f2_guid", f2_guid);
     return this.launchForm(tableId, formId, null, { f2_guid });
@@ -106,8 +127,7 @@ export class PreciseStore {
    */
   async editParticipant(participant: IParticipant) {
     await this.backupParticipant(participant);
-    const tableId = tables.PARTICIPANTS;
-    const formId = tables.PARTICIPANTS;
+    const { tableId, formId } = PRECISE_FORMS.genInfo;
     const rowId = participant._id;
     this.odk.editRowWithSurvey(tableId, rowId, formId);
   }
@@ -118,9 +138,8 @@ export class PreciseStore {
    */
   async backupParticipant(participant: IParticipant) {
     const newBackup = this._stripOdkMeta(participant);
-    const allBackups = this.participantCollatedData[
-      tables.PARTICIPANTS_REVISIONS
-    ];
+    const allBackups = this.participantFormsHash.genInfoRevisions
+      .entries as any[];
     const latestBackup = this._stripOdkMeta(allBackups.pop());
     // Simple object comparison as strings. More complex diffs available
     // via 3rd party libs such as diff, lodash or deep-compare. Skip if same.
@@ -195,49 +214,87 @@ export class PreciseStore {
 /********************************************************************************
  * Constants
  ********************************************************************************/
-export const PARTICIPANT_FORMS = [
-  {
+export const PRECISE_FORMS = {
+  genInfo: {
+    title: "General Info",
+    formId: "genInfo",
+    tableId: "genInfo",
+    icon: "profile",
+  },
+  genInfoRevisions: {
+    title: "General Info Revisions",
+    formId: "genInfoRevisions",
+    tableId: "genInfoRevisions",
+    icon: "history",
+  },
+  Visit1: {
     title: "Precise Visit 1",
     formId: "Visit1",
     tableId: "Visit1",
     icon: "visit",
   },
-  {
+  Visit2: {
     title: "Precise Visit 2",
     formId: "Visit2",
     tableId: "Visit2",
     icon: "visit",
   },
-  {
+  tod: {
     title: "ToD at ANC",
     formId: "tod",
     tableId: "tod",
     icon: "disease",
+    allowRepeats: true,
   },
-  {
+  Birthmother: {
     title: "Birth Mother",
     formId: "Birthmother",
     tableId: "Birthmother",
     icon: "mother",
+    allowRepeats: true,
   },
-  {
+  Birthbaby: {
     title: "Birth Baby",
     formId: "Birthbaby",
     tableId: "Birthbaby",
     icon: "baby",
+    allowRepeats: true,
   },
-  {
+  lab: {
     title: "Laboratory",
     formId: "lab",
     tableId: "lab",
     icon: "lab",
+    allowRepeats: true,
   },
-];
+};
+
+// Groupings applied to forms
+export const PRECISE_FORM_SECTIONS = {
+  visit: {
+    icon: "visit",
+    label: "Precise Visit",
+    forms: [PRECISE_FORMS.Visit1, PRECISE_FORMS.Visit2],
+  },
+  birth: {
+    icon: "birth",
+    label: "Birth",
+    forms: [PRECISE_FORMS.Birthmother, PRECISE_FORMS.Birthbaby],
+  },
+  tod: {
+    icon: "disease",
+    label: "TOD",
+    forms: [PRECISE_FORMS.tod],
+  },
+  lab: {
+    icon: "lab",
+    label: "Lab",
+    forms: [PRECISE_FORMS.lab],
+  },
+};
 // mapping to reference different tables and table groups
 const tables = {
-  PARTICIPANTS: "genInfo",
-  PARTICIPANTS_REVISIONS: "genInfoRevisions",
-  PARTICIPANT_TABLES: PARTICIPANT_FORMS.map((f) => f.tableId),
+  PARTICIPANT_TABLES: Object.values(PRECISE_FORMS).map((f) => f.tableId),
 };
 // fields used in summary views and search
 // _guid used to uniquely identify participant across all forms
@@ -268,7 +325,11 @@ export type IParticipantSummary = Partial<IParticipant>;
 // hashmap to provide quick lookup of participant by participant id
 type IParticipantsHashmap = { [f2a_participant_id: string]: IParticipant };
 
-// collated info of all participant data across tables
-export type IParticipantCollatedData = {
-  [tableId: string]: IODkTableRowData[];
+// Participant forms contain full form meta with specific participant entries
+export interface IParticipantForm extends IFormMeta {
+  entries: IODkTableRowData[];
+}
+
+type IParticipantFormHash = {
+  [key in keyof typeof PRECISE_FORMS]: IParticipantForm;
 };

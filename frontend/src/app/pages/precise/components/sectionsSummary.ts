@@ -1,5 +1,4 @@
 import { Component, Input } from "@angular/core";
-import { IParticipantCollatedData } from "src/app/stores";
 import { IFormMeta } from "src/app/types/types";
 
 @Component({

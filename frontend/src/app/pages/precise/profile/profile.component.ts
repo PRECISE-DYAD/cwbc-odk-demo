@@ -1,14 +1,7 @@
 import { Component } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
 import { IFormMeta } from "src/app/types/types";
-import {
-  PreciseStore,
-  IParticipant,
-  PARTICIPANT_FORMS,
-  IParticipantCollatedData,
-  CommonStore,
-} from "src/app/stores";
-import { toJS } from "mobx";
+import { PreciseStore, CommonStore, IParticipantForm } from "src/app/stores";
 import * as Animations from "src/app/animations";
 
 @Component({
@@ -18,14 +11,9 @@ import * as Animations from "src/app/animations";
   animations: [Animations.fadeEntryExit],
 })
 export class PreciseProfileComponent {
-  participant: IParticipant = null;
-  participantCollatedData: IParticipantCollatedData;
-
-  forms: IFormMeta[] = PARTICIPANT_FORMS.map((f) => ({ ...f, entries: [] }));
-
-  participantRevisions: IParticipant[] = [];
+  participantRevisions: IParticipantForm["entries"] = [];
   profileConfirmed = false;
-  participantDataLoaded = false;
+  participantForms: IParticipantForm[];
   constructor(
     public store: PreciseStore,
     common: CommonStore,
@@ -39,22 +27,13 @@ export class PreciseProfileComponent {
    * Triggered on update from the template, set active participant and convert
    * key:value data to array for easier display
    */
-  async participantLoaded() {
-    // participant has loaded
-    if (this.store.activeParticipant) {
-      this.participant = this.store.activeParticipant;
-    }
-    // full data from all linked tables has loaded
-    if (this.store.participantCollatedData) {
-      this.participantCollatedData = this.store.participantCollatedData;
-      this.participantRevisions = toJS(
-        this.participantCollatedData.genInfoRevisions
-      ) as IParticipant[];
-      this.forms = this.forms.map((f) => ({
-        ...f,
-        entries: toJS(this.participantCollatedData[f.tableId]),
-      }));
-      console.log("forms", this.forms);
+  async participantUpdated() {
+    console.log("participant updated");
+    if (this.store.participantDataLoaded) {
+      // full data from all linked tables has loaded
+      this.participantForms = this.store.participantForms;
+      this.participantRevisions = this.store.participantFormsHash.genInfoRevisions.entries;
+      console.log("revisions", this.participantRevisions);
     }
   }
 
@@ -67,11 +46,11 @@ export class PreciseProfileComponent {
   }
 
   editProfile() {
-    this.store.editParticipant(this.participant);
+    this.store.editParticipant(this.store.activeParticipant);
   }
   viewRevisions() {
     alert(
-      `${this.participantCollatedData.genInfoRevisions.length} Revisions Recorded`
+      `${this.store.participantFormsHash.genInfoRevisions.entries.length} Revisions Recorded`
     );
   }
   /**
@@ -79,7 +58,7 @@ export class PreciseProfileComponent {
    */
   openForm(form: IFormMeta, editRowId?: string) {
     const { tableId, formId } = form;
-    const { f2_guid } = this.participant;
+    const { f2_guid } = this.store.activeParticipant;
     return this.store.launchForm(tableId, formId, editRowId, { f2_guid });
   }
 }

@@ -1,7 +1,7 @@
 import { NgModule } from "@angular/core";
 
 import { CoreComponentsModule } from "src/app/components";
-import { Routes, RouterModule, Router } from "@angular/router";
+import { Routes, RouterModule } from "@angular/router";
 import { PreciseHomeComponent } from "./precise.component";
 import { CommonModule } from "@angular/common";
 import { PreciseProfileComponent } from "./profile/profile.component";

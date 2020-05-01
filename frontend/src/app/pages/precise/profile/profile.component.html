@@ -1,11 +1,15 @@
 <div
-  *mobxReaction="participantLoaded.bind(this)"
+  *mobxReaction="participantUpdated.bind(this)"
   style="flex: 1;"
   class="primary"
 >
-  <div style="padding: 1em;" *ngIf="participant">
+  <div
+    style="padding: 1em;"
+    *ngIf="store.listDataLoaded && store.participantDataLoaded"
+  >
+    <!-- WIP - swap to only one update for all data loaded -->
     <precise-profile-summary
-      [participant]="participant"
+      [participant]="store.activeParticipant"
       [participantRevisions]="participantRevisions"
       (shouldUpdate)="handleProfileUpdate($event)"
       [profileConfirmed]="profileConfirmed"
@@ -14,12 +18,15 @@
     <!-- Sections -->
     <div
       @fadeEntryExit
-      *ngIf="profileConfirmed && participantCollatedData"
+      *ngIf="profileConfirmed && store.participantDataLoaded"
       style="margin-top: 2em;"
     >
       <precise-sections-summary
-        [participantForms]="forms"
+        [participantForms]="store.participantForms"
       ></precise-sections-summary>
     </div>
+  </div>
+  <div *ngIf="store.listDataLoaded && !store.activeParticipant">
+    Participant not found
   </div>
 </div>
