@@ -36,7 +36,7 @@ import * as Animations from "src/app/animations";
       @fadeEntryExit
       *ngIf="!profileConfirmed"
     >
-      <div style="margin:1em 0">
+      <div>
         Is the information above
         <strong>accurate and up-to-date?</strong>
       </div>
@@ -65,6 +65,7 @@ import * as Animations from "src/app/animations";
         border: 2px solid var(--color-black);
         border-radius: 8px;
         padding-bottom: 5px;
+        margin-bottom: 2em;
       }
       .summary-title {
         color: white;
@@ -96,6 +97,9 @@ import * as Animations from "src/app/animations";
       }
       .field-label {
         font-weight: bold;
+      }
+      .confirmation-container {
+        height: 0;
       }
       .confirmation-container button {
         flex: 1;

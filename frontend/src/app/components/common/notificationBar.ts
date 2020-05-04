@@ -1,7 +1,7 @@
 import { Component, Inject, ViewEncapsulation } from "@angular/core";
 import {
   MatSnackBarRef,
-  MAT_SNACK_BAR_DATA
+  MAT_SNACK_BAR_DATA,
 } from "@angular/material/snack-bar";
 
 @Component({
@@ -49,8 +49,8 @@ import {
       .font-size-smaller {
         font-size: smaller;
       }
-    `
-  ]
+    `,
+  ],
 })
 export class NotificationBarComponent {
   constructor(

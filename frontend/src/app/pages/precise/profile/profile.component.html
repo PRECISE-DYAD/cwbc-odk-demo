@@ -16,11 +16,7 @@
     ></precise-profile-summary>
 
     <!-- Sections -->
-    <div
-      @fadeEntryExit
-      *ngIf="profileConfirmed && store.participantDataLoaded"
-      style="margin-top: 2em;"
-    >
+    <div @fadeEntryExit *ngIf="profileConfirmed && store.participantDataLoaded">
       <precise-sections-summary></precise-sections-summary>
     </div>
   </div>
