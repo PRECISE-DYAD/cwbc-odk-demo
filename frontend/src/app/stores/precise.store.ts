@@ -1,7 +1,7 @@
 import { observable, action, computed } from "mobx-angular";
 import { Injectable } from "@angular/core";
 import { OdkService } from "../services/odk/odk.service";
-import { reaction, toJS } from "mobx";
+import { reaction } from "mobx";
 import { IODkTableRowData, ODK_META_EXAMPLE } from "../types/odk.types";
 import { uuidv4 } from "../utils/guid";
 import { IFormMeta } from "../types/types";
@@ -238,10 +238,10 @@ export const PRECISE_FORMS = {
     tableId: "Visit2",
     icon: "visit",
   },
-  tod: {
+  Tod: {
     title: "ToD at ANC",
-    formId: "tod",
-    tableId: "tod",
+    formId: "Tod",
+    tableId: "Tod",
     icon: "disease",
     allowRepeats: true,
   },
@@ -259,36 +259,37 @@ export const PRECISE_FORMS = {
     icon: "baby",
     allowRepeats: true,
   },
-  lab: {
+  Lab: {
     title: "Laboratory",
-    formId: "lab",
-    tableId: "lab",
+    formId: "Lab",
+    tableId: "Lab",
     icon: "lab",
     allowRepeats: true,
   },
 };
 
 // Groupings applied to forms for display
+// FormMeta (as above) with entries populated dynamically
 export const PRECISE_FORM_SECTIONS: IPreciseFormSection[] = [
   {
     icon: "visit",
     label: "Precise Visit",
-    forms: ["Visit1", "Visit2"],
+    formIds: ["Visit1", "Visit2"],
   },
   {
     icon: "baby",
     label: "Birth",
-    forms: ["Birthmother", "Birthbaby"],
+    formIds: ["Birthmother", "Birthbaby"],
   },
   {
     icon: "disease",
     label: "TOD",
-    forms: ["tod"],
+    formIds: ["Tod"],
   },
   {
     icon: "lab",
     label: "Lab",
-    forms: ["lab"],
+    formIds: ["Lab"],
   },
 ];
 
@@ -334,5 +335,5 @@ type IPreciseFormId = keyof typeof PRECISE_FORMS;
 export interface IPreciseFormSection {
   icon: string;
   label: string;
-  forms: IPreciseFormId[];
+  formIds: IPreciseFormId[];
 }
