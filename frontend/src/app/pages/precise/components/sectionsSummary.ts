@@ -3,9 +3,10 @@ import {
   PRECISE_FORM_SECTIONS,
   PreciseStore,
   IPreciseFormSection,
+  IParticipantForm,
 } from "src/app/stores";
 import { toJS } from "mobx";
-import { IFormMeta } from "src/app/types/types";
+import { IODkTableRowData } from "src/app/types/odk.types";
 
 @Component({
   selector: "precise-sections-summary",
@@ -25,20 +26,28 @@ import { IFormMeta } from "src/app/types/types";
         <span>{{ section.label }}</span></mat-grid-tile-header
       >
       <div class="section-details">
-        <div *ngFor="let form of section.formMeta">
+        <div *ngFor="let form of section.forms">
           <div *ngFor="let entry of form.entries">
-            <button mat-button>
-              <mat-icon>check_box</mat-icon>
+            <button mat-button (click)="openForm(form, entry)">
+              <mat-icon *ngIf="entry._savepoint_type === 'COMPLETE'">
+                check_box</mat-icon
+              >
+              <mat-icon *ngIf="entry._savepoint_type === 'INCOMPLETE'"
+                >indeterminate_check_box</mat-icon
+              >
               <!-- TODO show different icon if incomplete -->
-              {{ form.entries[0]._savepoint_timestamp }} -
-              {{ form.entries[0]._savepoint_type }}
+              {{ entry._savepoint_timestamp | date }}
             </button>
           </div>
-          <button mat-button *ngIf="!form.allowRepeats && !form.entries[0]">
+          <button
+            mat-button
+            *ngIf="!form.allowRepeats && !form.entries[0]"
+            (click)="openForm(form)"
+          >
             <mat-icon>check_box_outline_blank</mat-icon>
             {{ form.title }}
           </button>
-          <button mat-button *ngIf="form.allowRepeats">
+          <button mat-button *ngIf="form.allowRepeats" (click)="openForm(form)">
             <mat-icon>add</mat-icon>
             {{ form.title }}
           </button>
@@ -73,23 +82,33 @@ import { IFormMeta } from "src/app/types/types";
         padding: 5px 0;
         width: 100%;
       }
+      .section-details button {
+        width: 100%;
+        text-align: left;
+      }
     `,
   ],
 })
 export class PreciseSectionsSummary {
   sections: ISectionWithMeta[];
   gridCols = Math.ceil(window.innerWidth / 400);
-  constructor(store: PreciseStore) {
+  constructor(public store: PreciseStore) {
     this.sections = PRECISE_FORM_SECTIONS.map((s) => ({
       ...s,
-      formMeta: s.forms.map((formId) =>
+      forms: s.formIds.map((formId) =>
         toJS(store.participantFormsHash[formId])
       ),
     }));
     console.log("sections", this.sections);
   }
+
+  openForm(form: IParticipantForm, entry?: IODkTableRowData) {
+    const { tableId, formId } = form;
+    const editRowId = entry ? entry._id : null;
+    this.store.launchForm(tableId, formId, editRowId);
+  }
 }
 
 interface ISectionWithMeta extends IPreciseFormSection {
-  formMeta: IFormMeta[];
+  forms: IParticipantForm[];
 }
