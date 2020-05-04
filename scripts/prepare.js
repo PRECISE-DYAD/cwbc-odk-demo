@@ -22,12 +22,12 @@ async function run() {
     }
   }
   // copy forms
-  await cleanCopy(
+  await ensureCopy(
     "forms/framework.xlsx",
     `${designerAssetsPath}/framework/forms/framework/framework.xlsx`
   );
 
-  await cleanCopy("forms/tables", `${designerPath}/app/config/tables`);
+  await ensureCopy("forms/tables", `${designerPath}/app/config/tables`, true);
   // process forms, call npx in case not installed globally
   child.spawnSync("npx grunt", ["xlsx-convert-all"], {
     cwd: designerPath,
@@ -35,7 +35,7 @@ async function run() {
     shell: true,
   });
   // copy preload data
-  await cleanCopy("forms/csv", `${designerAssetsPath}/csv`);
+  await ensureCopy("forms/csv", `${designerAssetsPath}/csv`, true);
   await fs.move(
     `${designerAssetsPath}/csv/tables.init`,
     `${designerAssetsPath}/tables.init`,
@@ -44,8 +44,8 @@ async function run() {
     }
   );
   // copy back json and csv data in case frontend wants to access
-  await fs.cleanCopy(`forms/csv`, `${frontendPath}/src/assets/odk/csv`);
-  await fs.cleanCopy(
+  await ensureCopy(`forms/csv`, `${frontendPath}/src/assets/odk/csv`, true);
+  await ensureCopy(
     `${designerPath}/app/config/assets/framework/forms/framework/formDef.json`,
     `${frontendPath}/src/assets/odk/framework.json`
   );
@@ -64,11 +64,15 @@ run();
 
 /**
  * Copy files, ensuring target folder exists and overwriting any existing data
+ * @param emptyDir - Optionally empty directory before copy
  */
-async function cleanCopy(src, dest) {
+async function ensureCopy(src, dest, emptyDir = false) {
   const isDirectory = (await fs.stat(src)).isDirectory();
   const destDirectory = isDirectory ? dest : path.dirname(dest);
   await fs.ensureDir(destDirectory);
+  if (emptyDir) {
+    await fs.emptyDir(dest);
+  }
   await fs.copy(src, dest, { overwrite: true }).catch((err) => {
     console.error("\x1b[31m", `ERROR: could not copy ${src} -> ${dest}`);
     process.exitCode = 1;
