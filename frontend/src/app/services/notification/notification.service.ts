@@ -2,29 +2,47 @@ import { Injectable } from "@angular/core";
 import { MatSnackBar } from "@angular/material/snack-bar";
 import {
   NotificationBarComponent,
-  ISnackbarData
+  ISnackbarData,
 } from "src/app/components/common/notificationBar";
+import { spy } from "mobx";
 
 @Injectable({
-  providedIn: "root"
+  providedIn: "root",
 })
 export class NotificationService {
-  constructor(private snackbar: MatSnackBar) { }
+  storeEvents = [];
+  constructor(private snackbar: MatSnackBar) {
+    // add state spy for use in error debugging
+    // NOTE - disabled in prod https://github.com/mobxjs/mobx/issues/2201
+    // possible alternates could be models or similar from
+    // https://github.com/mobxjs/mobx-utils#deepobserve
+    // TODO - should probably move to other error handler (e.g. sentry)
+    spy((event) => {
+      this.storeEvents.push(event);
+    });
+  }
 
   showMessage(message: string, data?: ISnackbarData) {
     return this.snackbar.openFromComponent(NotificationBarComponent, {
-      data: { ...DATA_DEFAULTS, message, ...data }
+      data: { ...DATA_DEFAULTS, message, ...data },
+      duration: 5000,
     });
   }
 
   handleError(err: Error) {
     console.error(err);
-    const message = typeof err === 'string' ? err : err.message ? err.message : "Error Occured";
+    console.log("store events", this.storeEvents);
+    const message =
+      typeof err === "string"
+        ? err
+        : err.message
+        ? err.message
+        : "Error Occured";
     return this.showMessage(message, { notificationType: "error", message });
   }
 }
 
 const DATA_DEFAULTS: ISnackbarData = {
   message: "",
-  notificationType: "information"
+  notificationType: "information",
 };
