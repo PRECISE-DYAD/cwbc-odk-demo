@@ -160,7 +160,10 @@ export class PreciseStore {
     editRowId: string = null,
     jsonMap: any = null
   ) {
-    console.log("launching form", jsonMap);
+    if (this.activeParticipant) {
+      jsonMap = { f2_guid: this.activeParticipant.f2_guid, ...jsonMap };
+    }
+    console.log("launching form", tableId, formId, editRowId, jsonMap);
 
     if (editRowId) {
       return this.odk.editRowWithSurvey(tableId, editRowId, formId);
