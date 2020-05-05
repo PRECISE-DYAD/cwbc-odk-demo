@@ -21,14 +21,28 @@ import * as Animations from "src/app/animations";
       </div>
       <table>
         <th *ngFor="let heading of tableHeadings"></th>
-        <tr class="table-row" *ngFor="let f of fieldMappings">
+        <tr
+          class="table-row"
+          [attr.data-field]="f.field"
+          *ngFor="let f of fieldMappings"
+        >
           <td>
             <mat-icon class="field-icon">{{ f.icon }}</mat-icon>
           </td>
           <td class="field-label">{{ f.label }}</td>
-          <td class="field-value">{{ participant[f.field] }}</td>
+          <td class="field-value">
+            <div>{{ participant[f.field] }}</div>
+            <!-- revision history view -->
+            <div
+              *ngFor="let fieldRevision of f.revisions"
+              class="field-value revision"
+            >
+              {{ fieldRevision }}
+            </div>
+          </td>
         </tr>
       </table>
+      <div id="guid" *ngIf="!profileConfirmed">{{ participant.f2_guid }}</div>
     </div>
     <!-- Confirmation -->
     <div
@@ -95,6 +109,9 @@ import * as Animations from "src/app/animations";
       .field-value {
         opacity: 0.9;
       }
+      .field-value.revision {
+        opacity: 0.5;
+      }
       .field-label {
         font-weight: bold;
       }
@@ -105,6 +122,15 @@ import * as Animations from "src/app/animations";
         flex: 1;
         margin: 2px;
         padding: 5px;
+      }
+      #guid {
+        font-size: x-small;
+        opacity: 0.3;
+        text-align: center;
+        position: absolute;
+        bottom: 5px;
+        left: 0;
+        width: 90vw;
       }
     `,
   ],
@@ -117,35 +143,60 @@ export class PreciseProfileSummary {
 
   showRevisions() {
     // TODO - build review methods
-    alert(`Revision history not currently available (under development)`);
+    this.fieldMappings = this.fieldMappings.map((f) => {
+      const fieldRevisions = {};
+      this.participantRevisions.forEach((rev) => {
+        if (rev[f.field] && rev[f.field] !== this.participant[f.field]) {
+          fieldRevisions[rev[f.field]] = true;
+        }
+      });
+      return { ...f, revisions: Object.keys(fieldRevisions).reverse() };
+    });
+  }
+  hideRevisions() {
+    this.fieldMappings = this.fieldMappings.map((f) => ({
+      ...f,
+      revisions: [],
+    }));
   }
 
   tableHeadings = ["Icon", "Field", "Value"];
-  fieldMappings = [
+  fieldMappings: IFieldMapping[] = [
     {
       field: "f2a_national_id",
       label: "National ID",
       icon: "folder_shared",
+      revisions: [],
     },
     {
       field: "f2a_full_name",
       label: "Name",
       icon: "person",
+      revisions: [],
     },
     {
       field: "f2a_phone_number",
       label: "Phone 1",
       icon: "phone",
+      revisions: [],
     },
     {
       field: "f2a_phone_number_2",
       label: "Phone 2",
       icon: "phone",
+      revisions: [],
     },
     {
       field: "f2_woman_addr",
       label: "Address",
       icon: "home",
+      revisions: [],
     },
   ];
+}
+interface IFieldMapping {
+  field: string;
+  label: string;
+  icon: string;
+  revisions: string[];
 }
