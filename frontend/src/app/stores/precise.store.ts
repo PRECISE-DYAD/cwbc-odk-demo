@@ -260,6 +260,18 @@ export const PRECISE_FORMS = {
     tableId: "Birthbaby",
     icon: "baby",
   },
+  Postpartummother: {
+    title: "Postpartum Mother",
+    formId: "Postpartummother",
+    tableId: "Postpartummother",
+    icon: "mother",
+  },
+  Postpartumbaby: {
+    title: "Postpartum Baby",
+    formId: "Postpartumbaby",
+    tableId: "Postpartumbaby",
+    icon: "baby",
+  },
   Lab: {
     title: "Laboratory",
     formId: "Lab",
@@ -290,13 +302,13 @@ export const PRECISE_FORM_SECTIONS: IPreciseFormSection[] = [
   {
     icon: "mother",
     label: "Mother",
-    formIds: ["Birthmother"],
+    formIds: ["Birthmother", "Postpartummother"],
   },
 ];
 export const PRECISE_BABY_FORM_SECTION: IPreciseFormSection = {
   icon: "baby",
   label: "Baby",
-  formIds: ["Birthbaby"],
+  formIds: ["Birthbaby", "Postpartumbaby"],
 };
 
 // fields used in summary views and search

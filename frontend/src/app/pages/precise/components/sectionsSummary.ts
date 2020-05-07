@@ -1,6 +1,8 @@
 import { Component } from "@angular/core";
 import {
   PRECISE_FORM_SECTIONS,
+  PRECISE_BABY_FORM_SECTION,
+  PRECISE_FORMS,
   PreciseStore,
   IPreciseFormSection,
   IParticipantForm,
@@ -51,11 +53,7 @@ import { IODkTableRowData } from "src/app/types/odk.types";
         </div>
       </div>
     </section>
-    <section
-      class="section-tile"
-      id="addBabySection"
-      (click)="addBabySection()"
-    >
+    <section class="section-tile" id="addBabySection" (click)="addBaby()">
       <mat-icon>add</mat-icon>
       <span>Record Birth</span>
     </section>
@@ -131,7 +129,7 @@ export class PreciseSectionsSummary {
     // Add sections for each recorded birth
     const babyEntries = store.participantFormsHash.Birthbaby.entries.length;
     for (let i = 0; i < babyEntries; i++) {
-      this.addBabySection();
+      this._addBabySection();
     }
     console.log("sections", this.sections);
   }
@@ -142,16 +140,22 @@ export class PreciseSectionsSummary {
   getFormWithEntries(formId: string): IParticipantForm {
     return toJS(this.store.participantFormsHash[formId]);
   }
+
+  public addBaby() {
+    const form = PRECISE_FORMS.Birthbaby;
+    return this.openForm(form as IParticipantForm);
+  }
+
   /**
-   *
+   * Dynamically populate baby forms
+   * TODO - https://github.com/PRECISE-DYAD/cwbc-odkx-app/issues/9
    */
-  addBabySection() {
+  private _addBabySection() {
     const index = this.totalBabies;
     // default, push section to end
     const s: IPreciseFormSection = {
-      icon: "baby",
+      ...PRECISE_BABY_FORM_SECTION,
       label: `Baby ${index + 1}`,
-      formIds: ["Birthbaby"],
     };
     let forms = s.formIds.map((formId) => this.getFormWithEntries(formId));
 
