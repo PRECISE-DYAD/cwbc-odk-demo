@@ -128,7 +128,7 @@ export class PreciseStore {
    */
   addParticipantBaby() {
     const { tableId, formId } = PRECISE_FORMS.Birthbaby;
-    const childIndex = this.participantFormsHash.Birthbaby.entries.length +1;
+    const childIndex = this.participantFormsHash.Birthbaby.entries.length + 1;
     const { f2_guid } = this.activeParticipant;
     const f2_guid_child = `${f2_guid}_${childIndex}`;
     return this.launchForm(tableId, formId, null, { f2_guid_child });
@@ -141,6 +141,10 @@ export class PreciseStore {
     const { tableId, formId } = PRECISE_FORMS.genInfo;
     const rowId = participant._id;
     this.odk.editRowWithSurvey(tableId, rowId, formId);
+  }
+  async withdrawParticipant() {
+    const { formId, tableId } = PRECISE_FORMS.Withdrawal;
+    return this.launchForm(tableId, formId);
   }
 
   /**
@@ -291,6 +295,12 @@ export const PRECISE_FORMS = {
     tableId: "Lab",
     icon: "lab",
     allowRepeats: true,
+  },
+  Withdrawal: {
+    title: "Withdraw Participant",
+    formId: "Withdrawal",
+    tableId: "Withdrawal",
+    icon: "",
   },
 };
 

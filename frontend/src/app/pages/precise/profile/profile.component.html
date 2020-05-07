@@ -7,7 +7,23 @@
     style="padding: 1em;"
     *ngIf="store.listDataLoaded && store.participantDataLoaded"
   >
-    <!-- WIP - swap to only one update for all data loaded -->
+    <div id="participantMenu">
+      <button mat-icon-button [matMenuTriggerFor]="menu">
+        <mat-icon>more_vert</mat-icon>
+      </button>
+      <mat-menu #menu="matMenu" backdropClass="backdrop-dark">
+        <button
+          mat-menu-item
+          class="participant-menu-button"
+          (click)="store.withdrawParticipant()"
+        >
+          <mat-icon>remove_circle</mat-icon>
+          <span>Withdraw Participant</span>
+        </button>
+      </mat-menu>
+    </div>
+
+    <!-- TODO - swap to only one update for all data loaded -->
     <precise-profile-summary
       [participant]="store.activeParticipant"
       [participantRevisions]="participantRevisions"

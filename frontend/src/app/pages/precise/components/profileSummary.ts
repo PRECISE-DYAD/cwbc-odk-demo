@@ -18,6 +18,10 @@ import * as Animations from "src/app/animations";
           <mat-icon class="field-icon">history</mat-icon>
           {{ participantRevisions.length - 1 }} Revisions
         </button>
+        <div id="lastUpdate">
+          <div>Updated</div>
+          <div>{{ participant._savepoint_timestamp | date }}</div>
+        </div>
       </div>
       <table>
         <th *ngFor="let heading of tableHeadings"></th>
@@ -79,7 +83,7 @@ import * as Animations from "src/app/animations";
       @fadeEntryExit
       *ngIf="!profileConfirmed"
     >
-      <div>
+      <div style="margin-bottom:1em">
         Is the information above
         <strong>accurate and up-to-date?</strong>
       </div>
@@ -159,6 +163,11 @@ import * as Animations from "src/app/animations";
         bottom: 5px;
         left: 0;
         width: 90vw;
+      }
+      #lastUpdate {
+        font-size: smaller;
+        padding: 5px;
+        opacity: 0.5;
       }
     `,
   ],

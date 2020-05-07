@@ -30,7 +30,7 @@ class OdkTables {
   editRowWithSurvey(dispatchStruct, tableId, rowId, formId, screenPath) {
     return this.notifications.showMessage(
       `
-      <div>Surveys will only show when running on Android device</div>
+      <div>Survey editing will only show when running on Android device</div>
       <hr>
       <div class="font-size-smaller">
         <div>Form: ${formId}</div>

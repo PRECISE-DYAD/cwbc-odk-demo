@@ -12,6 +12,7 @@ import { MatIconModule, MatIconRegistry } from "@angular/material/icon";
 import { MatSnackBarModule } from "@angular/material/snack-bar";
 import { MatDialogModule } from "@angular/material/dialog";
 import { MatExpansionModule } from "@angular/material/expansion";
+import { MatMenuModule } from "@angular/material/menu";
 import { DomSanitizer } from "@angular/platform-browser";
 import { registerIcons } from "./icons";
 
@@ -30,6 +31,7 @@ import { registerIcons } from "./icons";
     MatIconModule,
     MatProgressBarModule,
     MatDialogModule,
+    MatMenuModule,
   ],
   imports: [],
 })
