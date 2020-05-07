@@ -21,10 +21,11 @@ import * as Animations from "src/app/animations";
       </div>
       <table>
         <th *ngFor="let heading of tableHeadings"></th>
+        <!-- Main Table -->
         <tr
           class="table-row"
           [attr.data-field]="f.field"
-          *ngFor="let f of fieldMappings"
+          *ngFor="let f of summaryFields"
         >
           <td>
             <mat-icon class="field-icon">{{ f.icon }}</mat-icon>
@@ -42,6 +43,34 @@ import * as Animations from "src/app/animations";
           </td>
         </tr>
       </table>
+      <!-- expansion -->
+      <mat-expansion-panel name="expansion" id="expansion" class="no-shadow">
+        <mat-expansion-panel-header>
+          <mat-panel-description>Additional Information </mat-panel-description>
+        </mat-expansion-panel-header>
+        <!-- TODO - duplicated code from above, should refactor -->
+        <tr
+          class="table-row"
+          [attr.data-field]="f.field"
+          *ngFor="let f of additionalFields"
+        >
+          <td>
+            <mat-icon class="field-icon">{{ f.icon }}</mat-icon>
+          </td>
+          <td class="field-label">{{ f.label }}</td>
+          <td class="field-value">
+            <div>{{ participant[f.field] }}</div>
+            <!-- revision history view -->
+            <div
+              *ngFor="let fieldRevision of f.revisions"
+              class="field-value revision"
+            >
+              {{ fieldRevision }}
+            </div>
+          </td>
+        </tr>
+      </mat-expansion-panel>
+
       <div id="guid" *ngIf="!profileConfirmed">{{ participant.f2_guid }}</div>
     </div>
     <!-- Confirmation -->
@@ -72,13 +101,12 @@ import * as Animations from "src/app/animations";
       .summary-container,
       .confirmation-container {
         margin: auto;
-        max-width: 300px;
+        max-width: 400px;
         color: var(--color-black);
       }
       .summary-container {
         border: 2px solid var(--color-black);
         border-radius: 8px;
-        padding-bottom: 5px;
         margin-bottom: 2em;
       }
       .summary-title {
@@ -140,10 +168,29 @@ export class PreciseProfileSummary {
   @Input() participantRevisions: IParticipant[];
   @Input() profileConfirmed: boolean;
   @Output() shouldUpdate = new EventEmitter<boolean>();
+  summaryFields: IFieldMapping[];
+  additionalFields: IFieldMapping[];
 
+  constructor() {
+    this.generateSummary();
+  }
+  /**
+   * Separate the core list of fields into summary and additional expansion content
+   * @param fields - default use the full list of fields, but can be overwritten
+   * if revision info has been retrieved
+   */
+  generateSummary(fields: IFieldMapping[] = FIELD_MAPPINGS) {
+    this.summaryFields = fields.filter((f) => !f.additional);
+    this.additionalFields = fields.filter((f) => f.additional);
+  }
+
+  /**
+   * Generate revision meta on demand
+   * @remark - this can't be done in constructor as revision meta
+   * populated asynchronously (could use input setter/props change instead)
+   */
   showRevisions() {
-    // TODO - build review methods
-    this.fieldMappings = this.fieldMappings.map((f) => {
+    const allFields = FIELD_MAPPINGS.map((f) => {
       const fieldRevisions = {};
       this.participantRevisions.forEach((rev) => {
         if (rev[f.field] && rev[f.field] !== this.participant[f.field]) {
@@ -152,51 +199,92 @@ export class PreciseProfileSummary {
       });
       return { ...f, revisions: Object.keys(fieldRevisions).reverse() };
     });
+    this.generateSummary(allFields);
   }
   hideRevisions() {
-    this.fieldMappings = this.fieldMappings.map((f) => ({
+    this.summaryFields = this.summaryFields.map((f) => ({
+      ...f,
+      revisions: [],
+    }));
+    this.additionalFields = this.additionalFields.map((f) => ({
       ...f,
       revisions: [],
     }));
   }
 
   tableHeadings = ["Icon", "Field", "Value"];
-  fieldMappings: IFieldMapping[] = [
-    {
-      field: "f2a_national_id",
-      label: "National ID",
-      icon: "folder_shared",
-      revisions: [],
-    },
-    {
-      field: "f2a_full_name",
-      label: "Name",
-      icon: "person",
-      revisions: [],
-    },
-    {
-      field: "f2a_phone_number",
-      label: "Phone 1",
-      icon: "phone",
-      revisions: [],
-    },
-    {
-      field: "f2a_phone_number_2",
-      label: "Phone 2",
-      icon: "phone",
-      revisions: [],
-    },
-    {
-      field: "f2_woman_addr",
-      label: "Address",
-      icon: "home",
-      revisions: [],
-    },
-  ];
 }
+const FIELD_MAPPINGS: IFieldMapping[] = [
+  {
+    field: "f2a_national_id",
+    label: "National ID",
+    icon: "folder_shared",
+    revisions: [],
+  },
+  {
+    field: "f2a_full_name",
+    label: "Name",
+    icon: "person",
+    revisions: [],
+  },
+  {
+    field: "f2a_phone_number",
+    label: "Phone 1",
+    icon: "phone",
+    revisions: [],
+  },
+  {
+    field: "f2a_phone_number_2",
+    label: "Phone 2",
+    icon: "phone",
+    revisions: [],
+  },
+  {
+    field: "f2_woman_addr",
+    label: "Address",
+    icon: "home",
+    revisions: [],
+  },
+  {
+    field: "f2_ke_health_facility",
+    label: "Health Facility",
+    icon: "",
+    revisions: [],
+    additional: true,
+  },
+  {
+    field: "f2a_cohort",
+    label: "Cohort",
+    icon: "",
+    revisions: [],
+    additional: true,
+  },
+  {
+    field: "f2a_hdss",
+    label: "HDSS",
+    icon: "",
+    revisions: [],
+    additional: true,
+  },
+  {
+    field: "f3_ethnicity_ke",
+    label: "Ethnicity",
+    icon: "",
+    revisions: [],
+    additional: true,
+  },
+  {
+    field: "f3a_dob",
+    label: "DOB",
+    icon: "",
+    revisions: [],
+    additional: true,
+  },
+];
 interface IFieldMapping {
   field: string;
   label: string;
   icon: string;
   revisions: string[];
+  additional?: boolean;
 }
