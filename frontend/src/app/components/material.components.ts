@@ -8,7 +8,6 @@ import { MatPaginatorModule } from "@angular/material/paginator";
 import { MatProgressBarModule } from "@angular/material/progress-bar";
 import { MatInputModule } from "@angular/material/input";
 import { MatSortModule } from "@angular/material/sort";
-import { MatGridListModule } from "@angular/material/grid-list";
 import { MatIconModule, MatIconRegistry } from "@angular/material/icon";
 import { MatSnackBarModule } from "@angular/material/snack-bar";
 import { MatDialogModule } from "@angular/material/dialog";
@@ -27,7 +26,6 @@ import { registerIcons } from "./icons";
     MatSortModule,
     MatSnackBarModule,
     MatIconModule,
-    MatGridListModule,
     MatProgressBarModule,
     MatDialogModule,
   ],

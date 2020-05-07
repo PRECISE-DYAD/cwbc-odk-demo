@@ -253,7 +253,6 @@ export const PRECISE_FORMS = {
     formId: "Birthmother",
     tableId: "Birthmother",
     icon: "mother",
-    allowRepeats: true,
   },
   Birthbaby: {
     title: "Birth Baby",
@@ -280,11 +279,6 @@ export const PRECISE_FORM_SECTIONS: IPreciseFormSection[] = [
     formIds: ["Visit1", "Visit2"],
   },
   {
-    icon: "baby",
-    label: "Birth",
-    formIds: ["Birthmother", "Birthbaby"],
-  },
-  {
     icon: "disease",
     label: "TOD",
     formIds: ["Tod"],
@@ -294,7 +288,17 @@ export const PRECISE_FORM_SECTIONS: IPreciseFormSection[] = [
     label: "Lab",
     formIds: ["Lab"],
   },
+  {
+    icon: "mother",
+    label: "Mother",
+    formIds: ["Birthmother"],
+  },
 ];
+export const PRECISE_BABY_FORM_SECTION: IPreciseFormSection = {
+  icon: "baby",
+  label: "Baby",
+  formIds: ["Birthbaby"],
+};
 
 // fields used in summary views and search
 // _guid used to uniquely identify participant across all forms

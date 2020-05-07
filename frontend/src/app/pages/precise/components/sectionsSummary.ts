@@ -4,27 +4,22 @@ import {
   PreciseStore,
   IPreciseFormSection,
   IParticipantForm,
+  PRECISE_BABY_FORM_SECTIONS,
 } from "src/app/stores";
 import { toJS } from "mobx";
 import { IODkTableRowData } from "src/app/types/odk.types";
 
 @Component({
   selector: "precise-sections-summary",
-  template: ` <mat-grid-list
-    rowHeight="150px"
-    [cols]="gridCols"
-    gutterSize="20px"
-  >
-    <mat-grid-tile
+  template: ` <div id="section-summary-container">
+    <section
       *ngFor="let section of sections; let i = index"
-      colspan="1"
-      rowspan="1"
       [class]="'section-tile color-rotate-' + i"
     >
-      <mat-grid-tile-header class="primary-inverted">
+      <header class="primary-inverted">
         <mat-icon class="section-icon" [svgIcon]="section.icon"></mat-icon>
-        <span>{{ section.label }}</span></mat-grid-tile-header
-      >
+        <span>{{ section.label }}</span>
+      </header>
       <div class="section-details">
         <div *ngFor="let form of section.forms">
           <div *ngFor="let entry of form.entries">
@@ -54,31 +49,40 @@ import { IODkTableRowData } from "src/app/types/odk.types";
         </div>
         <!-- No Data Recorded -->
       </div>
-    </mat-grid-tile>
-  </mat-grid-list>`,
+    </section>
+  </div>`,
   styles: [
     `
-      mat-grid-tile {
+      section {
         transition: all 0.2s ease-in-out;
         background: white;
-        border: 4px solid;
-        border-radius: 8px;
       }
-      mat-grid-tile.disabled {
+      section.disabled {
         transform: none;
         pointer-events: none;
         opacity: 0.5;
       }
-      mat-grid-tile-header > .section-icon {
+      header {
+        padding: 8px;
+        display: flex;
+        align-items: center;
+      }
+      header > .section-icon {
         margin-right: 10px;
+      }
+      #section-summary-container {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+        grid-column-gap: 10px;
+        grid-row-gap: 10px;
+      }
+      .section-tile {
+        min-height: 100px;
+        border: 4px solid;
+        border-radius: 8px;
       }
       .section-details {
         color: var(--color-black);
-        position: absolute;
-        top: 48px;
-        height: 100px;
-        overflow: auto;
-        left: 0;
         padding: 5px 0;
         width: 100%;
       }
@@ -106,6 +110,19 @@ export class PreciseSectionsSummary {
     const { tableId, formId } = form;
     const editRowId = entry ? entry._id : null;
     this.store.launchForm(tableId, formId, editRowId);
+  }
+
+  getParticipantForms() {}
+
+  /**
+   * Baby forms need to be dynamically populated in case of multiple births
+   * (repetition required)
+   * TODO - handle populating the potentially multiple values and render methods
+   */
+  getBabyForms(total: number = 1) {
+    return new Array(total)
+      .fill(PRECISE_BABY_FORM_SECTIONS)
+      .map((f, i) => ({ ...f, label: `Baby ${i + 1}` }));
   }
 }
 
