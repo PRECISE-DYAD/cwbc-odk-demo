@@ -128,7 +128,7 @@ export class PreciseStore {
    */
   addParticipantBaby() {
     const { tableId, formId } = PRECISE_FORMS.Birthbaby;
-    const childIndex = this.participantFormsHash.Birthbaby.entries.length;
+    const childIndex = this.participantFormsHash.Birthbaby.entries.length +1;
     const { f2_guid } = this.activeParticipant;
     const f2_guid_child = `${f2_guid}_${childIndex}`;
     return this.launchForm(tableId, formId, null, { f2_guid_child });

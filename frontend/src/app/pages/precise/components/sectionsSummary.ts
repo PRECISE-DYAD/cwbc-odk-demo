@@ -2,7 +2,6 @@ import { Component } from "@angular/core";
 import {
   PRECISE_FORM_SECTIONS,
   PRECISE_BABY_FORM_SECTION,
-  PRECISE_FORMS,
   PreciseStore,
   IPreciseFormSection,
   IParticipantForm,
@@ -148,19 +147,16 @@ export class PreciseSectionsSummary {
    */
   private _addBabySection(f2_guid_child: string) {
     // default, push section to end
-    console.log("adding baby section", f2_guid_child);
     const s: IPreciseFormSection = {
       ...PRECISE_BABY_FORM_SECTION,
       label: `Baby ${f2_guid_child.split("_").pop()}`,
     };
     let forms = s.formIds.map((formId) => this.getFormWithEntries(formId));
-    console.log("forms", forms);
     forms = forms.map((f) => {
       // take all form entries and assign only those with matching baby guid
       const entries = f.entries.filter(
         (row) => row.f2_guid_child == f2_guid_child
       );
-      console.log("entries", entries);
       return { ...f, entries };
     });
     this.sections.push({ ...s, forms });
