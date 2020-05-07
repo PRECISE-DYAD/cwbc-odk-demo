@@ -4,7 +4,6 @@ import {
   PreciseStore,
   IPreciseFormSection,
   IParticipantForm,
-  PRECISE_BABY_FORM_SECTIONS,
 } from "src/app/stores";
 import { toJS } from "mobx";
 import { IODkTableRowData } from "src/app/types/odk.types";
@@ -15,6 +14,7 @@ import { IODkTableRowData } from "src/app/types/odk.types";
     <section
       *ngFor="let section of sections; let i = index"
       [class]="'section-tile color-rotate-' + i"
+      [attr.data-section]="section.label"
     >
       <header class="primary-inverted">
         <mat-icon class="section-icon" [svgIcon]="section.icon"></mat-icon>
@@ -30,9 +30,11 @@ import { IODkTableRowData } from "src/app/types/odk.types";
               <mat-icon *ngIf="entry._savepoint_type === 'INCOMPLETE'"
                 >indeterminate_check_box</mat-icon
               >
-              <!-- TODO show different icon if incomplete -->
-              {{ entry._savepoint_timestamp | date }}
+              {{ form.title }}
             </button>
+            <div class="form-completion-date">
+              {{ entry._savepoint_timestamp | date }}
+            </div>
           </div>
           <button
             mat-button
@@ -47,8 +49,15 @@ import { IODkTableRowData } from "src/app/types/odk.types";
             {{ form.title }}
           </button>
         </div>
-        <!-- No Data Recorded -->
       </div>
+    </section>
+    <section
+      class="section-tile"
+      id="addBabySection"
+      (click)="addBabySection()"
+    >
+      <mat-icon>add</mat-icon>
+      <span>Record Birth</span>
     </section>
   </div>`,
   styles: [
@@ -76,6 +85,17 @@ import { IODkTableRowData } from "src/app/types/odk.types";
         grid-column-gap: 10px;
         grid-row-gap: 10px;
       }
+      #addBabySection {
+        border: 2px dashed;
+        text-align: center;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        opacity: 1;
+        background: #f3f3f3;
+        color: #8c8c8c;
+      }
       .section-tile {
         min-height: 100px;
         border: 4px solid;
@@ -90,39 +110,63 @@ import { IODkTableRowData } from "src/app/types/odk.types";
         width: 100%;
         text-align: left;
       }
+      .form-completion-date {
+        font-size: smaller;
+        margin-left: 44px;
+        margin-top: -5px;
+      }
     `,
   ],
 })
 export class PreciseSectionsSummary {
   sections: ISectionWithMeta[];
   gridCols = Math.ceil(window.innerWidth / 400);
+  totalBabies = 0;
+  // Add sections for groups of forms, populating with data form stroe
   constructor(public store: PreciseStore) {
     this.sections = PRECISE_FORM_SECTIONS.map((s) => ({
       ...s,
-      forms: s.formIds.map((formId) =>
-        toJS(store.participantFormsHash[formId])
-      ),
+      forms: s.formIds.map((formId) => this.getFormWithEntries(formId)),
     }));
+    // Add sections for each recorded birth
+    const babyEntries = store.participantFormsHash.Birthbaby.entries.length;
+    for (let i = 0; i < babyEntries; i++) {
+      this.addBabySection();
+    }
     console.log("sections", this.sections);
+  }
+
+  /**
+   * Given a formId return full form meta with entries
+   */
+  getFormWithEntries(formId: string): IParticipantForm {
+    return toJS(this.store.participantFormsHash[formId]);
+  }
+  /**
+   *
+   */
+  addBabySection() {
+    const index = this.totalBabies;
+    // default, push section to end
+    const s: IPreciseFormSection = {
+      icon: "baby",
+      label: `Baby ${index + 1}`,
+      formIds: ["Birthbaby"],
+    };
+    let forms = s.formIds.map((formId) => this.getFormWithEntries(formId));
+
+    forms = forms.map((f) => {
+      const entries = f.entries[index] ? [f.entries[index]] : [];
+      return { ...f, entries };
+    });
+    this.sections.push({ ...s, forms });
+    this.totalBabies++;
   }
 
   openForm(form: IParticipantForm, entry?: IODkTableRowData) {
     const { tableId, formId } = form;
     const editRowId = entry ? entry._id : null;
     this.store.launchForm(tableId, formId, editRowId);
-  }
-
-  getParticipantForms() {}
-
-  /**
-   * Baby forms need to be dynamically populated in case of multiple births
-   * (repetition required)
-   * TODO - handle populating the potentially multiple values and render methods
-   */
-  getBabyForms(total: number = 1) {
-    return new Array(total)
-      .fill(PRECISE_BABY_FORM_SECTIONS)
-      .map((f, i) => ({ ...f, label: `Baby ${i + 1}` }));
   }
 }
 

@@ -259,7 +259,6 @@ export const PRECISE_FORMS = {
     formId: "Birthbaby",
     tableId: "Birthbaby",
     icon: "baby",
-    allowRepeats: true,
   },
   Lab: {
     title: "Laboratory",
@@ -340,6 +339,8 @@ type IParticipantFormHash = {
 type IPreciseFormId = keyof typeof PRECISE_FORMS;
 
 export interface IPreciseFormSection {
+  // id purely used to later allow adjusting baby form section
+  _id?: string;
   icon: string;
   label: string;
   formIds: IPreciseFormId[];
