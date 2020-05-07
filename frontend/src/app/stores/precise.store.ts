@@ -121,6 +121,19 @@ export class PreciseStore {
     return this.launchForm(tableId, formId, null, { f2_guid });
   }
   /**
+   * When recording a baby also want to populate a guid to link future
+   * forms with a specific baby (e.g. in case of twins)
+   * This is the same as the mother guid with additional _${childIndex}
+   * NOTE - child index count from 1 for more human-readable export
+   */
+  addParticipantBaby() {
+    const { tableId, formId } = PRECISE_FORMS.Birthbaby;
+    const childIndex = this.participantFormsHash.Birthbaby.entries.length;
+    const { f2_guid } = this.activeParticipant;
+    const f2_guid_child = `${f2_guid}_${childIndex}`;
+    return this.launchForm(tableId, formId, null, { f2_guid_child });
+  }
+  /**
    * When editing a participant also create a revision entry
    */
   async editParticipant(participant: IParticipant) {

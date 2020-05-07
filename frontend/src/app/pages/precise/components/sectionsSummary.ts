@@ -53,9 +53,13 @@ import { IODkTableRowData } from "src/app/types/odk.types";
         </div>
       </div>
     </section>
-    <section class="section-tile" id="addBabySection" (click)="addBaby()">
+    <section
+      class="section-tile"
+      id="addBabySection"
+      (click)="store.addParticipantBaby()"
+    >
       <mat-icon>add</mat-icon>
-      <span>Record Birth</span>
+      <span>Record Baby</span>
     </section>
   </div>`,
   styles: [
@@ -119,7 +123,6 @@ import { IODkTableRowData } from "src/app/types/odk.types";
 export class PreciseSectionsSummary {
   sections: ISectionWithMeta[];
   gridCols = Math.ceil(window.innerWidth / 400);
-  totalBabies = 0;
   // Add sections for groups of forms, populating with data form stroe
   constructor(public store: PreciseStore) {
     this.sections = PRECISE_FORM_SECTIONS.map((s) => ({
@@ -127,10 +130,9 @@ export class PreciseSectionsSummary {
       forms: s.formIds.map((formId) => this.getFormWithEntries(formId)),
     }));
     // Add sections for each recorded birth
-    const babyEntries = store.participantFormsHash.Birthbaby.entries.length;
-    for (let i = 0; i < babyEntries; i++) {
-      this._addBabySection();
-    }
+    store.participantFormsHash.Birthbaby.entries.forEach((row) => {
+      this._addBabySection(row.f2_guid_child);
+    });
     console.log("sections", this.sections);
   }
 
@@ -141,30 +143,27 @@ export class PreciseSectionsSummary {
     return toJS(this.store.participantFormsHash[formId]);
   }
 
-  public addBaby() {
-    const form = PRECISE_FORMS.Birthbaby;
-    return this.openForm(form as IParticipantForm);
-  }
-
   /**
    * Dynamically populate baby forms
-   * TODO - https://github.com/PRECISE-DYAD/cwbc-odkx-app/issues/9
    */
-  private _addBabySection() {
-    const index = this.totalBabies;
+  private _addBabySection(f2_guid_child: string) {
     // default, push section to end
+    console.log("adding baby section", f2_guid_child);
     const s: IPreciseFormSection = {
       ...PRECISE_BABY_FORM_SECTION,
-      label: `Baby ${index + 1}`,
+      label: `Baby ${f2_guid_child.split("_").pop()}`,
     };
     let forms = s.formIds.map((formId) => this.getFormWithEntries(formId));
-
+    console.log("forms", forms);
     forms = forms.map((f) => {
-      const entries = f.entries[index] ? [f.entries[index]] : [];
+      // take all form entries and assign only those with matching baby guid
+      const entries = f.entries.filter(
+        (row) => row.f2_guid_child == f2_guid_child
+      );
+      console.log("entries", entries);
       return { ...f, entries };
     });
     this.sections.push({ ...s, forms });
-    this.totalBabies++;
   }
 
   openForm(form: IParticipantForm, entry?: IODkTableRowData) {
