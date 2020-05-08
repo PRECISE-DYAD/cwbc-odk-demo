@@ -14,6 +14,7 @@ async function run() {
   const sampleFiles = {
     "forms/framework.xlsx": "forms/framework.sample.xlsx",
     "forms/csv/tables.init": "forms/csv/tables.sample.init",
+    "forms/app.properties": "forms/app.sample.properties",
   };
   for (let [destination, source] of Object.entries(sampleFiles)) {
     const exists = await fs.exists(destination);
@@ -26,8 +27,8 @@ async function run() {
     "forms/framework.xlsx",
     `${designerAssetsPath}/framework/forms/framework/framework.xlsx`
   );
-
   await ensureCopy("forms/tables", `${designerPath}/app/config/tables`, true);
+
   // process forms, call npx in case not installed globally
   child.spawnSync("npx grunt", ["xlsx-convert-all"], {
     cwd: designerPath,
@@ -43,6 +44,11 @@ async function run() {
       overwrite: true,
     }
   );
+  await ensureCopy(
+    "forms/app.properties",
+    `${designerAssetsPath}/app.properties`
+  );
+
   // copy back json and csv data in case frontend wants to access
   await ensureCopy(`forms/csv`, `${frontendPath}/src/assets/odk/csv`, true);
   await ensureCopy(

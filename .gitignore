@@ -6,6 +6,7 @@ designer/app/config/assets/build/
 designer/app/config/assets/framework/forms/
 designer/app/config/assets/csv
 designer/app/config/assets/tables.init
+designer/app/config/assets/app.properties
 designer/app/output/*
 forms/framework.xlsx
 forms/~$framework.xlsx
@@ -14,6 +15,8 @@ forms/tables/*
 !forms/tables/exampleTable
 forms/csv/*
 !forms/csv/tables.sample.init
+forms/*.properties
+!forms/app.sample.properties
 
 !*.gitkeep
 
