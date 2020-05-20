@@ -137,6 +137,7 @@ export class PreciseStore {
    * When editing a participant also create a revision entry
    */
   async editParticipant(participant: IParticipant) {
+    // TODO - fix errors thrown when editing on local
     await this.backupParticipant(participant);
     const { tableId, formId } = PRECISE_FORMS.genInfo;
     const rowId = participant._id;
