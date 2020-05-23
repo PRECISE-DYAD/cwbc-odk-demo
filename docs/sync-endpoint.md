@@ -24,8 +24,8 @@ cd sync-endpoint-default-setup
 
 ```
 sudo certbot certonly --standalone \
---email "apps@c2dev.co.uk" \
--d "odkx-sync.c2dev.co.uk" \
+--email "email@example.com" \
+-d "domain.com" \
 --rsa-key-size 4096 \
 --agree-tos \
 --cert-name bootstrap \
@@ -178,13 +178,5 @@ Then can just use first digits of container name in exec command, e.g phpldapadm
 See main docs https://docs.odk-x.org/sync-endpoint/#ldap
 
 # Recommended workflow improvements
-
-- [ ] update documentation for requirements (e.g. python, certbot)
 - [ ] create prebuilt mvn install image
-- [ ] fix https of phpldapadmin (and proxy port to subdomain/url)
 - [ ] improve python scripts (allow default inputs, give /ldap option)
-
-# Misc notes
-
-- working Ubuntu 16/18/20(?) on own vm
-- Failed heroku (can't install docker with swarm)
