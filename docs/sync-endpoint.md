@@ -118,9 +118,9 @@ A script does exist to automate the processes above, although requires installin
 python on the device and manually making the config changes outlined above (it's also a bit fiddly)   
 `sudo python init-odkx-sync-endpoint.py`
 
-- prompt 1, enter host url in quotation marks - "odkx-sync.c2dev.co.uk"
+- prompt 1, enter host url in quotation marks - "domain.com"
 - prompt 2, enter include https in quotation - "y"
-- prompt 3, enter email in quotation - "apps@c2dev.co.uk"
+- prompt 3, enter email in quotation - "email@example.com"
 - prompt 4 - "y"
 
 ## Troubleshooting
