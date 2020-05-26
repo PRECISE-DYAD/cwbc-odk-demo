@@ -23,9 +23,8 @@ export class NotificationService {
   }
 
   showMessage(message: string, data?: ISnackbarData) {
-    return this.snackbar.openFromComponent(NotificationBarComponent, {
+    this.snackbar.openFromComponent(NotificationBarComponent, {
       data: { ...DATA_DEFAULTS, message, ...data },
-      duration: 5000,
     });
   }
 
@@ -38,7 +37,7 @@ export class NotificationService {
         : err.message
         ? err.message
         : "Error Occured";
-    return this.showMessage(message, { notificationType: "error", message });
+    this.showMessage(message, { notificationType: "error", message });
   }
 }
 

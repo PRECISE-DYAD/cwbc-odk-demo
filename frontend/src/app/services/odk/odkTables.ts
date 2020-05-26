@@ -28,7 +28,7 @@ class OdkTables {
     return dialogRef.afterClosed().toPromise();
   }
   editRowWithSurvey(dispatchStruct, tableId, rowId, formId, screenPath) {
-    return this.notifications.showMessage(
+    this.notifications.showMessage(
       `
       <div>Survey editing will only show when running on Android device</div>
       <hr>

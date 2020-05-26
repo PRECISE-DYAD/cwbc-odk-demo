@@ -58,7 +58,7 @@ export class NotificationBarComponent {
     @Inject(MAT_SNACK_BAR_DATA) public data: ISnackbarData
   ) {}
   dismiss() {
-    return this.snackBarRef.dismiss();
+    this.snackBarRef.dismiss();
   }
 }
 

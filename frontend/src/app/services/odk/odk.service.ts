@@ -37,7 +37,7 @@ export class OdkService {
     }
   }
   handleError(err: Error) {
-    return this.notifications.handleError(err);
+    this.notifications.handleError(err);
   }
 
   addRowWithSurvey(tableId: string, formId: string, screenPath?, jsonMap?) {
