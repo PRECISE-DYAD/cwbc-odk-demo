@@ -16,8 +16,8 @@ import { MatSort } from "@angular/material/sort";
 })
 export class PreciseHomeComponent implements OnInit {
   participants: any[];
-  columns = ["f2a_participant_id", "f2_guid"];
-  displayedColumns = ["f2a_participant_id", "f2_guid"];
+  columns = ["f2a_participant_id", "f2a_full_name", "f2_guid"];
+  displayedColumns = ["f2a_participant_id", "f2a_full_name", "f2_guid"];
   dataSource = new MatTableDataSource<IParticipantSummary>();
   @ViewChild(MatPaginator, { static: true }) paginator: MatPaginator;
   @ViewChild(MatSort, { static: true }) sort: MatSort;
