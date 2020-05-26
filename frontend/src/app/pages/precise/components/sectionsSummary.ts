@@ -58,7 +58,7 @@ import { IODkTableRowData } from "src/app/types/odk.types";
       (click)="store.addParticipantBaby()"
     >
       <mat-icon>add</mat-icon>
-      <span>Record Baby</span>
+      <span>Add Baby</span>
     </section>
   </div>`,
   styles: [
@@ -96,6 +96,7 @@ import { IODkTableRowData } from "src/app/types/odk.types";
         opacity: 1;
         background: #f3f3f3;
         color: #8c8c8c;
+        cursor: pointer;
       }
       .section-tile {
         min-height: 100px;
