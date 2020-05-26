@@ -156,15 +156,14 @@ export class PreciseStore {
     const newBackup = this._stripOdkMeta(participant);
     const allBackups = this.participantFormsHash.genInfoRevisions
       .entries as any[];
-    const latestBackup = this._stripOdkMeta(allBackups.pop());
+    const latestBackup = this._stripOdkMeta(allBackups[allBackups.length - 1]);
     // Simple object comparison as strings. More complex diffs available
     // via 3rd party libs such as diff, lodash or deep-compare. Skip if same.
-    if (JSON.stringify(latestBackup) == JSON.stringify(newBackup)) return;
-    else {
-      console.log("backing up", latestBackup, newBackup);
-      const rowId = `${participant._id}_${allBackups.length}`;
-      return this.odk.addRow("genInfoRevisions", newBackup, rowId);
+    if (JSON.stringify(latestBackup) === JSON.stringify(newBackup)) {
+      return;
     }
+    const rowId = `${participant._id}_rev_${allBackups.length}`;
+    return this.odk.addRow("genInfoRevisions", newBackup, rowId);
   }
 
   /**
@@ -235,6 +234,18 @@ export class PreciseStore {
  ********************************************************************************/
 // form list saved as hashmap instead of array to make easy direct form access via key
 export const PRECISE_FORMS = {
+  Birthbaby: {
+    title: "Birth Baby",
+    formId: "Birthbaby",
+    tableId: "Birthbaby",
+    icon: "baby",
+  },
+  Birthmother: {
+    title: "Birth Mother",
+    formId: "Birthmother",
+    tableId: "Birthmother",
+    icon: "mother",
+  },
   genInfo: {
     title: "General Info",
     formId: "genInfo",
@@ -247,6 +258,32 @@ export const PRECISE_FORMS = {
     tableId: "genInfoRevisions",
     icon: "history",
   },
+  Lab: {
+    title: "Laboratory",
+    formId: "Lab",
+    tableId: "Lab",
+    icon: "lab",
+    allowRepeats: true,
+  },
+  Postpartum_baby: {
+    title: "Postpartum Baby",
+    formId: "Postpartum_baby",
+    tableId: "Postpartum_baby",
+    icon: "baby",
+  },
+  Postpartum_mother: {
+    title: "Postpartum Mother",
+    formId: "Postpartum_mother",
+    tableId: "Postpartum_mother",
+    icon: "mother",
+  },
+  TOD_ANC: {
+    title: "ToD at ANC",
+    formId: "TOD_ANC",
+    tableId: "TOD_ANC",
+    icon: "disease",
+    allowRepeats: true,
+  },
   Visit1: {
     title: "Precise Visit 1",
     formId: "Visit1",
@@ -258,44 +295,6 @@ export const PRECISE_FORMS = {
     formId: "Visit2",
     tableId: "Visit2",
     icon: "visit",
-  },
-  Tod: {
-    title: "ToD at ANC",
-    formId: "Tod",
-    tableId: "Tod",
-    icon: "disease",
-    allowRepeats: true,
-  },
-  Birthmother: {
-    title: "Birth Mother",
-    formId: "Birthmother",
-    tableId: "Birthmother",
-    icon: "mother",
-  },
-  Birthbaby: {
-    title: "Birth Baby",
-    formId: "Birthbaby",
-    tableId: "Birthbaby",
-    icon: "baby",
-  },
-  Postpartummother: {
-    title: "Postpartum Mother",
-    formId: "Postpartummother",
-    tableId: "Postpartummother",
-    icon: "mother",
-  },
-  Postpartumbaby: {
-    title: "Postpartum Baby",
-    formId: "Postpartumbaby",
-    tableId: "Postpartumbaby",
-    icon: "baby",
-  },
-  Lab: {
-    title: "Laboratory",
-    formId: "Lab",
-    tableId: "Lab",
-    icon: "lab",
-    allowRepeats: true,
   },
   Withdrawal: {
     title: "Withdraw Participant",
@@ -311,28 +310,28 @@ export const PRECISE_FORM_SECTIONS: IPreciseFormSection[] = [
   {
     icon: "visit",
     label: "Precise Visit",
-    formIds: ["Visit1", "Visit2"],
+    formIds: ["Visit1", "Visit2", "Birthmother", "Postpartum_mother"],
   },
   {
     icon: "disease",
     label: "TOD",
-    formIds: ["Tod"],
+    formIds: ["TOD_ANC"],
   },
   {
     icon: "lab",
     label: "Lab",
     formIds: ["Lab"],
   },
-  {
-    icon: "mother",
-    label: "Mother",
-    formIds: ["Birthmother", "Postpartummother"],
-  },
+  // {
+  //   icon: "mother",
+  //   label: "Mother",
+  //   formIds: [],
+  // },
 ];
 export const PRECISE_BABY_FORM_SECTION: IPreciseFormSection = {
   icon: "baby",
   label: "Baby",
-  formIds: ["Birthbaby", "Postpartumbaby"],
+  formIds: ["Birthbaby", "Postpartum_baby"],
 };
 
 // fields used in summary views and search
@@ -362,6 +361,7 @@ export type IParticipant = IODkTableRowData &
 export type IParticipantSummary = Partial<IParticipant>;
 
 // hashmap to provide quick lookup of participant by participant id
+// tslint:disable interface-over-type-literal
 type IParticipantsHashmap = { [f2a_participant_id: string]: IParticipant };
 
 // Participant forms contain full form meta with specific participant entries
