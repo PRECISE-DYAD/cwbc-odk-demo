@@ -21,10 +21,14 @@ async function main() {
   child.spawnSync("npm run build:odk", {
     cwd: frontendPath,
     stdio: "inherit",
-    shell: true
+    shell: true,
   });
   console.log("build complete, copying files");
+  // remove odk assets that are only used during development
+  await fs.emptyDir(`${frontendPath}/build/assets/odk`);
+  await fs.rmdir(`${frontendPath}/build/assets/odk`);
   await fs.copy(`${frontendPath}/build`, `${designerAssetsPath}/build`);
+
   await rewriteIndexes();
   // rewrite app designer index to load build index instead
 }
