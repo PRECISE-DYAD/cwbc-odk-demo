@@ -1,6 +1,6 @@
 {
   "name": "cwbc-odkx-app",
-  "version": "1.0.0-beta.2",
+  "version": "1.0.0-beta.3",
   "description": "",
   "main": "index.js",
   "scripts": {
@@ -8,7 +8,8 @@
     "postinstall": "node scripts/postinstall.js",
     "prepare": "node scripts/prepare.js",
     "start": "npm run prepare && node scripts/start.js --watch",
-    "deploy": "node scripts/deploy.js"
+    "deploy": "node scripts/deploy.js",
+    "upload": "ts-node scripts/upload.ts"
   },
   "repository": {
     "type": "git",
@@ -21,9 +22,17 @@
   },
   "homepage": "https://github.com/PRECISE-DYAD/cwbc-odkx-app.git#readme",
   "devDependencies": {
+    "@types/crypto-js": "^3.1.47",
+    "@types/fs-extra": "^9.0.1",
+    "@types/node": "^14.0.5",
+    "axios": "^0.19.2",
+    "crypto-js": "^4.0.0",
     "dotenv": "^8.2.0",
+    "form-data": "^3.0.0",
     "fs-extra": "^8.1.0",
     "inquirer": "^7.1.0",
-    "node-watch": "^0.6.3"
+    "node-watch": "^0.6.3",
+    "ts-node": "^8.10.1",
+    "typescript": "^3.9.3"
   }
 }
