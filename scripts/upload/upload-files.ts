@@ -1,6 +1,5 @@
 import * as path from "path";
 import * as md5File from "md5-file";
-import * as Papa from "papaparse";
 import { recFind } from "../utils";
 import {
   getManifest,
@@ -8,6 +7,8 @@ import {
   deleteFilesFromServer,
   uploadLocalFilesToServer,
   APP_PATH,
+  parseCSV,
+  writeCSV,
 } from "./upload-utils";
 import http from "./http";
 
@@ -23,15 +24,15 @@ export async function uploadFiles() {
   // assets files with the tables manifest (table csvs)
   const allLocalFiles = await recFind(`${APP_PATH}`);
   const processedLocalFiles = await processLocalFiles(allLocalFiles);
-  //   const serverTableFiles = await getServerTableFiles();
-  //   const serverAppFiles = await getServerAssetsFiles();
-  //   const allServerFiles = [...serverTableFiles, ...serverAppFiles];
-  //   const compare = await compareFiles(allServerFiles, processedLocalFiles);
-  //   console.log("delete", compare.delete.length);
-  //   console.log(compare.delete);
-  //   console.log("upload", compare.upload.length);
-  //   console.log(compare.upload);
-  //   console.log("ignore", compare.ignore.length);
+  const serverTableFiles = await getServerTableFiles();
+  const serverAppFiles = await getServerAssetsFiles();
+  const allServerFiles = [...serverTableFiles, ...serverAppFiles];
+  const compare = await compareFiles(allServerFiles, processedLocalFiles);
+  console.log("delete", compare.delete.length);
+  console.log(compare.delete);
+  console.log("upload", compare.upload.length);
+  console.log(compare.upload);
+  console.log("ignore", compare.ignore.length);
   //   await deleteFilesFromServer(compare.delete.map((el) => el.filepath));
   //   await uploadLocalFilesToServer(
   //     compare.upload.map((el) => path.join(APP_PATH, el.filepath))
@@ -40,26 +41,39 @@ export async function uploadFiles() {
 
 /**
  * Hacky methods to try align files for upload with default java methods
- * 1. Remove any .gitkeep files (these will break the upload assets)
- * 2. alter properties.csv files as done in services app ProcessAppAndTableLevelData.java L782
- * TODO - veryify any additional conversions required by ProcessAppAndTableLevelData.java
+ * 1. Remove any .gitkeep and .init files (these can break the upload assets)
+ * 2. alter properties.csv files
  */
 async function processLocalFiles(filepaths: string[]) {
   // filter gitkeep
   const processed = [];
   for (let p of filepaths) {
     const name = path.basename(p);
-    if (name !== ".gitkeep") {
-      if (name === "properties.csv") {
-        const csv = Papa.parse;
-        console.log("processing", p);
-      } else {
-        processed.push(p);
-      }
+    if (name === "properties.csv") {
+      await convertPropertiesCSV(p);
+    }
+    if (name !== ".gitkeep" && path.extname(name) !== ".init") {
+      processed.push(p);
     }
   }
-  console.log("processed", filepaths.length, processed.length);
   return processed;
+}
+
+/**
+ * Alter properties.csv files as done in services app ProcessAppAndTableLevelData.java L782
+ * Converts displayChoicesList type from 'object' to 'array' in csv rows and rewrites csv
+ * @TODO Verify any additional conversions required by ProcessAppAndTableLevelData.java
+ */
+async function convertPropertiesCSV(propertiesFilepath: string) {
+  const propertiesJson = await parseCSV<any>(propertiesFilepath);
+  const converted = propertiesJson.map((props) => {
+    if (props._key === "displayChoicesList" && props._type === "object") {
+      props._type = "array";
+    }
+    return props;
+  });
+  // Note - when writing back leave empty line at end (odk does it :s)
+  await writeCSV(propertiesFilepath, [...converted, []]);
 }
 
 function getServerAssetsFiles() {
