@@ -31,7 +31,7 @@ export class PreciseProfileComponent {
     if (this.store.participantDataLoaded) {
       // full data from all linked tables has loaded
       this.participantForms = this.store.participantForms;
-      this.participantRevisions = this.store.participantFormsHash.genInfoRevisions.entries;
+      this.participantRevisions = this.store.participantFormsHash.profileSummaryRevisions.entries;
     }
   }
 
@@ -48,7 +48,7 @@ export class PreciseProfileComponent {
   }
   viewRevisions() {
     alert(
-      `${this.store.participantFormsHash.genInfoRevisions.entries.length} Revisions Recorded`
+      `${this.store.participantFormsHash.profileSummaryRevisions.entries.length} Revisions Recorded`
     );
   }
   /**

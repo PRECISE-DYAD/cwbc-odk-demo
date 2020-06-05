@@ -43,7 +43,7 @@ interface IODKTableRowMetaData {
 
 export const ODK_META_EXAMPLE: IODKTableRowMetaData = {
   _default_access: "FULL",
-  _form_id: "genInfo",
+  _form_id: "profileSummary",
   _id: "uuid:d7d3c67a-2672-4b9c-a4a7-a8a26a4c3d42",
   _locale: "en_GB",
   _row_owner: "anonymous",

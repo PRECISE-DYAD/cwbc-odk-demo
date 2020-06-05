@@ -1,6 +1,5 @@
 **/node_modules
 
-
 designer/app/config/tables/*
 designer/app/config/assets/build/
 designer/app/config/assets/framework/forms/
@@ -18,9 +17,9 @@ forms/csv/*
 !forms/csv/tables.sample.init
 forms/*.properties
 !forms/app.sample.properties
-
+backups/
+scripts/logs/*.json
 !*.gitkeep
-
 
 .env
 frontend/src/assets/odk

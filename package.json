@@ -1,6 +1,6 @@
 {
   "name": "cwbc-odkx-app",
-  "version": "1.0.0-beta.3",
+  "version": "1.0.0-beta.4",
   "description": "",
   "main": "index.js",
   "scripts": {
@@ -9,7 +9,7 @@
     "prepare": "node scripts/prepare.js",
     "start": "npm run prepare && node scripts/start.js --watch",
     "deploy": "node scripts/deploy.js",
-    "upload": "ts-node scripts/upload.ts"
+    "upload": "ts-node scripts/upload/upload.ts"
   },
   "repository": {
     "type": "git",
@@ -25,13 +25,16 @@
     "@types/crypto-js": "^3.1.47",
     "@types/fs-extra": "^9.0.1",
     "@types/node": "^14.0.5",
+    "@types/papaparse": "^5.0.3",
     "axios": "^0.19.2",
     "crypto-js": "^4.0.0",
     "dotenv": "^8.2.0",
     "form-data": "^3.0.0",
     "fs-extra": "^8.1.0",
     "inquirer": "^7.1.0",
+    "md5-file": "^5.0.0",
     "node-watch": "^0.6.3",
+    "papaparse": "^5.2.0",
     "ts-node": "^8.10.1",
     "typescript": "^3.9.3"
   }

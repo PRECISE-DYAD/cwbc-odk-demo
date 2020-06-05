@@ -40,7 +40,7 @@ export class PreciseStore {
    */
   async loadParticipants() {
     const rows = await this.odk.getTableRows<IParticipant>(
-      PRECISE_FORMS.genInfo.formId
+      PRECISE_FORMS.profileSummary.formId
     );
     this.setParticipantLists(rows);
   }
@@ -116,7 +116,7 @@ export class PreciseStore {
    * throughout all forms
    */
   addParticipant() {
-    const { tableId, formId } = PRECISE_FORMS.genInfo;
+    const { tableId, formId } = PRECISE_FORMS.profileSummary;
     const f2_guid = uuidv4();
     return this.launchForm(tableId, formId, null, { f2_guid });
   }
@@ -139,7 +139,7 @@ export class PreciseStore {
   async editParticipant(participant: IParticipant) {
     // TODO - fix errors thrown when editing on local
     await this.backupParticipant(participant);
-    const { tableId, formId } = PRECISE_FORMS.genInfo;
+    const { tableId, formId } = PRECISE_FORMS.profileSummary;
     const rowId = participant._id;
     this.odk.editRowWithSurvey(tableId, rowId, formId);
   }
@@ -154,7 +154,7 @@ export class PreciseStore {
    */
   async backupParticipant(participant: IParticipant) {
     const newBackup = this._stripOdkMeta(participant);
-    const allBackups = this.participantFormsHash.genInfoRevisions
+    const allBackups = this.participantFormsHash.profileSummaryRevisions
       .entries as any[];
     const latestBackup = this._stripOdkMeta(allBackups[allBackups.length - 1]);
     // Simple object comparison as strings. More complex diffs available
@@ -163,7 +163,7 @@ export class PreciseStore {
       return;
     }
     const rowId = `${participant._id}_rev_${allBackups.length}`;
-    return this.odk.addRow("genInfoRevisions", newBackup, rowId);
+    return this.odk.addRow("profileSummaryRevisions", newBackup, rowId);
   }
 
   /**
@@ -246,16 +246,16 @@ export const PRECISE_FORMS = {
     tableId: "Birthmother",
     icon: "mother",
   },
-  genInfo: {
+  profileSummary: {
     title: "General Info",
-    formId: "genInfo",
-    tableId: "genInfo",
+    formId: "profileSummary",
+    tableId: "profileSummary",
     icon: "profile",
   },
-  genInfoRevisions: {
+  profileSummaryRevisions: {
     title: "General Info Revisions",
-    formId: "genInfoRevisions",
-    tableId: "genInfoRevisions",
+    formId: "profileSummaryRevisions",
+    tableId: "profileSummaryRevisions",
     icon: "history",
   },
   Lab: {
