@@ -16,7 +16,6 @@
 <script>
     console.log('adding scripts', document.getElementById("picker-{{promptId}}-button"))
     document.getElementById("picker-{{promptId}}-button").addEventListener('click', function () {
-        console.log('click', document.getElementById("picker-{{promptId}}").value)
         const formattedLocalDate = formatDateTimeForInput();
         document.getElementById("picker-{{promptId}}").value = formattedLocalDate;
     })
