@@ -13,6 +13,7 @@ forms/~$framework.xlsx
 forms/tables/*
 !forms/tables/config
 !forms/tables/exampleTable
+!forms/tables/_templates
 forms/csv/*
 !forms/csv/tables.sample.init
 forms/*.properties
