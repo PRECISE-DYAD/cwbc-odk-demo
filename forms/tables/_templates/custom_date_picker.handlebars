@@ -21,7 +21,7 @@
     })
 
     // take a given date (default local datetime) and format as YYYY-MM-DD
-    // (with leading 0s for day and month where necessary)
+    // (pad leading 0s for day and month where necessary)
     function formatDateForInput(d = new Date()) {
         return d.getFullYear() + "-" + pad(d.getMonth() + 1) + "-" + pad(d.getDate())
         function pad(n) {
