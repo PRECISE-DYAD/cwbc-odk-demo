@@ -1,12 +1,68 @@
-import { recFind } from "../utils";
 import * as Papa from "papaparse";
-
 import * as path from "path";
-import { readFile, writeJSON } from "fs-extra";
+import * as md5File from "md5-file";
+import {
+  readFile,
+  writeJSON,
+  readdirSync,
+  existsSync,
+  readFileSync,
+} from "fs-extra";
+import { recFind } from "../utils";
 import http from "./http";
-import { uploadLocalFilesToServer, APP_PATH } from "./upload-utils";
+
+import { APP_PATH, getManifest } from "./upload-utils";
 
 export async function uploadTableDefinitions() {
+  const localTableIds = readdirSync(`${APP_PATH}/tables`).filter((dir) =>
+    existsSync(`${APP_PATH}/tables/${dir}/definition.csv`)
+  );
+  // TODO - compare list of serverIDs and localIDs (try some sort of subset tool instead of hash maps)
+  const serverTableIds = [];
+  return;
+  // tableIds are given by name of folder
+  for (let tableId of localTableIds) {
+    const TABLE_DIR = `${APP_PATH}/tables/${tableId}`;
+    const serverTableFiles = await getManifest(tableId);
+    const serverTableDefinition = serverTableFiles.find(
+      (f) => path.basename(f.filename) === "definition.csv"
+    );
+    // Case 1. - server definition exists
+    if (serverTableDefinition) {
+      const localMD5 = md5File.sync(`${TABLE_DIR}/definition.csv`);
+      const serverMD5 = serverTableDefinition.md5hash;
+      console.log("local", localMD5, "server", serverMD5);
+      if (serverMD5 === `md5:${localMD5}`) {
+        // A) local and server definitions same, do nothing
+      } else {
+        // B) local changed - attempt data migrate to new table
+        // TODO
+      }
+    }
+    // Case 2. new table - simply upload
+    else {
+      console.log("creating new table", tableId);
+      const localDefinitionData = readFileSync(`${TABLE_DIR}/definition.csv`, {
+        encoding: "utf-8",
+      });
+      const orderedColumns = await _definitionToTableSchema(
+        localDefinitionData
+      );
+      const schema = {
+        schemaETag: _UUIDv4(),
+        tableId,
+        orderedColumns,
+      };
+      // await http.put(`default/tables/${tableId}`, schema, {
+      //   "Content-Type": "application/json",
+      //   "X-OpenDataKit-Installation-Id": "X-OpenDataKit-Installation-Id",
+      // });
+      console.log("table created successfully");
+    }
+  }
+
+  return;
+
   // TODO - remove existing tables and/or migrate data
   // TODO - check table for change before uplaod
   console.log("uploading tables");

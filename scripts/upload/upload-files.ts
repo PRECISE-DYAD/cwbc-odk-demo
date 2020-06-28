@@ -4,8 +4,6 @@ import { recFind } from "../utils";
 import {
   getManifest,
   IManifestItem,
-  deleteFilesFromServer,
-  uploadLocalFilesToServer,
   APP_PATH,
   parseCSV,
   writeCSV,
@@ -20,6 +18,9 @@ type IManifestHash = { [filename: string]: IManifestItem };
  * Upload new or modified files, delete files that no longer exist
  */
 export async function uploadFiles() {
+
+
+
   //  NOTE - want to handle all files together as server manifest keeps some of the
   // assets files with the tables manifest (table csvs)
   const allLocalFiles = await recFind(`${APP_PATH}`);

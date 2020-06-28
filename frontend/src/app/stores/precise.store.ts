@@ -239,6 +239,14 @@ export const PRECISE_FORMS = {
     formId: "Birthbaby",
     tableId: "Birthbaby",
     icon: "baby",
+    mapFields: [
+      {
+        table_id: "Birthmother",
+        field_name: "f2_some_field",
+        // optional rename
+        mapped_field_name: "my_other_field",
+      },
+    ],
   },
   Birthmother: {
     title: "Birth Mother",

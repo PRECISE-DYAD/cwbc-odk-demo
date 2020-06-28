@@ -2,8 +2,8 @@ import { uploadTableDefinitions } from "./upload-tables";
 import { uploadFiles } from "./upload-files";
 
 async function main() {
-  // await uploadTableDefinitions();
-  await uploadFiles();
+  // await uploadFiles();
+  await uploadTableDefinitions();
 }
 
 main()
