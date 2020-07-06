@@ -1,5 +1,3 @@
-import { IODkTableRowData } from "./odk.types";
-
 export interface IProjectMeta {
   image: string;
   name: string;
@@ -13,4 +11,12 @@ export interface IFormMeta {
   icon?: string;
   // participant can fill multiple entries of same form
   allowRepeats?: boolean;
+  mapFields?: IFormMetaMappedField[];
+}
+
+export interface IFormMetaMappedField {
+  table_id: string;
+  field_name: string;
+  // optional rename
+  mapped_field_name?: string;
 }

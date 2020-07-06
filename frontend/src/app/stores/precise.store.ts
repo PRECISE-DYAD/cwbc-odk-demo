@@ -4,7 +4,8 @@ import { OdkService } from "../services/odk/odk.service";
 import { reaction } from "mobx";
 import { IODkTableRowData, ODK_META_EXAMPLE } from "../types/odk.types";
 import { uuidv4 } from "../utils/guid";
-import { IFormMeta } from "../types/types";
+import { IFormMeta, IFormMetaMappedField } from "../types/types";
+import { PRECISE_SCHEMA } from "../models/precise.models";
 
 /**
  * The PreciseStore manages persisted data and operations across the entire application,
@@ -16,7 +17,7 @@ export class PreciseStore {
     this.loadParticipants();
   }
   allParticipantsHash: IParticipantsHashmap;
-  participantFormsHash: IParticipantFormHash;
+  participantFormsHash;
 
   @observable participantSummaries: IParticipantSummary[];
   @observable activeParticipant: IParticipant;
@@ -40,13 +41,13 @@ export class PreciseStore {
    */
   async loadParticipants() {
     const rows = await this.odk.getTableRows<IParticipant>(
-      PRECISE_FORMS.profileSummary.formId
+      PRECISE_SCHEMA.profileSummary.formId
     );
     this.setParticipantLists(rows);
   }
   @action setParticipantLists(participantRows: IParticipant[]) {
     this.participantSummaries = Object.values(participantRows).map((p, i) =>
-      this.generateParticipantSummary(p, i)
+      this._generateParticipantSummary(p, i)
     );
     this.allParticipantsHash = this._arrToHashmap(
       participantRows,
@@ -82,7 +83,7 @@ export class PreciseStore {
   async loadParticipantTableData(participant: IParticipant) {
     const { f2_guid } = participant;
     const collated: { [tableId: string]: IODkTableRowData[] } = {};
-    const tables = Object.values(PRECISE_FORMS).map((f) => f.tableId);
+    const tables = Object.keys(PRECISE_SCHEMA);
     const promises = tables.map(async (tableId) => {
       const particpantRows = await this.odk.query(tableId, "f2_guid = ?", [
         f2_guid,
@@ -99,7 +100,7 @@ export class PreciseStore {
   @action setParticipantForms(collated: {
     [tableId: string]: IODkTableRowData[];
   }) {
-    this.participantForms = Object.values(PRECISE_FORMS).map((f) => ({
+    this.participantForms = Object.values(PRECISE_SCHEMA).map((f) => ({
       ...f,
       entries: collated[f.tableId],
     }));
@@ -116,9 +117,10 @@ export class PreciseStore {
    * throughout all forms
    */
   addParticipant() {
-    const { tableId, formId } = PRECISE_FORMS.profileSummary;
     const f2_guid = uuidv4();
-    return this.launchForm(tableId, formId, null, { f2_guid });
+    return this.launchForm(PRECISE_SCHEMA.profileSummary, null, {
+      f2_guid,
+    });
   }
   /**
    * When recording a baby also want to populate a guid to link future
@@ -127,11 +129,12 @@ export class PreciseStore {
    * NOTE - child index count from 1 for more human-readable export
    */
   addParticipantBaby() {
-    const { tableId, formId } = PRECISE_FORMS.Birthbaby;
     const childIndex = this.participantFormsHash.Birthbaby.entries.length + 1;
     const { f2_guid } = this.activeParticipant;
     const f2_guid_child = `${f2_guid}_${childIndex}`;
-    return this.launchForm(tableId, formId, null, { f2_guid_child });
+    return this.launchForm(PRECISE_SCHEMA.Birthbaby, null, {
+      f2_guid_child,
+    });
   }
   /**
    * When editing a participant also create a revision entry
@@ -139,13 +142,12 @@ export class PreciseStore {
   async editParticipant(participant: IParticipant) {
     // TODO - fix errors thrown when editing on local
     await this.backupParticipant(participant);
-    const { tableId, formId } = PRECISE_FORMS.profileSummary;
+    const { tableId, formId } = PRECISE_SCHEMA.profileSummary;
     const rowId = participant._id;
     this.odk.editRowWithSurvey(tableId, rowId, formId);
   }
   async withdrawParticipant() {
-    const { formId, tableId } = PRECISE_FORMS.Withdrawal;
-    return this.launchForm(tableId, formId);
+    return this.launchForm(PRECISE_SCHEMA.Withdrawal);
   }
 
   /**
@@ -170,16 +172,16 @@ export class PreciseStore {
    *
    * @param editRowId - row to load into survey for editing
    * @param jsonMap - fields to prepopulate
+   * NOTE - f2_guid automatically populated for all forms
+   * NOTE - any additional fields listed in formMeta also populated
    */
-  launchForm(
-    tableId: string,
-    formId: string,
-    editRowId: string = null,
-    jsonMap: any = null
-  ) {
+  launchForm(form: IFormMeta, editRowId: string = null, jsonMap: any = {}) {
+    const { formId, tableId, mapFields } = form;
     if (this.activeParticipant) {
-      jsonMap = { f2_guid: this.activeParticipant.f2_guid, ...jsonMap };
+      jsonMap.f2_guid = this.activeParticipant.f2_guid;
     }
+    jsonMap = { ...jsonMap, ...this._generateMappedFields(mapFields) };
+
     console.log("launching form", tableId, formId, editRowId, jsonMap);
 
     if (editRowId) {
@@ -196,13 +198,35 @@ export class PreciseStore {
    * NOTE - can possibly be removed as tables only have a few columns
    * (legacy data had over 100)
    */
-  private generateParticipantSummary(participant: IParticipant, index: number) {
+  private _generateParticipantSummary(
+    participant: IParticipant,
+    index: number
+  ) {
     const summary: any = {};
     PARTICIPANT_SUMMARY_FIELDS.forEach((field) => {
       summary[field] = participant[field];
       summary._index = index;
     });
     return summary as IParticipantSummary;
+  }
+
+  /**
+   * Lookup specific table-field values to pass when launching a form
+   * @param fields - Array of objects containing table_id, field_name and
+   * optional mapped_field_name to retrieve and return
+   * NOTE - in case of multiple table entries returns only first entry
+   */
+  private _generateMappedFields(fields: IFormMetaMappedField[] = []) {
+    const mapping = {};
+    for (const field of fields) {
+      const { table_id, field_name, mapped_field_name } = field;
+      const fieldName = mapped_field_name || field_name;
+      const { entries } = (mapping[fieldName] = this.participantFormsHash[
+        table_id
+      ]);
+      mapping[fieldName] = entries[0] ? entries[0][fieldName] : null;
+    }
+    return mapping;
   }
 
   private _stripOdkMeta<T>(data: IODkTableRowData & T): T {
@@ -232,115 +256,6 @@ export class PreciseStore {
 /********************************************************************************
  * Constants
  ********************************************************************************/
-// form list saved as hashmap instead of array to make easy direct form access via key
-export const PRECISE_FORMS = {
-  Birthbaby: {
-    title: "Birth Baby",
-    formId: "Birthbaby",
-    tableId: "Birthbaby",
-    icon: "baby",
-    mapFields: [
-      {
-        table_id: "Birthmother",
-        field_name: "f2_some_field",
-        // optional rename
-        mapped_field_name: "my_other_field",
-      },
-    ],
-  },
-  Birthmother: {
-    title: "Birth Mother",
-    formId: "Birthmother",
-    tableId: "Birthmother",
-    icon: "mother",
-  },
-  profileSummary: {
-    title: "General Info",
-    formId: "profileSummary",
-    tableId: "profileSummary",
-    icon: "profile",
-  },
-  profileSummaryRevisions: {
-    title: "General Info Revisions",
-    formId: "profileSummaryRevisions",
-    tableId: "profileSummaryRevisions",
-    icon: "history",
-  },
-  Lab: {
-    title: "Laboratory",
-    formId: "Lab",
-    tableId: "Lab",
-    icon: "lab",
-    allowRepeats: true,
-  },
-  Postpartum_baby: {
-    title: "Postpartum Baby",
-    formId: "Postpartum_baby",
-    tableId: "Postpartum_baby",
-    icon: "baby",
-  },
-  Postpartum_mother: {
-    title: "Postpartum Mother",
-    formId: "Postpartum_mother",
-    tableId: "Postpartum_mother",
-    icon: "mother",
-  },
-  TOD_ANC: {
-    title: "ToD at ANC",
-    formId: "TOD_ANC",
-    tableId: "TOD_ANC",
-    icon: "disease",
-    allowRepeats: true,
-  },
-  Visit1: {
-    title: "Precise Visit 1",
-    formId: "Visit1",
-    tableId: "Visit1",
-    icon: "visit",
-  },
-  Visit2: {
-    title: "Precise Visit 2",
-    formId: "Visit2",
-    tableId: "Visit2",
-    icon: "visit",
-  },
-  Withdrawal: {
-    title: "Withdraw Participant",
-    formId: "Withdrawal",
-    tableId: "Withdrawal",
-    icon: "",
-  },
-};
-
-// Groupings applied to forms for display
-// FormMeta (as above) with entries populated dynamically
-export const PRECISE_FORM_SECTIONS: IPreciseFormSection[] = [
-  {
-    icon: "visit",
-    label: "Precise Visit",
-    formIds: ["Visit1", "Visit2", "Birthmother", "Postpartum_mother"],
-  },
-  {
-    icon: "disease",
-    label: "TOD",
-    formIds: ["TOD_ANC"],
-  },
-  {
-    icon: "lab",
-    label: "Lab",
-    formIds: ["Lab"],
-  },
-  // {
-  //   icon: "mother",
-  //   label: "Mother",
-  //   formIds: [],
-  // },
-];
-export const PRECISE_BABY_FORM_SECTION: IPreciseFormSection = {
-  icon: "baby",
-  label: "Baby",
-  formIds: ["Birthbaby", "Postpartum_baby"],
-};
 
 // fields used in summary views and search
 // _guid used to uniquely identify participant across all forms
@@ -375,17 +290,4 @@ type IParticipantsHashmap = { [f2a_participant_id: string]: IParticipant };
 // Participant forms contain full form meta with specific participant entries
 export interface IParticipantForm extends IFormMeta {
   entries: IODkTableRowData[];
-}
-
-type IParticipantFormHash = {
-  [key in keyof typeof PRECISE_FORMS]: IParticipantForm;
-};
-type IPreciseFormId = keyof typeof PRECISE_FORMS;
-
-export interface IPreciseFormSection {
-  // id purely used to later allow adjusting baby form section
-  _id?: string;
-  icon: string;
-  label: string;
-  formIds: IPreciseFormId[];
 }
