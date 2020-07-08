@@ -50,6 +50,11 @@ async function del<T = any>(endpoint: string) {
 
 function handleRes<T>(res: AxiosResponse) {
   console.log(`[${res.status}][${res.request.method}]`, res.request.path);
+  if (res.data.hasMoreResults) {
+    throw new Error(
+      "Batch requests not currently supported, res has more results"
+    );
+  }
   return res.data as T;
 }
 function handleErr<T = any>(err: AxiosError): T {

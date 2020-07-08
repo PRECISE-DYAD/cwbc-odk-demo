@@ -2,15 +2,19 @@ import * as path from "path";
 import * as md5File from "md5-file";
 import { recFind } from "../utils";
 import {
-  getManifest,
-  IManifestItem,
-  APP_PATH,
+  APP_CONFIG_PATH,
   parseCSV,
   writeCSV,
+  deleteFilesFromServer,
+  uploadLocalFilesToServer,
 } from "./upload-utils";
 import http from "./http";
+import { IManifestItem } from "./odkRest/odk.types";
+import { OdkRestService } from "./odkRest/odk.rest";
 
 type IManifestHash = { [filename: string]: IManifestItem };
+
+const odkRest = new OdkRestService();
 
 /**
  * Compare the manifest of files on the server and files in local app
@@ -18,15 +22,12 @@ type IManifestHash = { [filename: string]: IManifestItem };
  * Upload new or modified files, delete files that no longer exist
  */
 export async function uploadFiles() {
-
-
-
   //  NOTE - want to handle all files together as server manifest keeps some of the
   // assets files with the tables manifest (table csvs)
-  const allLocalFiles = await recFind(`${APP_PATH}`);
+  const allLocalFiles = await recFind(`${APP_CONFIG_PATH}`);
   const processedLocalFiles = await processLocalFiles(allLocalFiles);
   const serverTableFiles = await getServerTableFiles();
-  const serverAppFiles = await getServerAssetsFiles();
+  const serverAppFiles = (await odkRest.getAppLevelFileManifest()).files;
   const allServerFiles = [...serverTableFiles, ...serverAppFiles];
   const compare = await compareFiles(allServerFiles, processedLocalFiles);
   console.log("delete", compare.delete.length);
@@ -34,10 +35,10 @@ export async function uploadFiles() {
   console.log("upload", compare.upload.length);
   console.log(compare.upload);
   console.log("ignore", compare.ignore.length);
-  //   await deleteFilesFromServer(compare.delete.map((el) => el.filepath));
-  //   await uploadLocalFilesToServer(
-  //     compare.upload.map((el) => path.join(APP_PATH, el.filepath))
-  //   );
+  await deleteFilesFromServer(compare.delete.map((el) => el.filepath));
+  await uploadLocalFilesToServer(
+    compare.upload.map((el) => path.join(APP_CONFIG_PATH, el.filepath))
+  );
 }
 
 /**
@@ -77,10 +78,6 @@ async function convertPropertiesCSV(propertiesFilepath: string) {
   await writeCSV(propertiesFilepath, [...converted, []]);
 }
 
-function getServerAssetsFiles() {
-  return getManifest();
-}
-
 /**
  * The server keeps track of specific table files through a different
  * api, which needs to be called for each table
@@ -94,7 +91,7 @@ async function getServerTableFiles() {
   const serverTables = serverTablesMeta.tables.map((m) => m.tableId);
   let serverTableFiles = [];
   for (let tableId of serverTables) {
-    const tableFiles = await getManifest(tableId);
+    const tableFiles = (await odkRest.getTableIdFileManifest(tableId)).files;
     serverTableFiles = [...serverTableFiles, ...tableFiles];
   }
   return serverTableFiles;
@@ -114,7 +111,10 @@ async function compareFiles(
   );
   const localFileHash = {};
   for (let p of localFilePaths) {
-    const serverPath = path.relative(`${APP_PATH}`, p).split("\\").join("/");
+    const serverPath = path
+      .relative(`${APP_CONFIG_PATH}`, p)
+      .split("\\")
+      .join("/");
     const md5hash = await md5File(p);
     localFileHash[serverPath] = `md5:${md5hash}`;
   }

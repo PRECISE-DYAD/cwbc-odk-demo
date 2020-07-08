@@ -3,12 +3,15 @@ import * as Papa from "papaparse";
 import { readFile, writeFile } from "fs-extra";
 import http from "./http";
 
-export const APP_PATH = path.join(process.cwd(), "designer/app/config");
+export const APP_CONFIG_PATH = path.join(process.cwd(), "designer/app/config");
 
 export async function uploadLocalFilesToServer(localPaths: string[]) {
   const promises = localPaths.map(async (p) => {
     const contentType = getMimetype(p);
-    const serverPath = path.relative(`${APP_PATH}`, p).split("\\").join("/");
+    const serverPath = path
+      .relative(`${APP_CONFIG_PATH}`, p)
+      .split("\\")
+      .join("/");
     const fileData = await readFile(p);
     return uploadAppFileToServer(serverPath, fileData, contentType);
   });
@@ -66,31 +69,12 @@ async function uploadAppFileToServer(
   });
 }
 
-/**
- * Return app or table level file manifest
- * @param tableId - if provided will return table manifest
- */
-export async function getManifest(tableId: string = "") {
-  const endpoint = `default/manifest/2/${tableId}`;
-  const res = await http.get<{ files: IManifestItem[] }>(endpoint);
-  return res.files;
-}
-
 export function getMimetype(filename: string) {
   const ext = filename.split(".").pop();
   return mimeMapping[ext] ? mimeMapping[ext] : "application/octet-stream";
 }
 
-// TODO - merge with standalone api methods
-/** Types and interfaces */
-export interface IManifestItem {
-  filename: string;
-  contentLength: number;
-  contentType: string;
-  md5hash: string;
-  downloadUrl: string;
-}
-// copied from syncClient.java
+// List of mime types, copied from syncClient.java
 const mimeMapping = {
   jpeg: "image/jpeg",
   jpg: "image/jpeg",
