@@ -1,16 +1,23 @@
 This folder acts as a helper for quickly updating forms within the designer and app.
 
+## Folder Structure
+
 The root level should contain a `framework.xlsx` file.
 
-The tables folder should contain the nested folder structure for ODK Tables, e.g.,
+The rest of the file structure contains:
+
+`csv` - Any csv files used to initialise data, defined in the `tables.init` file (see data preloading note below)
+
+`tables`- the nested folder structure for ODK Tables, e.g.,
 
 ```
-tables/
-  exampleTable/
-    forms/
-      exampleTable/
+  exampleTable
+    forms
+      exampleTable
         exampleTable.xlsx
 ```
+
+`templates` - Any custom .handlebars templates used in surveys (see custom templates note below)
 
 ## Data Preloading
 
