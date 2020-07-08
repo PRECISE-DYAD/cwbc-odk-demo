@@ -4,6 +4,7 @@ designer/app/config/tables/*
 designer/app/config/assets/build/
 designer/app/config/assets/framework/forms/
 designer/app/config/assets/csv
+designer/app/config/assets/templates
 designer/app/config/assets/tables.init
 designer/app/config/assets/app.properties
 designer/app/output/*.gitkeep
