@@ -2,47 +2,25 @@ import * as Papa from "papaparse";
 import * as path from "path";
 import * as md5File from "md5-file";
 import * as fs from "fs-extra";
-import http from "./http";
 
 import { APP_CONFIG_PATH } from "./upload-utils";
 import { OdkRestService } from "./odkRest/odk.rest";
-import { ITableMeta } from "./odkRest/odk.types";
+import {
+  IFileUploadActions,
+  prepareFileUploadActions,
+  processFileUploadActions,
+} from "./upload-files";
+import { IODKTypes as IODK } from "./odkRest/odk.types";
 
 const odkRest = new OdkRestService();
-
-/**
- * Compare local and server tables, create/delete/update as required table schema
- * and data
- */
-export async function uploadTables() {
-  const actions = await compareServerAndLocalTables();
-  console.log(actions);
-  for (const tableId of actions.create) {
-    await createServerTable(tableId);
-    // upload initial data rows
-    const csvPath = `${APP_CONFIG_PATH}/assets/csv/${tableId}.csv`;
-    if (fs.existsSync(csvPath)) {
-      const rowData = await _parseCSV(csvPath);
-      await uploadTableRows(tableId, rowData);
-    }
-  }
-  for (const table of actions.update) {
-    const { tableId, schemaETag } = table;
-    await updateServerTable(tableId, schemaETag);
-  }
-  for (const table of actions.delete) {
-    const { tableId, schemaETag } = table;
-    await deleteServerTable(tableId, schemaETag);
-  }
-}
 
 /**
  * Generate a list of all local table definitions and server definitions
  * Compare manifest files for each, and generate a summary of tables to
  * create, update, delete or ignore accordingly
  */
-async function compareServerAndLocalTables() {
-  const actions: IActions = { create: [], update: [], ignore: [], delete: [] };
+export async function prepareTableUploadActions() {
+  const actions: ITableUploadAction[] = [];
   const localTableIds = fs
     .readdirSync(`${APP_CONFIG_PATH}/tables`)
     .filter((dir) =>
@@ -50,10 +28,11 @@ async function compareServerAndLocalTables() {
     );
   const serverTables = (await odkRest.getTables()).tables;
   for (let tableId of localTableIds) {
-    const serverTable = serverTables.find((t) => t.tableId === tableId);
-    if (!serverTable) {
-      actions.create.push(tableId);
-    } else {
+    const fileOps = await prepareFileUploadActions(tableId);
+    const schema = serverTables.find((t) => t.tableId === tableId);
+    let schemaOp: ITableUploadAction["schemaOp"];
+    if (!schema) schemaOp = "CREATE";
+    else {
       const TABLE_DIR = `${APP_CONFIG_PATH}/tables/${tableId}`;
       const serverTableFiles = (await odkRest.getTableIdFileManifest(tableId))
         .files;
@@ -62,17 +41,64 @@ async function compareServerAndLocalTables() {
       );
       const localMD5 = md5File.sync(`${TABLE_DIR}/definition.csv`);
       const serverMD5 = serverTableDefinition.md5hash;
-      if (serverMD5 === `md5:${localMD5}`) actions.ignore.push(tableId);
-      else actions.update.push(serverTable);
+      if (serverMD5 === `md5:${localMD5}`) schemaOp = "IGNORE";
+      else schemaOp = "UPDATE";
     }
+    actions.push({ tableId, schema, fileOps, schemaOp });
   }
   // Case 3 - DELETE
   serverTables.forEach((table) => {
+    const { tableId } = table;
     if (!localTableIds.includes(table.tableId)) {
-      actions.delete.push(table);
+      actions.push({ tableId, schemaOp: "DELETE" });
     }
   });
   return actions;
+}
+
+/**
+ * Compare local and server tables, create/delete/update as required table schema
+ * and data
+ */
+export async function processTableUploadActions(actions: ITableUploadAction[]) {
+  for (let action of actions) {
+    const { schemaOp, tableId, fileOps, schema } = action;
+    switch (schemaOp) {
+      case "CREATE":
+        await createServerTable(tableId);
+        // TODO upload rows
+        break;
+      case "DELETE":
+        const { schemaETag } = schema;
+        await deleteServerTable(tableId, schemaETag);
+        await deleteServerTableFiles(fileOps.delete);
+        break;
+      case "IGNORE":
+        break;
+      case "UPDATE":
+        // TODO
+
+        break;
+    }
+    if (action.fileOps) {
+      await processFileUploadActions(action.fileOps);
+    }
+  }
+  //
+  //   // upload initial data rows
+  //   const csvPath = `${APP_CONFIG_PATH}/assets/csv/${tableId}.csv`;
+  //   if (fs.existsSync(csvPath)) {
+  //     const rowData = await _parseCSV(csvPath);
+  //     await uploadTableRows(tableId, rowData);
+  //   }
+  // }
+  // for (const table of actions.update.meta) {
+  //   const { tableId, schemaETag } = table;
+  //   await updateServerTable(tableId, schemaETag);
+  // }
+  // for (const table of actions.delete.meta) {
+
+  // }
 }
 
 /**
@@ -81,7 +107,7 @@ async function compareServerAndLocalTables() {
 async function createServerTable(tableId: string) {
   // upload table schema
   const tableDefPath = `${APP_CONFIG_PATH}/tables/${tableId}/definition.csv`;
-  const orderedColumns = await _parseCSV(tableDefPath, {
+  const orderedColumns = await _parseCSV<IODK.ISchemaColumn>(tableDefPath, {
     transformHeader: (h) => _snakeToCamel(h),
   });
   const schema = {
@@ -89,20 +115,23 @@ async function createServerTable(tableId: string) {
     tableId,
     orderedColumns,
   };
-  await http.put(`default/tables/${tableId}`, schema, {
-    "Content-Type": "application/json",
-    "X-OpenDataKit-Installation-Id": "X-OpenDataKit-Installation-Id",
-  });
-  console.log(`[CREATED] - ${tableId}`);
+  await odkRest.createTable(schema);
 }
 
 async function uploadTableRows(tableId: string, rows: any[]) {
   console.log("uploading rows", tableId, rows);
-
-  throw new Error("Row upload not currently supported");
+  // TODO
+  // throw new Error("Row upload not currently supported");
 }
 
-async function deleteServerTable(tableId: string, schemaETag: string) {}
+async function deleteServerTable(tableId: string, schemaETag: string) {
+  return odkRest.deleteTable(tableId, schemaETag);
+}
+async function deleteServerTableFiles(filepaths: string[]) {
+  for (let filepath of filepaths) {
+    odkRest.deleteFile(filepath);
+  }
+}
 
 async function updateServerTable(tableId: string, schemaETag: string) {
   const serverTableRows = await odkRest.getRows(tableId, schemaETag);
@@ -154,9 +183,9 @@ function _UUIDv4() {
   });
 }
 
-interface IActions {
-  create: string[];
-  ignore: string[];
-  update: ITableMeta[];
-  delete: ITableMeta[];
+export interface ITableUploadAction {
+  tableId: string;
+  schemaOp: "CREATE" | "UPDATE" | "DELETE" | "IGNORE";
+  schema?: IODK.ITableMeta;
+  fileOps?: IFileUploadActions;
 }

@@ -58,11 +58,17 @@ function handleRes<T>(res: AxiosResponse) {
   return res.data as T;
 }
 function handleErr<T = any>(err: AxiosError): T {
-  console.log(
-    `[${err.response.status}][${err.request.method}]`,
-    err.request.path
-  );
-  console.log(err.response.data);
+  if (err.code) {
+    const e = err as any; // possible network error instead of axios
+    console.log(`[${e.code}][${e.hostname}]`);
+  } else {
+    console.log(
+      `[${err.response.status}][${err.request.method}]`,
+      err.request.path
+    );
+    console.log(err.response.data);
+  }
+
   throw new Error("request failed, see logs for details");
 }
 

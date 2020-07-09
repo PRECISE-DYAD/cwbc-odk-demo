@@ -1,44 +1,69 @@
 import * as path from "path";
 import * as md5File from "md5-file";
+import * as fs from "fs-extra";
 import { recFind } from "../utils";
-import {
-  APP_CONFIG_PATH,
-  parseCSV,
-  writeCSV,
-  deleteFilesFromServer,
-  uploadLocalFilesToServer,
-} from "./upload-utils";
-import http from "./http";
-import { IManifestItem } from "./odkRest/odk.types";
+import { APP_CONFIG_PATH, parseCSV, writeCSV } from "./upload-utils";
+import { IODKTypes as IODK } from "./odkRest/odk.types";
 import { OdkRestService } from "./odkRest/odk.rest";
 
-type IManifestHash = { [filename: string]: IManifestItem };
-
+type IManifestHash = { [filename: string]: IODK.IManifestItem };
 const odkRest = new OdkRestService();
 
 /**
- * Compare the manifest of files on the server and files in local app
- * for both tables and static assets.
- * Upload new or modified files, delete files that no longer exist
+ * Compare server and local files for table or app assets,
+ * return list of upload, delete or ignore actions
+ * @param tableId - if specified will upload from table folder instead of assets
  */
-export async function uploadFiles() {
-  //  NOTE - want to handle all files together as server manifest keeps some of the
-  // assets files with the tables manifest (table csvs)
-  const allLocalFiles = await recFind(`${APP_CONFIG_PATH}`);
-  const processedLocalFiles = await processLocalFiles(allLocalFiles);
-  const serverTableFiles = await getServerTableFiles();
-  const serverAppFiles = (await odkRest.getAppLevelFileManifest()).files;
-  const allServerFiles = [...serverTableFiles, ...serverAppFiles];
-  const compare = await compareFiles(allServerFiles, processedLocalFiles);
-  console.log("delete", compare.delete.length);
-  console.log(compare.delete);
-  console.log("upload", compare.upload.length);
-  console.log(compare.upload);
-  console.log("ignore", compare.ignore.length);
-  await deleteFilesFromServer(compare.delete.map((el) => el.filepath));
-  await uploadLocalFilesToServer(
-    compare.upload.map((el) => path.join(APP_CONFIG_PATH, el.filepath))
-  );
+export async function prepareFileUploadActions(tableId?: string) {
+  const localFiles = listLocalFiles(tableId);
+  const processedLocalFiles = await processLocalFiles(localFiles);
+  const serverAppFiles = tableId
+    ? (await odkRest.getTableIdFileManifest(tableId)).files
+    : (await odkRest.getAppLevelFileManifest()).files;
+  const actions = await compareFiles(serverAppFiles, processedLocalFiles);
+  return actions;
+}
+
+export async function processFileUploadActions(actions: IFileUploadActions) {
+  await uploadLocalFilesToServer(actions.upload);
+  await deleteFilesFromServer(actions.delete);
+}
+
+/**
+ * When listing files for a table or assets it is extra confusing as the table api
+ * contains any csvs stored in assets, and similarly assets excludes anything in api.
+ * This method generates the correct list for a table or app assets accordingly
+ */
+function listLocalFiles(tableId?: string) {
+  if (tableId) {
+    const tableFiles = recFind(`${APP_CONFIG_PATH}/tables/${tableId}`);
+    const tableCsvPath = `${APP_CONFIG_PATH}/assets/csv/${tableId}.csv`;
+    if (fs.existsSync(tableCsvPath)) {
+      tableFiles.push(tableCsvPath);
+    }
+    return tableFiles;
+  } else {
+    const files = recFind(`${APP_CONFIG_PATH}/assets`);
+    return files.filter((f) => !f.match(/\\csv\\(.)*.csv/gi));
+  }
+}
+
+async function uploadLocalFilesToServer(filepaths: string[] = []) {
+  const promises = filepaths.map(async (p) => {
+    const contentType = _getMimetype(p);
+    const serverPath = p;
+    const localPath = `${APP_CONFIG_PATH}/${p}`;
+    const fileData = fs.readFileSync(localPath);
+    return odkRest.putFile(serverPath, fileData, contentType);
+  });
+  await Promise.all(promises);
+}
+
+async function deleteFilesFromServer(serverPaths: string[]) {
+  const promises = serverPaths.map(async (p) => {
+    await odkRest.deleteFile(`default/files/2/${p}`);
+  });
+  await Promise.all(promises);
 }
 
 /**
@@ -79,29 +104,11 @@ async function convertPropertiesCSV(propertiesFilepath: string) {
 }
 
 /**
- * The server keeps track of specific table files through a different
- * api, which needs to be called for each table
- */
-async function getServerTableFiles() {
-  const serverTablesMeta = await http.get("default/tables");
-  if (serverTablesMeta.hasMoreResults) {
-    //   TODO - handle 'hasMoreResults case'
-    throw new Error("App not setup to handle table batch");
-  }
-  const serverTables = serverTablesMeta.tables.map((m) => m.tableId);
-  let serverTableFiles = [];
-  for (let tableId of serverTables) {
-    const tableFiles = (await odkRest.getTableIdFileManifest(tableId)).files;
-    serverTableFiles = [...serverTableFiles, ...tableFiles];
-  }
-  return serverTableFiles;
-}
-/**
  * Decide which server files to delete (not in local) and local files
  * to update (not in server or different md5hash)
  */
 async function compareFiles(
-  serverFiles: IManifestItem[],
+  serverFiles: IODK.IManifestItem[],
   localFilePaths: string[]
 ) {
   const serverFileHash: IManifestHash = _arrayToHash(
@@ -118,13 +125,13 @@ async function compareFiles(
     const md5hash = await md5File(p);
     localFileHash[serverPath] = `md5:${md5hash}`;
   }
-  const actions = { ignore: [], upload: [], delete: [] };
+  const actions: IFileUploadActions = { delete: [], ignore: [], upload: [] };
   Object.entries(serverFileHash).forEach(([key, value]) => {
     const filepath = key;
     const serverMD5 = value;
     const localMD5 = localFileHash[key];
-    if (localFileHash[key] !== value) {
-      actions.delete.push({ filepath, serverMD5, localMD5 });
+    if (localMD5 !== serverMD5) {
+      actions.delete.push(filepath);
     }
   });
   Object.entries(localFileHash).forEach(([key, value]) => {
@@ -132,9 +139,9 @@ async function compareFiles(
     const serverMD5 = serverFileHash[key];
     const localMD5 = value;
     if (serverMD5 !== localMD5) {
-      actions.upload.push({ filepath, serverMD5, localMD5 });
+      actions.upload.push(filepath);
     } else {
-      actions.ignore.push({ filepath, serverMD5, localMD5 });
+      actions.ignore.push(filepath);
     }
   });
   return actions;
@@ -156,4 +163,63 @@ function _arrayToHash(arr: any[], objKeyfield?: string, objValField?: string) {
     }
   });
   return hash;
+}
+
+function _getMimetype(filename: string) {
+  const ext = filename.split(".").pop();
+  return mimeMapping[ext] ? mimeMapping[ext] : "application/octet-stream";
+}
+
+// List of mime types, copied from syncClient.java
+const mimeMapping = {
+  jpeg: "image/jpeg",
+  jpg: "image/jpeg",
+  png: "image/png",
+  gif: "image/gif",
+  pbm: "image/x-portable-bitmap",
+  ico: "image/x-icon",
+  bmp: "image/bmp",
+  tiff: "image/tiff",
+
+  mp2: "audio/mpeg",
+  mp3: "audio/mpeg",
+  wav: "audio/x-wav",
+
+  asf: "video/x-ms-asf",
+  avi: "video/x-msvideo",
+  mov: "video/quicktime",
+  mpa: "video/mpeg",
+  mpeg: "video/mpeg",
+  mpg: "video/mpeg",
+  mp4: "video/mp4",
+  qt: "video/quicktime",
+
+  css: "text/css",
+  htm: "text/html",
+  html: "text/html",
+  csv: "text/csv",
+  txt: "text/plain",
+  log: "text/plain",
+  rtf: "application/rtf",
+  pdf: "application/pdf",
+  zip: "application/zip",
+  xlsx: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+  docx:
+    "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+  pptx:
+    "application/vnd.openxmlformats-officedocument.presentationml.presentation",
+  xml: "application/xml", // does not assume UTF-8
+  js: "application/x-javascript",
+  json: "application/json", // assumes UTF-8
+};
+
+export interface IFileUploadActions {
+  upload: string[];
+  ignore: string[];
+  delete: string[];
+}
+interface fileUploadMeta {
+  filepath: string;
+  serverMD5: any;
+  localMD5: any;
 }
