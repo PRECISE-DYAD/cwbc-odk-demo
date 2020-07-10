@@ -1,5 +1,6 @@
 import * as fs from "fs-extra";
 import * as path from "path";
+import * as inquirer from "inquirer";
 
 /**
  * find files by a given extension recursively, returning full paths
@@ -42,4 +43,14 @@ export function recFind(base: string, files?: string[], result?: string[]) {
     }
   }
   return result;
+}
+
+export async function promptOptions(
+  choices = [],
+  message = "Select an option"
+) {
+  const res = await inquirer.prompt([
+    { type: "list", name: "selected", message, choices },
+  ]);
+  return res.selected;
 }

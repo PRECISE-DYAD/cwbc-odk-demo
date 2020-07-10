@@ -77,6 +77,10 @@ export async function processTableUploadActions(actions: ITableUploadAction[]) {
         break;
       case "UPDATE":
         // TODO - handle schema change
+        /**
+         * Recommend simply breaking and prompting user to manually
+         * export data, delete table, recreate table and migrate data
+         */
         throw new Error("schema changes are not currently supported");
         break;
     }

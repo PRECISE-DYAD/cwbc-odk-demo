@@ -1,6 +1,6 @@
 {
   "name": "cwbc-odkx-app",
-  "version": "1.0.0-beta.5",
+  "version": "1.0.0-beta.6",
   "description": "",
   "main": "index.js",
   "scripts": {
@@ -9,7 +9,8 @@
     "prepare": "ts-node scripts/prepare.ts",
     "start": "npm run prepare && ts-node scripts/start.ts --watch",
     "deploy": "node scripts/deploy.js",
-    "upload": "ts-node scripts/upload/upload.ts"
+    "upload": "ts-node scripts/upload/upload.ts",
+    "export": "ts-node scripts/export.ts"
   },
   "repository": {
     "type": "git",

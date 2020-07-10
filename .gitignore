@@ -20,6 +20,7 @@ forms/csv/*
 forms/*.properties
 !forms/app.sample.properties
 backups/
+exports/
 scripts/logs/*.json
 !*.gitkeep
 ~$*

@@ -1,4 +1,3 @@
-import * as inquirer from "inquirer";
 require("dotenv").config();
 import {
   prepareTableUploadActions,
@@ -15,6 +14,7 @@ import {
   processCSVRowUploadActions,
   ICSVRowUploadAction,
 } from "./upload-csv-rows";
+import { promptOptions } from "../utils";
 
 /**
  * Upload scripts presents an interactive selection of upload options for file
@@ -25,7 +25,6 @@ async function main() {
   if (!ODK_SERVER_URL) {
     throw new Error("ODK_SERVER_URL not specified in .env, aborting upload");
   }
-  console.log("Sever:", ODK_SERVER_URL);
   const task = await promptOptions(
     ["App files", "Table Definitions", "CSV Table Rows"],
     `Upload to ${ODK_SERVER_URL}`
@@ -66,13 +65,6 @@ async function promptCSVRowsUpload() {
   ) {
     await processCSVRowUploadActions(csvRowActions);
   }
-}
-
-async function promptOptions(choices = [], message = "Select an option") {
-  const res = await inquirer.prompt([
-    { type: "list", name: "selected", message, choices },
-  ]);
-  return res.selected;
 }
 
 function _getTableActionsSummary(actions: ITableUploadAction[]) {
