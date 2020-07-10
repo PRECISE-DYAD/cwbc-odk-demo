@@ -1,4 +1,5 @@
 import * as inquirer from "inquirer";
+require("dotenv").config();
 import {
   prepareTableUploadActions,
   processTableUploadActions,
@@ -20,9 +21,14 @@ import {
  * and table resources
  */
 async function main() {
+  const { ODK_SERVER_URL } = process.env;
+  if (!ODK_SERVER_URL) {
+    throw new Error("ODK_SERVER_URL not specified in .env, aborting upload");
+  }
+  console.log("Sever:", ODK_SERVER_URL);
   const task = await promptOptions(
     ["App files", "Table Definitions", "CSV Table Rows"],
-    "What would you like to upload?"
+    `Upload to ${ODK_SERVER_URL}`
   );
   if (task === "App files") await promptFileUpload();
   if (task === "Table Definitions") await promptTableUpload();
