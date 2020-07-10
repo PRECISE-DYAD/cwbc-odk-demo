@@ -36,7 +36,11 @@ export async function processFileUploadActions(actions: IFileUploadActions) {
  */
 function listLocalFiles(tableId?: string) {
   if (tableId) {
-    const tableFiles = recFind(`${APP_CONFIG_PATH}/tables/${tableId}`);
+    let tableFiles = [];
+    const tableFilesPath = `${APP_CONFIG_PATH}/tables/${tableId}`;
+    if (fs.existsSync(tableFilesPath)) {
+      tableFiles = [...tableFiles, ...recFind(tableFilesPath)];
+    }
     const tableCsvPath = `${APP_CONFIG_PATH}/assets/csv/${tableId}.csv`;
     if (fs.existsSync(tableCsvPath)) {
       tableFiles.push(tableCsvPath);
@@ -100,7 +104,7 @@ async function convertPropertiesCSV(propertiesFilepath: string) {
     return props;
   });
   // Note - when writing back leave empty line at end (odk does it :s)
-  await writeCSV(propertiesFilepath, [...converted, []]);
+  writeCSV(propertiesFilepath, [...converted, []]);
 }
 
 /**

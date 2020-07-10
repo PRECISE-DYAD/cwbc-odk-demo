@@ -60,6 +60,14 @@ export function convertODKRowsForExport(
   return converted;
 }
 
+/**
+ * Generate a UUID in standard format for ODK
+ * e.g. uuid:c509cba4-35b4-47ff-b9a3-d52abeb76317
+ */
+export function generateUUID(): string {
+  return `uuid:${uuidv4()}`;
+}
+
 /********************************************************
  * General Helper functions
  *********************************************************/
@@ -77,7 +85,7 @@ export function camelToSnake(str: string) {
 
 // Simple implementation of UUIDv4
 // tslint:disable no-bitwise
-export function UUID() {
+function uuidv4() {
   return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, (c) => {
     const r = (Math.random() * 16) | 0,
       v = c === "x" ? r : (r & 0x3) | 0x8;

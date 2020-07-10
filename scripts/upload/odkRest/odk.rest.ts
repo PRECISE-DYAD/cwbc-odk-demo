@@ -35,7 +35,7 @@ export class OdkRestService {
     return http.put<IODK.IResTableCreate>(path, schema);
   }
 
-  alterRows(tableId: string, schemaETag: string, rows: IODK.RowList) {
+  alterRows(tableId: string, schemaETag: string, rows: IODK.IUploadRowList) {
     const path = `${this.appId}/tables/${tableId}/ref/${schemaETag}/rows`;
     return http.put(path, rows);
   }

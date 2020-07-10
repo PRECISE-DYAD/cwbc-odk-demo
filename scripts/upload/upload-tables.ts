@@ -1,9 +1,6 @@
-import * as Papa from "papaparse";
-import * as path from "path";
-import * as md5File from "md5-file";
 import * as fs from "fs-extra";
 
-import { APP_CONFIG_PATH } from "./upload-utils";
+import { APP_CONFIG_PATH, parseCSV } from "./upload-utils";
 import { OdkRestService } from "./odkRest/odk.rest";
 import {
   IFileUploadActions,
@@ -11,6 +8,7 @@ import {
   processFileUploadActions,
 } from "./upload-files";
 import { IODKTypes as IODK } from "./odkRest/odk.types";
+import { generateUUID } from "./odkRest/odk.utils";
 
 const odkRest = new OdkRestService();
 
@@ -18,41 +16,42 @@ const odkRest = new OdkRestService();
  * Generate a list of all local table definitions and server definitions
  * Compare manifest files for each, and generate a summary of tables to
  * create, update, delete or ignore accordingly
+ * Upload corresponding table asset files
  */
 export async function prepareTableUploadActions() {
   const actions: ITableUploadAction[] = [];
   const localTableIds = fs
-    .readdirSync(`${APP_CONFIG_PATH}/tables`)
-    .filter((dir) =>
-      fs.existsSync(`${APP_CONFIG_PATH}/tables/${dir}/definition.csv`)
-    );
+    .readdirSync(`${APP_CONFIG_PATH}/tables`, { withFileTypes: true })
+    .filter((p) => p.isDirectory())
+    .map((p) => p.name);
   const serverTables = (await odkRest.getTables()).tables;
+  const serverTableIDs = serverTables.map((t) => t.tableId);
+  // Table CREATE
   for (let tableId of localTableIds) {
-    const fileOps = await prepareFileUploadActions(tableId);
-    const schema = serverTables.find((t) => t.tableId === tableId);
-    let schemaOp: ITableUploadAction["schemaOp"];
-    if (!schema) schemaOp = "CREATE";
-    else {
-      const TABLE_DIR = `${APP_CONFIG_PATH}/tables/${tableId}`;
-      const serverTableFiles = (await odkRest.getTableIdFileManifest(tableId))
-        .files;
-      const serverTableDefinition = serverTableFiles.find(
-        (f) => path.basename(f.filename) === "definition.csv"
-      );
-      const localMD5 = md5File.sync(`${TABLE_DIR}/definition.csv`);
-      const serverMD5 = serverTableDefinition.md5hash;
-      if (serverMD5 === `md5:${localMD5}`) schemaOp = "IGNORE";
-      else schemaOp = "UPDATE";
+    if (!serverTableIDs.includes(tableId)) {
+      const schemaOp = "CREATE";
+      // create placeholder schema for use in row upload ops
+      const uuid = generateUUID();
+      const schema = { schemaETag: uuid, dataETag: null, tableId } as any;
+      const fileOps = await prepareFileUploadActions(tableId);
+      actions.push({ tableId, schemaOp, schema, fileOps });
     }
-    actions.push({ tableId, schema, fileOps, schemaOp });
   }
-  // Case 3 - DELETE
-  serverTables.forEach((table) => {
-    const { tableId } = table;
-    if (!localTableIds.includes(table.tableId)) {
-      actions.push({ tableId, schemaOp: "DELETE" });
+  // Table DELETE, UPDATE and IGNORE
+  for (let schema of serverTables) {
+    let schemaOp: ITableUploadAction["schemaOp"];
+    const { tableId } = schema;
+    const fileOps = await prepareFileUploadActions(tableId);
+    if (!localTableIds.includes(tableId)) {
+      schemaOp = "DELETE";
+    } else {
+      // check fileOps to see if definition changed
+      const definitionPath = `tables/${tableId}/definition.csv`;
+      const schemaUpdated = fileOps.upload.includes(definitionPath);
+      schemaOp = schemaUpdated ? "UPDATE" : "IGNORE";
     }
-  });
+    actions.push({ tableId, schemaOp, schema, fileOps });
+  }
   return actions;
 }
 
@@ -62,16 +61,17 @@ export async function prepareTableUploadActions() {
  */
 export async function processTableUploadActions(actions: ITableUploadAction[]) {
   for (let action of actions) {
-    const { schemaOp, tableId, fileOps, schema } = action;
+    const { schemaOp, tableId, fileOps } = action;
+    // schema will change if created (passed etags ignored)
+    let { schema } = action;
+    // Handle schema
     switch (schemaOp) {
       case "CREATE":
-        await createServerTable(tableId);
-        // TODO upload rows
+        schema = await createServerTable(tableId);
         break;
       case "DELETE":
         const { schemaETag } = schema;
         await deleteServerTable(tableId, schemaETag);
-        await deleteServerTableFiles(fileOps.delete);
         break;
       case "IGNORE":
         break;
@@ -80,89 +80,30 @@ export async function processTableUploadActions(actions: ITableUploadAction[]) {
 
         break;
     }
+    // Handle files
     if (action.fileOps) {
       await processFileUploadActions(action.fileOps);
     }
   }
-  //
-  //   // upload initial data rows
-  //   const csvPath = `${APP_CONFIG_PATH}/assets/csv/${tableId}.csv`;
-  //   if (fs.existsSync(csvPath)) {
-  //     const rowData = await _parseCSV(csvPath);
-  //     await uploadTableRows(tableId, rowData);
-  //   }
-  // }
-  // for (const table of actions.update.meta) {
-  //   const { tableId, schemaETag } = table;
-  //   await updateServerTable(tableId, schemaETag);
-  // }
-  // for (const table of actions.delete.meta) {
-
-  // }
 }
 
 /**
  * Upload table schema and data rows
+ * @param schemaETag - can be generated using odk.utils function
  */
 async function createServerTable(tableId: string) {
   // upload table schema
   const tableDefPath = `${APP_CONFIG_PATH}/tables/${tableId}/definition.csv`;
-  const orderedColumns = await _parseCSV<IODK.ISchemaColumn>(tableDefPath, {
+  const orderedColumns = await parseCSV<IODK.ISchemaColumn>(tableDefPath, {
     transformHeader: (h) => _snakeToCamel(h),
   });
-  const schema = {
-    schemaETag: _UUIDv4(),
-    tableId,
-    orderedColumns,
-  };
-  await odkRest.createTable(schema);
-}
-
-async function uploadTableRows(tableId: string, rows: any[]) {
-  console.log("uploading rows", tableId, rows);
-  // TODO
-  // throw new Error("Row upload not currently supported");
+  const schema = { tableId, orderedColumns };
+  const table = await odkRest.createTable(schema);
+  return table;
 }
 
 async function deleteServerTable(tableId: string, schemaETag: string) {
   return odkRest.deleteTable(tableId, schemaETag);
-}
-async function deleteServerTableFiles(filepaths: string[]) {
-  for (let filepath of filepaths) {
-    odkRest.deleteFile(filepath);
-  }
-}
-
-async function updateServerTable(tableId: string, schemaETag: string) {
-  const serverTableRows = await odkRest.getRows(tableId, schemaETag);
-  console.log("rows", serverTableRows);
-  // TODO - handle migration
-  throw new Error("Method not complete");
-}
-
-async function _parseCSV<T>(
-  filepath: string,
-  config: Papa.ParseConfig = {}
-): Promise<T[]> {
-  const data = fs.readFileSync(filepath, { encoding: "utf-8" });
-  return new Promise((resolve, reject) => {
-    Papa.parse(data, {
-      complete: (result) => {
-        if (result.errors.length > 0) {
-          console.error(result.errors);
-          fs.writeJSONSync("scripts/logs/csv-error.json", result.data);
-          reject(result.errors);
-        }
-        resolve(result.data);
-      },
-      error: (err) => reject(err),
-      header: true,
-      delimiter: ",",
-      skipEmptyLines: true,
-      encoding: "utf-8",
-      ...config,
-    });
-  });
 }
 
 // convert snake_case to camelCase (lower case first)
@@ -171,16 +112,6 @@ function _snakeToCamel(str: string): string {
     group.toUpperCase().replace("-", "").replace("_", "")
   );
   return UpperCamel.charAt(0).toLowerCase() + UpperCamel.slice(1);
-}
-
-// Simple implementation of UUIDv4
-// tslint:disable no-bitwise
-function _UUIDv4() {
-  return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, (c) => {
-    const r = (Math.random() * 16) | 0,
-      v = c === "x" ? r : (r & 0x3) | 0x8;
-    return v.toString(16);
-  });
 }
 
 export interface ITableUploadAction {

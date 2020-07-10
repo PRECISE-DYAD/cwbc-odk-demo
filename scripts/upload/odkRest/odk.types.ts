@@ -13,7 +13,6 @@ export namespace IODKTypes {
   }
   export interface ITableSchema {
     orderedColumns: ISchemaColumn[];
-    schemaETag: string;
     tableId: string;
   }
   // Schema columns are used when defining database data structures
@@ -28,18 +27,60 @@ export namespace IODKTypes {
     _deleted: boolean;
     _data_etag_at_modification: string;
     _default_access: AccessLevel;
-    _row_owner: string;
-    _group_read_only: BoolString;
+    _form_id: string;
     _group_modify: BoolString;
     _group_privileged: BoolString;
-    _form_id: string;
+    _group_read_only: BoolString;
     _id: string;
     _locale: string;
     _row_etag: string;
+    _row_owner: string;
     _savepoint_creator: string;
     _savepoint_timestamp: ISOString;
     _savepoint_type: Savepoint;
   }
+
+  // CSV table data follows specific format for fields before and after form key:value pairs
+  export interface ICSVTableRow {
+    _id: string;
+    _form_id: string;
+    _locale: string;
+    _savepoint_type: Savepoint;
+    _savepoint_timestamp: string;
+    _savepoint_creator: string;
+    _deleted: BoolString;
+    _data_etag_at_modification: string;
+    [FORM_KEY: string]: string;
+    _default_access: AccessLevel;
+    _group_modify: BoolString;
+    _group_privileged: BoolString;
+    _group_read_only: BoolString;
+    _row_etag: string;
+    _row_owner: string;
+  }
+  // Formate required when pushing rows to upload via rest api
+  export interface IUploadTableRow {
+    rowETag: string;
+    deleted: boolean;
+    formId: string;
+    locale: string;
+    savepointType: Savepoint;
+    savepointTimestamp: string;
+    savepointCreator: string;
+    orderedColumns: {
+      column: string;
+      value: string;
+    }[];
+    id: string;
+    filterScope: {
+      defaultAccess: AccessLevel;
+      rowOwner: string;
+      groupReadOnly: BoolString;
+      groupModify: BoolString;
+      groupPrivileged: BoolString;
+    };
+  }
+
   export type ITableMetaColumnKey = keyof ITableRow;
 
   interface IUserPriviledge {
@@ -146,9 +187,8 @@ export namespace IODKTypes {
   }
 
   export type IResUserPriviledge = IUserPriviledge;
-  export interface RowList {
-    // rows not technically partial, but same without selfUri info
-    rows: Partial<IResTableRow>[];
+  export interface IUploadRowList {
+    rows: IUploadTableRow[];
     dataETag: string;
   }
 }
