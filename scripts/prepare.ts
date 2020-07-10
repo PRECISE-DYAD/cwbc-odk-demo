@@ -1,6 +1,7 @@
-const fs = require("fs-extra");
-const path = require("path");
-const child = require("child_process");
+import * as fs from "fs-extra";
+import * as path from "path";
+import * as child from "child_process";
+import { recFind } from "./utils";
 
 const rootPath = process.cwd();
 const designerPath = path.join(rootPath, "designer");
@@ -46,6 +47,14 @@ async function run() {
       overwrite: true,
     }
   );
+  // clean any office temp files copied
+  const tempFilePaths = recFind(`${designerPath}/app/config`).filter((f) =>
+    path.basename(f).includes("~$")
+  );
+  for (let tempFilePath of tempFilePaths) {
+    fs.removeSync(tempFilePath);
+  }
+
   /** Possibly deprecated (requires better understanding of app.properties) */
   // await ensureCopy(
   //   "forms/app.properties",

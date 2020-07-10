@@ -34,7 +34,7 @@ main();
  * temporarily move all other files to convert only the changed file,
  * and then move back
  *
- * TODO - borrows a lot from prepare.js so could be streamlined
+ * TODO - borrows a lot from prepare.ts so could be streamlined
  */
 async function processChangedFile(name) {
   const updatedFileBasename = path.basename(name);
