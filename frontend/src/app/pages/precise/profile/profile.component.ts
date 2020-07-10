@@ -52,11 +52,9 @@ export class PreciseProfileComponent {
     );
   }
   /**
-   * Launch a form, passing the participant f2_guid variable for pre-population
+   * Launch a form, passing the participant
    */
   openForm(form: IFormMeta, editRowId?: string) {
-    const { tableId, formId } = form;
-    const { f2_guid } = this.store.activeParticipant;
-    return this.store.launchForm(tableId, formId, editRowId, { f2_guid });
+    return this.store.launchForm(form, editRowId);
   }
 }

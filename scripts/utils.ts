@@ -1,19 +1,22 @@
-const fs = require("fs-extra");
-const path = require("path");
-
-module.exports = { recFindByExt, recFind };
+import * as fs from "fs-extra";
+import * as path from "path";
 
 /**
  * find files by a given extension recursively, returning full paths
  * */
-async function recFindByExt(base, ext, files, result) {
-  files = files || (await fs.readdir(base));
+export function recFindByExt(
+  base: string,
+  ext: string,
+  files?: string[],
+  result?: string[]
+) {
+  files = files || fs.readdirSync(base);
   result = result || [];
   for (const file of files) {
     const newbase = path.join(base, file);
     if (fs.statSync(newbase).isDirectory()) {
-      const newFiles = await fs.readdir(newbase);
-      result = await recFindByExt(newbase, ext, newFiles, result);
+      const newFiles = fs.readdirSync(newbase);
+      result = recFindByExt(newbase, ext, newFiles, result);
     } else {
       if (file.split(".").pop() === ext) {
         result.push(newbase);
@@ -26,14 +29,14 @@ async function recFindByExt(base, ext, files, result) {
 /**
  * find files recursively, returning full paths
  * */
-async function recFind(base, files, result) {
-  files = files || (await fs.readdir(base));
+export function recFind(base: string, files?: string[], result?: string[]) {
+  files = files || fs.readdirSync(base);
   result = result || [];
   for (const file of files) {
     const newbase = path.join(base, file);
     if (fs.statSync(newbase).isDirectory()) {
-      const newFiles = await fs.readdir(newbase);
-      result = await recFind(newbase, newFiles, result);
+      const newFiles = fs.readdirSync(newbase);
+      result = recFind(newbase, newFiles, result);
     } else {
       result.push(newbase);
     }

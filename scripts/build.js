@@ -16,11 +16,12 @@ async function main() {
   // build and copy frontend
   // Angular - build basehref used
   console.log("building app...");
+  copyAppVersion();
   await fs.ensureDir(`${designerAssetsPath}/build`);
   await fs.emptyDir(`${designerAssetsPath}/build`);
   child.spawnSync("npm run build:odk", {
     cwd: frontendPath,
-    stdio: "inherit",
+    stdio: ["inherit", "inherit", "pipe"],
     shell: true,
   });
   console.log("build complete, copying files");
@@ -55,6 +56,21 @@ async function rewriteIndexes() {
   let buildIndex = await fs.readFile(buildIndexPath, "utf8");
   buildIndex = buildIndex.replace("<!--odk", "").replace("odk-->", "");
   await fs.writeFile(buildIndexPath, buildIndex);
+}
+/**
+ * Simple function to ensure main package.json version number is copied to app
+ */
+async function copyAppVersion() {
+  const mainPackageJson = fs.readJSONSync("package.json");
+  const appPackageJson = fs.readJSONSync(`${frontendPath}/package.json`);
+  if (appPackageJson.version !== mainPackageJson.version) {
+    appPackageJson.version = mainPackageJson.version;
+    fs.writeJSONSync(`${frontendPath}/package.json`, appPackageJson, {
+      // options to keep json formatting
+      spaces: 2,
+      replacer: null,
+    });
+  }
 }
 
 function handleError(err) {

@@ -1,5 +1,7 @@
 const inquirer = require("inquirer");
+import * as path from "path";
 const { spawn } = require("child_process");
+const BIN_PATH = path.join(process.cwd(), "node_modules/.bin");
 
 /**
  * Handle start of different applications, showing a prompt
@@ -40,7 +42,7 @@ function startFrontend() {
   });
 }
 function watchFormChanges() {
-  return spawn("node", ["scripts/watch.js"], {
+  return spawn(`${BIN_PATH}/ts-node`, ["scripts/watch.ts"], {
     stdio: ["ignore", "inherit", "inherit"],
     shell: true,
   });

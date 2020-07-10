@@ -1,8 +1,8 @@
-const watch = require("node-watch");
-const path = require("path");
-const fs = require("fs-extra");
-const child = require("child_process");
-const { recFindByExt } = require("./utils");
+import watch from "node-watch";
+import * as path from "path";
+import * as fs from "fs-extra";
+import * as child from "child_process";
+import { recFindByExt } from "./utils";
 
 const rootPath = process.cwd();
 const designerPath = path.join(rootPath, "designer");
@@ -12,16 +12,20 @@ const formsPath = path.join(rootPath, "forms");
  * Automatically watch for changes to form xlsx files
  * and run prepare scripts on change
  */
-console.log("Watching for XLSX form changes");
-
-/**
- * Watch for any changes to xlsx files and process for app designer
- */
-watch(formsPath, { recursive: true }, async function (evt, name) {
-  if (name.includes(".xlsx") && !name.includes("~$")) {
-    await processChangedFile(name);
-  }
-});
+function main() {
+  console.log("Watching for XLSX form changes");
+  /**
+   * Watch for any changes to xlsx files and process for app designer
+   */
+  watch(formsPath, { recursive: true }, async function (evt, name) {
+    if (name.includes(".xlsx") && !name.includes("~$")) {
+      await processChangedFile(name);
+    }
+    // TODO - also add watch for changes to js, handlebars etc. and copy over
+    // (no reload required)
+  });
+}
+main();
 
 /**
  * When an XLSX file is changed we want to process it to convert via

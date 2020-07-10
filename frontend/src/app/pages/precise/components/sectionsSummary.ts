@@ -1,13 +1,12 @@
 import { Component } from "@angular/core";
+import { PreciseStore, IParticipantForm } from "src/app/stores";
+import { toJS } from "mobx";
+import { IODkTableRowData } from "src/app/types/odk.types";
 import {
   PRECISE_FORM_SECTIONS,
   PRECISE_BABY_FORM_SECTION,
-  PreciseStore,
   IPreciseFormSection,
-  IParticipantForm,
-} from "src/app/stores";
-import { toJS } from "mobx";
-import { IODkTableRowData } from "src/app/types/odk.types";
+} from "src/app/models/precise.models";
 
 @Component({
   selector: "precise-sections-summary",
@@ -127,7 +126,9 @@ export class PreciseSectionsSummary {
   constructor(public store: PreciseStore) {
     this.sections = PRECISE_FORM_SECTIONS.map((s) => ({
       ...s,
-      forms: s.formIds.map((formId) => this.getFormWithEntries(formId)),
+      forms: s.formIds.map((formId) =>
+        this.getFormWithEntries(formId as string)
+      ),
     }));
     // Add sections for each recorded birth
     store.participantFormsHash.Birthbaby.entries.forEach((row) => {
@@ -152,11 +153,13 @@ export class PreciseSectionsSummary {
       ...PRECISE_BABY_FORM_SECTION,
       label: `Baby ${f2_guid_child.split("_").pop()}`,
     };
-    let forms = s.formIds.map((formId) => this.getFormWithEntries(formId));
+    let forms = s.formIds.map((formId) =>
+      this.getFormWithEntries(formId as string)
+    );
     forms = forms.map((f) => {
       // take all form entries and assign only those with matching baby guid
       const entries = f.entries.filter(
-        (row) => row.f2_guid_child == f2_guid_child
+        (row) => row.f2_guid_child === f2_guid_child
       );
       return { ...f, entries };
     });
@@ -164,9 +167,8 @@ export class PreciseSectionsSummary {
   }
 
   openForm(form: IParticipantForm, entry?: IODkTableRowData) {
-    const { tableId, formId } = form;
     const editRowId = entry ? entry._id : null;
-    this.store.launchForm(tableId, formId, editRowId);
+    this.store.launchForm(form, editRowId);
   }
 }
 

@@ -13,13 +13,13 @@ async function run() {
   const sampleFiles = {
     "forms/framework.xlsx": "forms/framework.sample.xlsx",
     "forms/csv/tables.init": "forms/csv/tables.sample.init",
-    ".env":".env.sample"
+    ".env": ".env.sample",
     // "forms/app.properties": "forms/app.sample.properties",
   };
   for (let [destination, source] of Object.entries(sampleFiles)) {
-    const exists = await fs.exists(destination);
+    const exists = fs.existsSync(destination);
     if (!exists) {
-      await fs.copyFile(source, destination);
+      fs.copyFileSync(source, destination);
     }
   }
   // copy forms
@@ -28,6 +28,8 @@ async function run() {
     `${designerAssetsPath}/framework/forms/framework/framework.xlsx`
   );
   await ensureCopy("forms/tables", `${designerPath}/app/config/tables`, true);
+  // copy templates
+  await ensureCopy("forms/templates", `${designerAssetsPath}/templates`, true);
 
   // process forms, call npx in case not installed globally
   child.spawnSync("npx grunt", ["xlsx-convert-all"], {
