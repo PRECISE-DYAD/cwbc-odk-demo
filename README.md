@@ -27,6 +27,8 @@ This will present options to run start scripts for either the frontend or design
 
 ### Frontend
 
+To make changes to the frontend code see the documentation in [frontend readme](./frontend/README.md), and specific notes for the precise implementation in the [precise forms documentation](./documentation/precise-forms.md)
+
 ### App designer
 
 ## Build
@@ -44,3 +46,7 @@ npm run deploy
 ```
 
 Once build the application can be pushed to a mobile device for testing with ODK Tables. This requires `adb` to be installed and an android device connected with ODK Tables, Survey and Sync applciations installed.
+
+## Upload
+
+Additional scripts also exist to handle direct upload to a server. See the [server-upload documentation](./documentation/server-upload.md) for more information.
