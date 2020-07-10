@@ -1,8 +1,14 @@
 # CWBC ODK Demo
 
-This is a monorepo extension of ODK application designer. It contains a custom frontend application build in svelte, which compiles and is loaded into application designer as a custom ODK Tables interface.
+This is a monorepo extension of ODK application designer. It contains the following folders:
 
-An additional forms folder is used to simplify the process of adding and updating forms within the designer, and a set of scripts to facilitate.
+| Folder        | Description                                                                                                        |
+| ------------- | ------------------------------------------------------------------------------------------------------------------ |
+| designer      | ODK-X app designer copy. Files are automatically copied here, and should not be modified directly                  |
+| documentation | Various pieces of user documentation to help with specific features                                                |
+| forms         | Table, form, csv and template data used with ODK-X. See the [forms readme](./forms/readme.md) for more information |
+| frontend      | Custom frontend application built in angular to be viewed in ODK Tables. See development documentation notes below |
+| scripts       | Custom scripts to manage build, deploy to mobile, server upload and data export operations                         |
 
 ## Prerequisites
 
@@ -23,15 +29,17 @@ This will install core dependencies, and trigger the `postinstall` script which 
 npm run start
 ```
 
-This will present options to run start scripts for either the frontend or designer folders, bypassed by providing as an argument, i.e. `npm run start frontend`.
+This will automatically start the live server for the angular frontend, the live server for odkx application designer, and watch scripts to livereload changes to either.
 
 ### Frontend
 
 To make changes to the frontend code see the documentation in [frontend readme](./frontend/README.md), and specific notes for the precise implementation in the [precise forms documentation](./documentation/precise-forms.md)
 
-### App designer
+### Forms
 
-## Build
+To make changes to odk forms, use the `forms` directory to handle table, form, csv and template files. See the [forms readme](./forms/readme.md) for more information
+
+## Building
 
 ```
 npm run build
@@ -50,3 +58,11 @@ Once build the application can be pushed to a mobile device for testing with ODK
 ## Upload
 
 Additional scripts also exist to handle direct upload to a server. See the [server-upload documentation](./documentation/server-upload.md) for more information.
+
+## Export
+
+Data can also be exported from the server to csv via:
+
+```
+npm run export
+```
