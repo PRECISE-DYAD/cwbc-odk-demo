@@ -76,8 +76,8 @@ export async function processTableUploadActions(actions: ITableUploadAction[]) {
       case "IGNORE":
         break;
       case "UPDATE":
-        // TODO
-
+        // TODO - handle schema change
+        throw new Error("schema changes are not currently supported");
         break;
     }
     // Handle files
