@@ -1,36 +1,25 @@
 import * as fs from "fs-extra";
 import * as path from "path";
 import * as child from "child_process";
-import { recFind } from "./utils";
+import { recFind, listFolders } from "./utils";
 
 const rootPath = process.cwd();
 const designerPath = path.join(rootPath, "designer");
 const designerAssetsPath = path.join(designerPath, "app/config/assets");
 const frontendPath = path.join(rootPath, "frontend");
 
-async function run() {
+function run() {
   console.log("copying data...");
-  // populate sample files if not already present, {destination:source} mapping
-  const sampleFiles = {
-    "forms/framework.xlsx": "forms/framework.sample.xlsx",
-    "forms/csv/tables.init": "forms/csv/tables.sample.init",
-    ".env": ".env.sample",
-    // "forms/app.properties": "forms/app.sample.properties",
-  };
-  for (let [destination, source] of Object.entries(sampleFiles)) {
-    const exists = fs.existsSync(destination);
-    if (!exists) {
-      fs.copyFileSync(source, destination);
-    }
-  }
-  // copy forms
-  await ensureCopy(
-    "forms/framework.xlsx",
-    `${designerAssetsPath}/framework/forms/framework/framework.xlsx`
+  populateSampleFiles();
+  // copy framework and tables
+  ensureCopy(
+    "forms/framework",
+    `${designerAssetsPath}/framework/forms/framework`
   );
-  await ensureCopy("forms/tables", `${designerPath}/app/config/tables`, true);
-  // copy templates
-  await ensureCopy("forms/templates", `${designerAssetsPath}/templates`, true);
+  ensureCopy("forms/tables", `${designerPath}/app/config/tables`, true);
+
+  copyCustomTypeTemplates();
+  copyCustomHandlebarsTemplates();
 
   // process forms, call npx in case not installed globally
   child.spawnSync("npx grunt", ["xlsx-convert-all"], {
@@ -39,8 +28,8 @@ async function run() {
     shell: true,
   });
   // copy preload data
-  await ensureCopy("forms/csv", `${designerAssetsPath}/csv`, true);
-  await fs.move(
+  ensureCopy("forms/csv", `${designerAssetsPath}/csv`, true);
+  fs.moveSync(
     `${designerAssetsPath}/csv/tables.init`,
     `${designerAssetsPath}/tables.init`,
     {
@@ -54,7 +43,6 @@ async function run() {
   for (let tempFilePath of tempFilePaths) {
     fs.removeSync(tempFilePath);
   }
-
   /** Possibly deprecated (requires better understanding of app.properties) */
   // await ensureCopy(
   //   "forms/app.properties",
@@ -62,25 +50,86 @@ async function run() {
   // );
 
   // copy back json and csv data in case frontend wants to access
-  await ensureCopy(`forms/csv`, `${frontendPath}/src/assets/odk/csv`, true);
+  ensureCopy(`forms/csv`, `${frontendPath}/src/assets/odk/csv`, true);
 }
 run();
+
+/**
+ * Various .sample files have been created to provide example when first checking out the repo.
+ * Copy the files to their correct location unless other data already exists there.
+ */
+function populateSampleFiles() {
+  // {destination:source} mapping
+  const sampleFiles = {
+    "forms/framework/framework.xlsx": "forms/framework/framework.sample.xlsx",
+    "forms/csv/tables.init": "forms/csv/tables.sample.init",
+    ".env": ".env.sample",
+    // "forms/app.properties": "forms/app.sample.properties",
+  };
+  for (let [destination, source] of Object.entries(sampleFiles)) {
+    const exists = fs.existsSync(destination);
+    if (!exists) {
+      fs.copyFileSync(source, destination);
+    }
+  }
+}
+
+/**
+ * By default ODK expects a customPromptTypes.js and customScreenTypes.js file for each form
+ * This script copies the `templates/customPromptTypes.js` file to all forms so that they all
+ * have access to the same custom prompts and screens
+ */
+function copyCustomTypeTemplates() {
+  const srcDir = "forms/templates";
+  const srcFiles = fs
+    .readdirSync(srcDir)
+    .filter((f) => path.extname(f) === ".js");
+  const targetBase = `${designerPath}/app/config/tables`;
+  const tableFolders = listFolders(targetBase);
+  for (let tableFolder of tableFolders) {
+    const formFolders = listFolders(`${targetBase}/${tableFolder}/forms`);
+    for (let formFolder of formFolders) {
+      const targetDir = `${targetBase}/${tableFolder}/forms/${formFolder}`;
+      for (let filename of srcFiles) {
+        fs.copySync(`${srcDir}/${filename}`, `${targetDir}/${filename}`);
+      }
+    }
+  }
+}
+/**
+ * Copy all .handlebars files from the templates folder to the app assets directory
+ * to allow them to be imported into any form
+ */
+function copyCustomHandlebarsTemplates() {
+  const srcDir = "forms/templates";
+  const targetDir = `${designerAssetsPath}/templates`;
+  fs.ensureDirSync(targetDir);
+  fs.emptyDirSync(targetDir);
+  const templates = fs
+    .readdirSync(srcDir)
+    .filter((f) => path.extname(f) === ".handlebars");
+  for (let template of templates) {
+    fs.copyFileSync(`${srcDir}/${template}`, `${targetDir}/${template}`);
+  }
+}
 
 /**
  * Copy files, ensuring target folder exists and overwriting any existing data
  * @param emptyDir - Optionally empty directory before copy
  */
-async function ensureCopy(src, dest, emptyDir = false) {
-  const isDirectory = (await fs.stat(src)).isDirectory();
+function ensureCopy(src, dest, emptyDir = false) {
+  const isDirectory = fs.statSync(src).isDirectory();
   const destDirectory = isDirectory ? dest : path.dirname(dest);
-  await fs.ensureDir(destDirectory);
+  fs.ensureDirSync(destDirectory);
   if (emptyDir) {
-    await fs.emptyDir(dest);
+    fs.emptyDirSync(dest);
   }
-  await fs.copy(src, dest, { overwrite: true }).catch((err) => {
+  try {
+    fs.copySync(src, dest, { overwrite: true });
+  } catch (error) {
     console.error("\x1b[31m", `ERROR: could not copy ${src} -> ${dest}`);
     process.exitCode = 1;
-  });
+  }
 }
 
 /** Deprecated but may want in future - copy form defs back into frontend */

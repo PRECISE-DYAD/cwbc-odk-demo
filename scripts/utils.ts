@@ -45,6 +45,16 @@ export function recFind(base: string, files?: string[], result?: string[]) {
   return result;
 }
 
+/**
+ * list all folders by name within a given path
+ */
+export function listFolders(path: string) {
+  return fs
+    .readdirSync(path, { withFileTypes: true })
+    .filter((dirent) => dirent.isDirectory())
+    .map((dirent) => dirent.name);
+}
+
 export async function promptOptions(
   choices = [],
   message = "Select an option"

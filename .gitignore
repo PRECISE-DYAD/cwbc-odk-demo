@@ -9,11 +9,11 @@ designer/app/config/assets/tables.init
 designer/app/config/assets/app.properties
 designer/app/output/*.gitkeep
 designer/app/output/db
-forms/framework.xlsx
-forms/~$framework.xlsx
+forms/**/framework.xlsx
+forms/**/~$framework.xlsx
 forms/tables/*
 !forms/tables/config
-!forms/tables/exampleTable
+!forms/tables/exampleTable/exampleTable.xlsx
 !forms/tables/templates
 forms/csv/*
 !forms/csv/tables.sample.init
