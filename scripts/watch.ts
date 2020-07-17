@@ -19,7 +19,7 @@ function main() {
    */
   watch(formsPath, { recursive: true }, async function (evt, name) {
     if (name.includes(".xlsx") && !name.includes("~$")) {
-      await processChangedFile(name);
+      processChangedFile(name);
     }
     // TODO - also add watch for changes to js, handlebars etc. and copy over
     // (no reload required)
@@ -36,16 +36,16 @@ main();
  *
  * TODO - borrows a lot from prepare.ts so could be streamlined
  */
-async function processChangedFile(name) {
+function processChangedFile(name: string) {
   const updatedFileBasename = path.basename(name);
   // copy basefiles
   fs.copySync(
-    "forms/framework.xlsx",
-    `${designerAssetsPath}/framework/forms/framework/framework.xlsx`
+    "forms/framework",
+    `${designerAssetsPath}/framework/forms/framework`
   );
   fs.copySync("forms/tables", `${designerPath}/app/config/tables`);
   // temporary rename app directory files
-  const currentFiles = await recFindByExt(
+  const currentFiles = recFindByExt(
     `${designerPath}/app/config/tables`,
     "xlsx"
   );
@@ -62,7 +62,7 @@ async function processChangedFile(name) {
     shell: true,
   });
   // covert back
-  const tmpFiles = await recFindByExt(
+  const tmpFiles = recFindByExt(
     `${designerPath}/app/config/tables`,
     "xlsx_tmp"
   );
