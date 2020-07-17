@@ -39,7 +39,10 @@ main();
 function processChangedFile(name: string) {
   const updatedFileBasename = path.basename(name);
   // copy basefiles
-  fs.copySync("forms/framework", `${designerAssetsPath}/framework`);
+  fs.copySync(
+    "forms/framework",
+    `${designerAssetsPath}/framework/forms/framework`
+  );
   fs.copySync("forms/tables", `${designerPath}/app/config/tables`);
   // temporary rename app directory files
   const currentFiles = recFindByExt(
