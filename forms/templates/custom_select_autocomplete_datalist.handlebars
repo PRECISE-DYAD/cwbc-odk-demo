@@ -1,0 +1,59 @@
+{{!-- This template provides an input box that shows and filters a list of selection options as the user types --}}
+<div id="container-{{promptId}}">
+    <form action="javascript:void(0);" onsubmit="odkLeaveField(this);">
+        <div class="form-group">
+            <label for="input-{{promptId}}-list">{{> labelHint}}</label>
+            <div class="input-container">
+                {{!-- Main input box with datalist used to lookup values based on their display.title.text value --}}
+                <input list="input-{{promptId}}-list" id="input-{{promptId}}-datalist"
+                    onchange="handleOptionSelect(event);">
+                <datalist id="input-{{promptId}}-list">
+                    {{#each choices}}
+                    <option data-data_value={{data_value}} data-display_title_text="{{display.title.text}}">
+                        {{display.title.text}}</option>
+                    {{/each}}
+                </datalist>
+                {{!-- Additional hidden input box used to track the corresponding data_value of selected option and populate to odk database --}}
+                {{!-- NOTE - by default a datalist can have both label and value fields, however the display is a bit clunky so workaround to only show labels --}}
+                <input type="hidden" id="slider-{{promptId}}" class="form-control" name="{{name}}" tabindex="0"
+                    {{#eachProperty inputAttributes}} {{property}}="{{value}}" {{/eachProperty}} {{#if disabled}}
+                    style="background-color:lightgray;" disabled="true" {{/if}}>
+            </div>
+        </div>
+    </form>
+</div>
+
+<script>
+    var datalistInputEl = document.getElementById("input-{{promptId}}-datalist")
+    var odkInputEl = document.getElementById("slider-{{promptId}}")
+    var datalistEl = document.getElementById('input-{{promptId}}-list')
+    initialiseValues()
+
+    // on load lookup the data loaded (all form fields) and get the value for this specific question name.
+    // populate that value into the input element, and lookup the corresponding display.title.text to input
+    // into the datalist input
+    function initialiseValues() {
+        // handlebars lookup syntax used to get a specific variable property (name) from an object (data)
+        var savedValue = "{{lookup data [name]}}"
+        if (savedValue) {
+            odkInputEl.value = savedValue
+            const savedValueOption = datalistEl.querySelector('[data-data_value="' + savedValue + '"]');
+            const savedValueText = savedValueOption.getAttribute('data-display_title_text')
+            datalistInputEl.value = savedValueText
+        }
+    }
+
+    // when an option is selected from the datalist find the corresponding option value and populate the odk input element
+    function handleOptionSelect(e) {
+        const selectedOptionValue = e.target.value
+        const match = datalistEl.querySelector('[data-display_title_text="' + selectedOptionValue + '"]');
+        const data_value = match.getAttribute('data-data_value');
+        document.getElementById(id = "slider-{{promptId}}").value = data_value
+    }
+</script>
+
+
+{{!-- optional - debug logging --}}
+{{!-- <div>
+    {{log 'custom_select this' this}}
+</div> --}}
