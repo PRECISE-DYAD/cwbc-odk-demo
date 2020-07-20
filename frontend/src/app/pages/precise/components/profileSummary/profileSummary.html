@@ -33,11 +33,10 @@
 </div>
 
 <!-- Additional Info Expansion -->
-<mat-expansion-panel>
+<mat-expansion-panel >
   <mat-expansion-panel-header>
     <mat-panel-title>Additional Information</mat-panel-title>
   </mat-expansion-panel-header>
-  <!-- TODO - duplicated code from above, should refactor -->
   <table>
     <tr [attr.data-field]="f.field" *ngFor="let f of additionalFields">
       <td class="field-label">{{ f.label }}</td>

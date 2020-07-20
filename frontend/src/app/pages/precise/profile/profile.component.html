@@ -37,7 +37,7 @@
         ></precise-profile-summary>
       </mat-expansion-panel>
       <!-- other sections -->
-      <ng-container *ngIf="profileConfirmed">
+      <ng-container *ngIf="profileConfirmed" @fadeEntryExit>
         <mat-expansion-panel
           *ngFor="let section of sections; let i = index"
           [class]="'no-padding section-tile color-rotate-' + i"
@@ -59,6 +59,7 @@
         </mat-expansion-panel>
       </ng-container>
     </mat-accordion>
+
     <!-- Add baby section -->
     <section
       class="section-tile"
@@ -70,9 +71,12 @@
       <span>Add Baby</span>
     </section>
     <!-- profile confirmation -->
-    <precise-profile-confirmation
+    <div
       *ngIf="!profileConfirmed && store.participantDataLoaded"
-    ></precise-profile-confirmation>
+      @fadeEntryExit
+    >
+      <precise-profile-confirmation></precise-profile-confirmation>
+    </div>
   </div>
   <div *ngIf="store.listDataLoaded && !store.activeParticipant">
     Participant not found
