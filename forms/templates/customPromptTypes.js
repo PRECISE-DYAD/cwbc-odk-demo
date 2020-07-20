@@ -37,5 +37,11 @@ define(["promptTypes", "jquery"], function (promptTypes, $) {
         return null;
       },
     }),
+    custom_text: promptTypes.input_type.extend({
+      _baseInputAttributes: {
+        type: "text",
+      },
+      templatePath: "../config/assets/templates/custom_text.handlebars",
+    }),
   };
 });

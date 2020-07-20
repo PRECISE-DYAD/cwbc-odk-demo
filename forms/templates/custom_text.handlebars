@@ -18,10 +18,9 @@
         </div>
     </form>
 </div>
-<div class="alert alert-warning" role="alert" id="validation-message-{{promptId}}"></div>
 <script>
     var $ = window.$
-
+    var inputEl = document.getElementById('slider-{{promptId}}')
     function addIDKButton() {
         // used to specify -99 when respondent specifies 'I Don't Know'
         var idkButton = $("#idk-{{promptId}}")
@@ -33,20 +32,5 @@
             })
         }
     }
-    // check validation status and messages from input el. Display in message div if exists
-    function checkValidation() {
-        var inputEl = document.getElementById('slider-{{promptId}}')
-        var messageEl$ = $("#validation-message-{{promptId}}")
-        const isValid = inputEl.checkValidity();
-        if (!isValid) {
-            const validationMsg = inputEl.validationMessage
-            messageEl$.text(validationMsg)
-            messageEl$.removeClass('hide')
-        }
-        else {
-            messageEl$.addClass('hide')
-        }
-    }
-    checkValidation()
     addIDKButton()
 </script>
