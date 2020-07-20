@@ -115,9 +115,11 @@ function copyCustomHandlebarsTemplates() {
 
 /**
  * Copy files, ensuring target folder exists and overwriting any existing data
+ * @param src - source folder to copy from
+ * @param dest - destination target folder to copy to
  * @param emptyDir - Optionally empty directory before copy
  */
-function ensureCopy(src, dest, emptyDir = false) {
+function ensureCopy(src: string, dest: string, emptyDir = false) {
   const isDirectory = fs.statSync(src).isDirectory();
   const destDirectory = isDirectory ? dest : path.dirname(dest);
   fs.ensureDirSync(destDirectory);

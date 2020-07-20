@@ -49,26 +49,3 @@ function watchFormChanges() {
 }
 
 main();
-
-/**
- * 2020-04-23 Deprecated
- * Previously used to show prompt to start either designer or frontend
- * but now default behaviour is to display both. Keeping purely for reference
- */
-// function promptInput() {
-//   inquirer
-//     .prompt([
-//       {
-//         type: "list",
-//         name: "appSelected",
-//         message: "Select application",
-//         choices: ["frontend", "designer"],
-//       },
-//     ])
-//     .then(({ appSelected }) => {
-//       child.spawn("npm", ["run", "start", appSelected], {
-//         stdio: ["ignore", "inherit", "inherit"],
-//         shell: true,
-//       });
-//     });
-// }

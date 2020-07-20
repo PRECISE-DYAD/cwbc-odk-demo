@@ -8,7 +8,7 @@
     "postinstall": "node scripts/postinstall.js",
     "prepare": "ts-node scripts/prepare.ts",
     "start": "npm run prepare && ts-node scripts/start.ts --watch",
-    "deploy": "node scripts/deploy.js",
+    "deploy": "ts-node scripts/deploy.ts",
     "upload": "ts-node scripts/upload/upload.ts",
     "export": "ts-node scripts/export.ts"
   },
