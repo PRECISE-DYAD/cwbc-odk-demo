@@ -1,12 +1,12 @@
 <div *mobxAutorun style="display: contents;" [class]="store.activeTheme">
-  <div class="primary">
+  <div class="primary page" style="flex: 1;">
     <mat-toolbar color="primary">
       <mat-toolbar-row>
         <app-back-button style="margin-left: -16px;"></app-back-button>
         <h1>{{ store.title | titlecase }}</h1>
       </mat-toolbar-row>
     </mat-toolbar>
-    <div [@routeAnimations]="getRouteAnimation(routerOutlet)">
+    <div [@routeAnimations]="getRouteAnimation(routerOutlet)" style="flex: 1;">
       <router-outlet #routerOutlet="outlet"></router-outlet>
     </div>
   </div>

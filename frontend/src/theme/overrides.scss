@@ -16,3 +16,16 @@
 .mat-menu-panel {
   background: white;
 }
+
+mat-expansion-panel.no-padding .mat-expansion-panel-body {
+  padding: 0;
+}
+mat-expansion-panel-header.mat-expansion-panel-header {
+  padding: 0 10px;
+}
+mat-panel-title {
+  align-items: center;
+}
+mat-expansion-panel mat-icon {
+  margin-right: 10px;
+}

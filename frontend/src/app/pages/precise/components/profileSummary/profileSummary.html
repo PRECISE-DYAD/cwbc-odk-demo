@@ -1,0 +1,56 @@
+<!-- <div class="summary-container"> -->
+<table>
+  <th *ngFor="let heading of tableHeadings"></th>
+  <!-- Main Table -->
+  <tr [attr.data-field]="f.field" *ngFor="let f of summaryFields">
+    <td class="field-label">{{ f.label }}</td>
+    <td class="field-value">
+      <div>{{ participant[f.field] }}</div>
+      <!-- revision history view -->
+      <div
+        *ngFor="let fieldRevision of f.revisions"
+        class="field-value revision"
+      >
+        {{ fieldRevision }}
+      </div>
+    </td>
+  </tr>
+</table>
+<div class="summary-action-buttons">
+  <button
+    mat-button
+    [style.visibility]="
+            participantRevisions.length > 1 ? 'visible' : 'hidden'
+          "
+    (click)="showRevisions()"
+  >
+    <mat-icon class="field-icon">history</mat-icon>
+    {{ participantRevisions.length - 1 }} Revisions
+  </button>
+  <div id="lastUpdate" style="flex: 1;">
+    <div>Updated {{ participant._savepoint_timestamp | date }}</div>
+  </div>
+</div>
+
+<!-- Additional Info Expansion -->
+<mat-expansion-panel>
+  <mat-expansion-panel-header>
+    <mat-panel-title>Additional Information</mat-panel-title>
+  </mat-expansion-panel-header>
+  <!-- TODO - duplicated code from above, should refactor -->
+  <table>
+    <tr [attr.data-field]="f.field" *ngFor="let f of additionalFields">
+      <td class="field-label">{{ f.label }}</td>
+      <td class="field-value">
+        <div>{{ participant[f.field] }}</div>
+        <!-- revision history view -->
+        <div
+          *ngFor="let fieldRevision of f.revisions"
+          class="field-value revision"
+        >
+          {{ fieldRevision }}
+        </div>
+      </td>
+    </tr>
+  </table>
+</mat-expansion-panel>

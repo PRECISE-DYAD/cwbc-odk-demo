@@ -1,10 +1,6 @@
-<div
-  *mobxReaction="participantUpdated.bind(this)"
-  style="flex: 1;"
-  class="primary"
->
+<div *mobxReaction="participantUpdated.bind(this)" class="primary page">
   <div
-    style="padding: 1em;"
+    style="padding: 1em; flex: 1;"
     *ngIf="store.listDataLoaded && store.participantDataLoaded"
   >
     <div id="participantMenu">
@@ -23,20 +19,65 @@
       </mat-menu>
     </div>
 
-    <!-- TODO - swap to only one update for all data loaded -->
-    <precise-profile-summary
-      [participant]="store.activeParticipant"
-      [participantRevisions]="participantRevisions"
-      (shouldUpdate)="handleProfileUpdate($event)"
-      [profileConfirmed]="profileConfirmed"
-    ></precise-profile-summary>
-
-    <!-- Sections -->
-    <div @fadeEntryExit *ngIf="profileConfirmed && store.participantDataLoaded">
-      <precise-sections-summary></precise-sections-summary>
-    </div>
+    <mat-accordion multi displayMode="flat">
+      <!-- profile section -->
+      <mat-expansion-panel
+        [expanded]="expandedSections.profile"
+        class="no-padding"
+      >
+        <mat-expansion-panel-header expandedHeight="48px">
+          <mat-panel-title
+            ><mat-icon>person</mat-icon><span>Profile</span></mat-panel-title
+          >
+        </mat-expansion-panel-header>
+        <precise-profile-summary
+          [participant]="store.activeParticipant"
+          [participantRevisions]="participantRevisions"
+          [profileConfirmed]="profileConfirmed"
+        ></precise-profile-summary>
+      </mat-expansion-panel>
+      <!-- other sections -->
+      <ng-container *ngIf="profileConfirmed">
+        <mat-expansion-panel
+          *ngFor="let section of sections; let i = index"
+          [class]="'no-padding section-tile color-rotate-' + i"
+          [attr.data-section]="section.label"
+          expanded
+        >
+          <mat-expansion-panel-header expandedHeight="48px">
+            <mat-panel-title
+              ><mat-icon
+                class="section-icon"
+                [svgIcon]="section.icon"
+              ></mat-icon>
+              <span>{{ section.label }}</span></mat-panel-title
+            >
+          </mat-expansion-panel-header>
+          <precise-section-summary
+            [section]="section"
+          ></precise-section-summary>
+        </mat-expansion-panel>
+      </ng-container>
+    </mat-accordion>
+    <!-- Add baby section -->
+    <section
+      class="section-tile"
+      id="addBabySection"
+      (click)="store.addParticipantBaby()"
+      *ngIf="profileConfirmed"
+    >
+      <mat-icon>add</mat-icon>
+      <span>Add Baby</span>
+    </section>
+    <!-- profile confirmation -->
+    <precise-profile-confirmation
+      *ngIf="!profileConfirmed && store.participantDataLoaded"
+    ></precise-profile-confirmation>
   </div>
   <div *ngIf="store.listDataLoaded && !store.activeParticipant">
     Participant not found
+  </div>
+  <div id="guid" *ngIf="store.activeParticipant">
+    {{ store.activeParticipant.f2_guid }}
   </div>
 </div>

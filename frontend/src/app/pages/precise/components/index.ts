@@ -1,12 +1,17 @@
 import { NgModule } from "@angular/core";
 
-import { PreciseProfileSummary } from "./profileSummary";
+import { PreciseProfileSummaryComponent } from "./profileSummary/profileSummary";
 import { CoreComponentsModule } from "src/app/components";
 import { CommonModule } from "@angular/common";
-import { PreciseSectionsSummary } from "./sectionsSummary";
+import { PreciseSectionSummaryComponent } from "./sectionSummary";
 import { RouterModule } from "@angular/router";
+import { PreciseProfileConfirmationComponent } from "./profileConfirmation";
 
-const PreciseComponents = [PreciseProfileSummary, PreciseSectionsSummary];
+const PreciseComponents = [
+  PreciseProfileSummaryComponent,
+  PreciseSectionSummaryComponent,
+  PreciseProfileConfirmationComponent,
+];
 @NgModule({
   declarations: PreciseComponents,
   imports: [CoreComponentsModule, CommonModule, RouterModule],

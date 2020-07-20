@@ -14,7 +14,7 @@ $dyad-warn: mat-palette($mat-deep-orange);
 $dyad-theme: mat-dark-theme($dyad-primary, $dyad-accent, $dyad-warn);
 
 // Use a mixin to create a class that can be applied to any other components
-@mixin custom-component-theme($theme) {
+@mixin custom-component-mixin($theme) {
   // Extract the palettes you need from the theme definition.
   $primary: map-get($theme, primary);
   $accent: map-get($theme, accent);
@@ -27,18 +27,21 @@ $dyad-theme: mat-dark-theme($dyad-primary, $dyad-accent, $dyad-warn);
     background: mat-color($primary) !important;
     color: white !important;
   }
+  .border-primary {
+    border: 2px solid mat-color($primary);
+  }
 }
 
 // specify classes to trigger different themes
 .theme-default {
   @include angular-material-theme($precise-theme);
-  @include custom-component-theme($precise-theme);
+  @include custom-component-mixin($precise-theme);
 }
 .theme-precise {
   @include angular-material-theme($precise-theme);
-  @include custom-component-theme($precise-theme);
+  @include custom-component-mixin($precise-theme);
 }
 .theme-dyad {
   @include angular-material-theme($dyad-theme);
-  @include custom-component-theme($precise-theme);
+  @include custom-component-mixin($precise-theme);
 }

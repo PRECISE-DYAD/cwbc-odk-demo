@@ -3,6 +3,8 @@
  * These are used to define Precise pages
  ********************************************************************************/
 
+import { IParticipantForm } from "../stores";
+
 /**
  * Schema where keys represent table ID and values represent form metadata
  * @param icon - Custom icons are placed in `src/assets/icons` and made available
@@ -23,13 +25,6 @@ export const PRECISE_SCHEMA = {
     formId: "Birthbaby",
     tableId: "Birthbaby",
     icon: "baby",
-    mapFields: [
-      {
-        table_id: "Birthmother",
-        field_name: "f2_some_field",
-        mapped_field_name: "my_other_field",
-      },
-    ],
   },
   Birthmother: {
     title: "Birth Mother",
@@ -136,4 +131,8 @@ export interface IPreciseFormSection {
   icon: string;
   label: string;
   formIds: IPreciseFormId[];
+}
+
+export interface ISectionWithMeta extends IPreciseFormSection {
+  forms: IParticipantForm[];
 }
