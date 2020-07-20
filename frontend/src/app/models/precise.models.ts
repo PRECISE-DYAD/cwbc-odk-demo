@@ -101,7 +101,7 @@ export const PRECISE_FORM_SECTIONS: IPreciseFormSection[] = [
   },
   {
     icon: "disease",
-    label: "TOD",
+    label: "TOD - ANC",
     formIds: ["TOD_ANC"],
   },
   {
