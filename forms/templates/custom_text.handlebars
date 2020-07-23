@@ -7,30 +7,44 @@
                     {{#eachProperty inputAttributes}} {{property}}="{{value}}" {{/eachProperty}} {{#if disabled}}
                     style="background-color:lightgray;" disabled="true" {{/if}}>
                 {{#if isSlider}}
-                {{#unless disabled}}
+                {{!-- {{#unless disabled}}
                 <div class="value-box" id="value-{{promptId}}" style="width:{{boxWidth}}px">{{value}}</div>
-                {{/unless}}
+                {{/unless}} --}}
                 {{/if}}
                 {{#if inputAttributes.showIDK}}
-                <button id="idk-{{promptId}}" style="width:200px; margin-left:16px">Do Not Know</button>
+                <input type="checkbox" id="idk-{{promptId}}" name="{{name}}" value="{{value}}"
+                    style="margin:0 8px; width:44px; height:34px;">
+                <label for="idk-{{promptId}}" style="width:100px">Do Not Know</label>
                 {{/if}}
             </div>
         </div>
     </form>
+
 </div>
+
+
+
 <script>
-    var $ = window.$
-    var inputEl = document.getElementById('slider-{{promptId}}')
-    function addIDKButton() {
-        // used to specify -99 when respondent specifies 'I Don't Know'
-        var idkButton = $("#idk-{{promptId}}")
-        if (idkButton.length === 1) {
-            idkButton.click(function () {
-                var inputEl = document.getElementById('slider-{{promptId}}')
-                inputEl.value = -99
-                $("#slider-{{promptId}}").trigger('change')
-            })
+    // Used to handle toggle of a 'Do not know' checkbox and automatically assign default value (-99) when checked
+    function handleIDKCheckbox() {
+        // set default checkbox state
+        if ("{{value}}" == "-99") {
+            $("#idk-{{promptId}}").prop('checked', true);
+            $("#slider-{{promptId}}").prop('disabled', true);
         }
+        // handle checkbox click by setting input value to -99 or "" if checked or not
+        $('#idk-{{promptId}}').click(function (e) {
+            // prevent default change handler assigned by odk propagating checkbox value to data
+            e.stopPropagation()
+            // toggle checkbox state and set associated values
+            let isChecked = $("#idk-{{promptId}}").prop("checked");
+            const targetValue = isChecked ? "-99" : ""
+            $("#idk-{{promptId}}").prop("checked", isChecked);
+            $("#idk-{{promptId}}").val(targetValue);
+            $("#slider-{{promptId}}").val(targetValue);
+            $("#slider-{{promptId}}").prop('disabled', isChecked);
+            $("#slider-{{promptId}}").trigger('change')
+        });
     }
-    addIDKButton()
+    handleIDKCheckbox()
 </script>
