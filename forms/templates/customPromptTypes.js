@@ -50,5 +50,12 @@ define(["promptTypes", "jquery"], function (promptTypes, $) {
     custom_section_complete: promptTypes.acknowledge.extend({
       acknLabel: { text: "Mark Section as Complete" },
     }),
+    custom_date_picker: promptTypes.input_type.extend({
+      templatePath: "../config/assets/templates/custom_date_picker.handlebars",
+    }),
+    custom_datetime_picker: promptTypes.input_type.extend({
+      templatePath:
+        "../config/assets/templates/custom_datetime_picker.handlebars",
+    }),
   };
 });
