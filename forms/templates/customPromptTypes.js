@@ -43,5 +43,12 @@ define(["promptTypes", "jquery"], function (promptTypes, $) {
       },
       templatePath: "../config/assets/templates/custom_text.handlebars",
     }),
+    custom_contents_page: promptTypes.user_branch.extend({
+      templatePath:
+        "../config/assets/templates/custom_contents_page.handlebars",
+    }),
+    custom_section_complete: promptTypes.acknowledge.extend({
+      acknLabel: { text: "Mark Section as Complete" },
+    }),
   };
 });

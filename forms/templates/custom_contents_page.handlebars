@@ -1,0 +1,53 @@
+{{!-- List all data key-value pairs in hidden input elements to allow value extraction --}}
+{{#each data}}
+<input type="hidden" name="{{@key}}" value="{{this}}" id="input-{{@key}}">
+{{/each}}
+
+<div>
+    {{#if passiveError}}
+    <div>
+        {{passiveError}}
+    </div>
+    {{/if}}
+    {{> labelHint}}
+    <div class=" btn-group-vertical" style="display:block; padding:5px">
+
+        {{#each choices}}
+        {{!-- use ../data to access main data object available to full template --}}
+        <div style="display: flex; align-items:center">
+            <input type="checkbox" style="margin:0 8px; width:44px; height:34px;" disabled
+                data-section="{{data_value}}">
+            <a href="#" style="flex:1" class="branch-select-item launch btn btn-default" tabindex="0"
+                label="{{data_value}}" style="padding:10px">
+                {{#ifHasImageLocalization display.title}}<div>
+                    <center class="odk-label-image" src="{{localizeImage display.title}}"></center>
+                </div>{{/ifHasImageLocalization}}
+                {{#ifHasAudioLocalization display.title}}<div><audio src="{{localizeAudio display.title}}" tabindex="0"
+                        audio="true" controls="controls">{{localizeText 'audio_control_not_supported'}}</audio></div>
+                {{/ifHasAudioLocalization}}
+                {{#ifHasVideoLocalization display.title}}<div><video src="{{localizeVideo display.title}}" tabindex="0"
+                        video="true" controls="controls">{{localizeText 'video_control_not_supported'}}</video></div>
+                {{/ifHasVideoLocalization}}
+                {{#ifHasTextLocalization display.title}}<h4 style="font-weight:bold;text-align:left">
+                    {{{localizeText display.title}}} <span class="glyphicon glyphicon-chevron-right"
+                        style="float:right"></span>
+                </h4>{{/ifHasTextLocalization}}
+            </a>
+
+        </div>
+        {{/each}}
+    </div>
+</div>
+<div>{{log 'custom_contents' this}}</div>
+<script>
+    console.log('custom_contents script', $('input'))
+    $('input:checkbox').each(function (i, el) {
+        const section = $(el).data('section');
+        const inputElName = section + '_complete';
+        const inputEl = $('#input-' + inputElName);
+        const sectionComplete = inputEl.val() == 'true';
+        console.log('custom_contents sectionComplete', section, inputEl, sectionComplete);
+        $(el).prop('checked', sectionComplete);
+    })
+
+</script>
