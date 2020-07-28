@@ -1,6 +1,7 @@
 import { NgModule } from "@angular/core";
 import { MatCardModule } from "@angular/material/card";
 import { MatButtonModule } from "@angular/material/button";
+import { MatButtonToggleModule } from "@angular/material/button-toggle";
 import { MatToolbarModule } from "@angular/material/toolbar";
 import { MatTableModule } from "@angular/material/table";
 import { MatFormFieldModule } from "@angular/material/form-field";
@@ -20,6 +21,7 @@ import { registerIcons } from "./icons";
   exports: [
     MatCardModule,
     MatButtonModule,
+    MatButtonToggleModule,
     MatExpansionModule,
     MatToolbarModule,
     MatTableModule,

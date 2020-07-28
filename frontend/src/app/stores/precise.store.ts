@@ -45,6 +45,24 @@ export class PreciseStore {
     );
     this.setParticipantLists(rows);
   }
+
+  // @action private async mergeParticipantTables(tableId: string, guidField) {
+  //   const tableRows = await this.odk.getTableRows(tableId);
+  //   console.log("rows", tableId, tableRows);
+  //   tableRows.forEach((row) => {
+  //     const id = row[guidField];
+  //     if (id) {
+  //       if (!this.allParticipantsHash[id]) {
+  //         this.allParticipantsHash[id] = { tables: {} };
+  //       }
+  //       if (!this.allParticipantsHash[id].tables[tableId]) {
+  //         this.allParticipantsHash[id].tables[tableId] = [];
+  //       }
+  //       this.allParticipantsHash[id].tables[tableId].push(row);
+  //     }
+  //   });
+  // }
+
   @action setParticipantLists(participantRows: IParticipant[]) {
     this.participantSummaries = Object.values(participantRows).map((p, i) =>
       this._generateParticipantSummary(p, i)
@@ -116,11 +134,15 @@ export class PreciseStore {
    * creates globally unique identifier to associate with participant
    * throughout all forms
    */
-  addParticipant() {
+  enrolParticipant() {
     const f2_guid = uuidv4();
     return this.launchForm(PRECISE_SCHEMA.profileSummary, null, {
       f2_guid,
     });
+  }
+  screenNewParticipant() {
+    const f_guid = uuidv4();
+    return this.launchForm(PRECISE_SCHEMA.screening, null);
   }
   /**
    * When recording a baby also want to populate a guid to link future
@@ -257,7 +279,7 @@ export class PreciseStore {
  * Constants
  ********************************************************************************/
 
-// fields used in summary views and search
+// some fields used in profile form views and search
 // _guid used to uniquely identify participant across all forms
 const PARTICIPANT_SUMMARY_FIELDS = [
   "f2_guid",
@@ -267,6 +289,25 @@ const PARTICIPANT_SUMMARY_FIELDS = [
   "f2a_phone_number",
   "f2a_full_name",
 ] as const;
+
+// list of some fields from screening form used to merge with participant registration
+// const PARTICIPANT_SCREENING_FIELDS = [
+//   "f0_0_userID",
+//   "f0_age",
+//   "f0_cohort_consented",
+//   "f0_cohort_existing",
+//   "f0_consent_status",
+//   "f0_eligible_cohort",
+//   "f0_guid",
+//   "f0_ineligible_continue",
+//   "f0_precise_id",
+//   "f0_screen_date",
+//   "f0_screening_id",
+//   "f1_1_userID",
+//   "f1_age",
+//   "f1_consent_status",
+//   "f1_screen_date",
+// ] as const;
 
 /********************************************************************************
  * Types

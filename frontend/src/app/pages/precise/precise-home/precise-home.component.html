@@ -1,0 +1,18 @@
+<div id="container" class="page">
+  <button
+    mat-raised-button
+    (click)="store.screenNewParticipant()"
+    style="margin-top: 3em;"
+  >
+    <mat-icon style="margin-right: 5px;" svgIcon="screen"></mat-icon
+    ><span>
+      Screen Participant
+    </span>
+  </button>
+  <button mat-raised-button [routerLink]="['participants']">
+    <mat-icon style="margin-right: 5px;">list</mat-icon
+    ><span>
+      View Participants
+    </span>
+  </button>
+</div>

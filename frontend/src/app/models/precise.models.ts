@@ -63,6 +63,12 @@ export const PRECISE_SCHEMA = {
     tableId: "Postpartum_mother",
     icon: "mother",
   },
+  screening: {
+    title: "Participant Screening",
+    formId: "screening",
+    tableId: "screening",
+    icon: "screen",
+  },
   TOD_ANC: {
     title: "ToD at ANC",
     formId: "TOD_ANC",

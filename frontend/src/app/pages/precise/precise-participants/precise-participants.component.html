@@ -7,13 +7,29 @@
   <button
     mat-flat-button
     color="accent"
-    (click)="addRecord()"
+    (click)="enrolParticipant()"
     style="margin: 1em;"
   >
     <mat-icon>add</mat-icon>
-    Add Record
+    Enrol Participant
   </button>
+  <!-- <mat-button-toggle-group
+    #group="matButtonToggleGroup"
+    value="enrolled"
+    style="margin: 0 1em 1em 1em;"
+  >
+    <mat-button-toggle value="enrolled" aria-label="Text align left">
+      Enrolled
+    </mat-button-toggle>
+    <mat-button-toggle value="eligible" aria-label="Text align center">
+      Eligible
+    </mat-button-toggle>
+    <mat-button-toggle value="ineligible" aria-label="Text align right">
+      Ineligible
+    </mat-button-toggle>
+  </mat-button-toggle-group> -->
 </div>
+
 <!--  -->
 <mat-progress-bar
   mode="indeterminate"

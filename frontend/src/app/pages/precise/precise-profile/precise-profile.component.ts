@@ -13,8 +13,8 @@ import { toJS } from "mobx";
 
 @Component({
   selector: "app-precise-profile",
-  templateUrl: "./profile.component.html",
-  styleUrls: ["./profile.component.scss"],
+  templateUrl: "./precise-profile.component.html",
+  styleUrls: ["./precise-profile.component.scss"],
   animations: [Animations.fadeEntryExit],
 })
 export class PreciseProfileComponent {

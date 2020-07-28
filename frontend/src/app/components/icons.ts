@@ -12,6 +12,7 @@ const icons = [
   "mother",
   "baby",
   "disease",
+  "screen",
 ];
 
 export function registerIcons(iconRegistry, sanitizer) {

@@ -5,16 +5,12 @@ import { PreciseStore, CommonStore, IParticipantSummary } from "src/app/stores";
 import { MatTableDataSource } from "@angular/material/table";
 import { MatSort } from "@angular/material/sort";
 
-/**
- * Homepage of precise project
- */
 @Component({
-  selector: "app-precise-home",
-  templateUrl: "./precise.component.html",
-  styleUrls: ["./precise.component.scss"],
-  // changeDetection: ChangeDetectionStrategy.OnPush,
+  selector: "app-precise-participants",
+  templateUrl: "./precise-participants.component.html",
+  styleUrls: ["./precise-participants.component.scss"],
 })
-export class PreciseHomeComponent implements OnInit {
+export class PreciseParticipantsComponent implements OnInit {
   participants: any[];
   columns = ["f2a_participant_id", "f2a_full_name", "f2_guid"];
   displayedColumns = ["f2a_participant_id", "f2a_full_name", "f2_guid"];
@@ -47,8 +43,8 @@ export class PreciseHomeComponent implements OnInit {
     }
   }
 
-  addRecord() {
-    this.store.addParticipant();
+  enrolParticipant() {
+    this.store.enrolParticipant();
   }
 
   /**

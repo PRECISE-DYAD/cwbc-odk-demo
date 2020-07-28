@@ -1,20 +1,20 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { PreciseComponent } from './precise.component';
+import { PreciseHomeComponent } from './precise-home.component';
 
-describe('PreciseComponent', () => {
-  let component: PreciseComponent;
-  let fixture: ComponentFixture<PreciseComponent>;
+describe('PreciseHomeComponent', () => {
+  let component: PreciseHomeComponent;
+  let fixture: ComponentFixture<PreciseHomeComponent>;
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      declarations: [ PreciseComponent ]
+      declarations: [ PreciseHomeComponent ]
     })
     .compileComponents();
   }));
 
   beforeEach(() => {
-    fixture = TestBed.createComponent(PreciseComponent);
+    fixture = TestBed.createComponent(PreciseHomeComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });
