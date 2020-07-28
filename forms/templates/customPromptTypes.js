@@ -30,6 +30,8 @@ define(["promptTypes", "jquery"], function (promptTypes, $) {
     custom_number: promptTypes.input_type.extend({
       _baseInputAttributes: {
         type: "number",
+        // by default allow up to 3dp
+        step: "0.001",
       },
       templatePath: "../config/assets/templates/custom_number.handlebars",
       // validation checks happen in beforeMove. Skip these
