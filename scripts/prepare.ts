@@ -43,11 +43,7 @@ function run() {
   for (let tempFilePath of tempFilePaths) {
     fs.removeSync(tempFilePath);
   }
-  /** Possibly deprecated (requires better understanding of app.properties) */
-  // await ensureCopy(
-  //   "forms/app.properties",
-  //   `${designerAssetsPath}/app.properties`
-  // );
+  ensureCopy("forms/app.properties", `${designerAssetsPath}/app.properties`);
 
   // copy back json and csv data in case frontend wants to access
   ensureCopy(`forms/csv`, `${frontendPath}/src/assets/odk/csv`, true);
@@ -64,7 +60,7 @@ function populateSampleFiles() {
     "forms/framework/framework.xlsx": "forms/framework/framework.sample.xlsx",
     "forms/csv/tables.init": "forms/csv/tables.sample.init",
     ".env": ".env.sample",
-    // "forms/app.properties": "forms/app.sample.properties",
+    "forms/app.properties": "forms/app.sample.properties",
   };
   for (let [destination, source] of Object.entries(sampleFiles)) {
     const exists = fs.existsSync(destination);

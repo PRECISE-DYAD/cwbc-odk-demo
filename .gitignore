@@ -25,7 +25,7 @@ scripts/logs/*.json
 !*.gitkeep
 ~$*
 
-.env
+*.env
 frontend/src/assets/odk
 
 # avoid use of yarn, prefer npm
