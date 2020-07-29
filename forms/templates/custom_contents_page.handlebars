@@ -9,7 +9,7 @@
         {{#each choices}}
         {{!-- use ../data to access main data object available to full template --}}
         <div style="display: flex; align-items:center; margin-bottom:8px">
-            <input type="checkbox" style="margin:0 8px; width:44px; height:34px;" disabled
+            <input type="checkbox" class="section-mark-complete" style="margin:0 8px; width:44px; height:34px;" disabled
                 data-section="{{data_value}}">
             {{!-- adapted from user_branch template --}}
             <a href="#" style="flex:1" class="branch-select-item launch btn btn-default" tabindex="0"
@@ -31,5 +31,24 @@
         const inputEl = $('#input-' + inputElName);
         const sectionComplete = inputEl.val() == 'true';
         $(el).prop('checked', sectionComplete);
-    })
+        if ($(el).prop('checked')) {
+          $(el).prop('disabled', false);
+          $(el).css('cursor', 'not-allowed');
+          $(el).siblings().css({
+            'color': 'green',
+            'border': 'green solid 2px'
+          });
+        } else {
+          $(el).prop('disabled', true);
+          $(el).siblings().css({
+            'color': 'black',
+            'border': 'red solid 1px'
+          });
+        }        
+    });
+
+    $('input[class="section-mark-complete"]').click(function (e) {
+        e.preventDefault();
+        e.stopPropagation();
+    });
 </script>
