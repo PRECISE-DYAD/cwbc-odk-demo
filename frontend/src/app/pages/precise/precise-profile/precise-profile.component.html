@@ -40,16 +40,15 @@
       <ng-container *ngIf="profileConfirmed" @fadeEntryExit>
         <mat-expansion-panel
           *ngFor="let section of sections; let i = index"
-          [class]="'no-padding section-tile color-rotate-' + i"
+          [class]="
+            'no-padding theme-default primary-inverted color-rotate-' + (i + 1)
+          "
           [attr.data-section]="section.label"
           expanded
         >
           <mat-expansion-panel-header expandedHeight="48px">
-            <mat-panel-title
-              ><mat-icon
-                class="section-icon"
-                [svgIcon]="section.icon"
-              ></mat-icon>
+            <mat-panel-title style="color: white;"
+              ><mat-icon [svgIcon]="section.icon"></mat-icon>
               <span>{{ section.label }}</span></mat-panel-title
             >
           </mat-expansion-panel-header>

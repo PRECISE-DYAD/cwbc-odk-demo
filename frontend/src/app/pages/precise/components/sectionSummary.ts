@@ -53,6 +53,8 @@ import { ISectionWithMeta } from "src/app/models/precise.models";
         color: var(--color-black);
         padding: 5px 0;
         width: 100%;
+        /* let parent background show through */
+        background: rgba(255, 255, 255, 0.75);
       }
       .section-details button {
         width: 100%;
