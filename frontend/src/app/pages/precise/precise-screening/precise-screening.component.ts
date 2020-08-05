@@ -1,27 +1,26 @@
 import { Component, OnInit, ViewChild } from "@angular/core";
 import { ActivatedRoute, Router } from "@angular/router";
 import { MatPaginator } from "@angular/material/paginator";
-import { PreciseStore, IParticipantSummary } from "src/app/stores";
+import {
+  PreciseStore,
+  IParticipantSummary,
+  IParticipantScreening,
+} from "src/app/stores";
 import { MatTableDataSource } from "@angular/material/table";
 import { MatSort } from "@angular/material/sort";
 
 @Component({
-  selector: "app-precise-participants",
-  templateUrl: "./precise-participants.component.html",
-  styleUrls: ["./precise-participants.component.scss"],
+  selector: "app-precise-screening",
+  templateUrl: "./precise-screening.component.html",
+  styleUrls: ["./precise-screening.component.scss"],
 })
-export class PreciseParticipantsComponent implements OnInit {
-  participants: any[];
-  columns = ["f2a_participant_id", "f2a_full_name", "f2_guid"];
-  displayedColumns = ["f2a_participant_id", "f2a_full_name", "f2_guid"];
+export class PreciseScreeningComponent implements OnInit {
+  participants: IParticipantScreening[];
+  displayedColumns = ["f0_screen_date", "f0_woman_precise_id"];
   dataSource = new MatTableDataSource<IParticipantSummary>();
   @ViewChild(MatPaginator, { static: true }) paginator: MatPaginator;
   @ViewChild(MatSort, { static: true }) sort: MatSort;
-  constructor(
-    public store: PreciseStore,
-    private route: ActivatedRoute,
-    private router: Router
-  ) {}
+  constructor(public store: PreciseStore) {}
 
   ngOnInit(): void {
     this.dataSource.sort = this.sort;
@@ -30,7 +29,7 @@ export class PreciseParticipantsComponent implements OnInit {
     this.dataSource.sort.sort({
       start: "desc",
       disableClear: false,
-      id: "f2a_participant_id",
+      id: "f0_screen_date",
     });
   }
   /**
@@ -38,8 +37,8 @@ export class PreciseParticipantsComponent implements OnInit {
    * Load as a table data source.
    */
   setDatasource() {
-    if (this.store.participantSummaries) {
-      this.dataSource.data = this.store.participantSummaries;
+    if (this.store.screeningData) {
+      this.dataSource.data = this.store.screeningData;
     }
   }
 
@@ -60,7 +59,8 @@ export class PreciseParticipantsComponent implements OnInit {
     }
   }
 
-  handleRowClicked(row) {
-    this.router.navigate([row.f2a_participant_id], { relativeTo: this.route });
+  handleRowClicked(row: IParticipantScreening) {
+    console.log("row clicked", row);
+    this.store.editScreening(row);
   }
 }

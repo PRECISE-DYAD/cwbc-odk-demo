@@ -12,6 +12,7 @@ import { NotificationService } from "src/app/services/notification/notification.
 import { PreciseParticipantsComponent } from "./precise-participants/precise-participants.component";
 import { PreciseHomeComponent } from "./precise-home/precise-home.component";
 import { PreciseProfileComponent } from "./precise-profile/precise-profile.component";
+import { PreciseScreeningComponent } from "./precise-screening/precise-screening.component";
 
 const routes: Routes = [
   {
@@ -22,6 +23,11 @@ const routes: Routes = [
   {
     path: "participants",
     component: PreciseParticipantsComponent,
+    data: { title: "Precise", animation: "precise" },
+  },
+  {
+    path: "screening",
+    component: PreciseScreeningComponent,
     data: { title: "Precise", animation: "precise" },
   },
 
@@ -36,6 +42,7 @@ const routes: Routes = [
   declarations: [
     PreciseHomeComponent,
     PreciseProfileComponent,
+    PreciseScreeningComponent,
     PreciseParticipantsComponent,
   ],
   imports: [

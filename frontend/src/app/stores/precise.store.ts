@@ -15,11 +15,13 @@ import { PRECISE_SCHEMA } from "../models/precise.models";
 export class PreciseStore {
   constructor(private odk: OdkService) {
     this.loadParticipants();
+    this.loadScreeningData();
   }
   allParticipantsHash: IParticipantsHashmap;
   participantFormsHash;
 
   @observable participantSummaries: IParticipantSummary[];
+  @observable screeningData: any[];
   @observable activeParticipant: IParticipant;
   @observable participantForms: IParticipantForm[];
   @observable listDataLoaded = false;
@@ -46,22 +48,12 @@ export class PreciseStore {
     this.setParticipantLists(rows);
   }
 
-  // @action private async mergeParticipantTables(tableId: string, guidField) {
-  //   const tableRows = await this.odk.getTableRows(tableId);
-  //   console.log("rows", tableId, tableRows);
-  //   tableRows.forEach((row) => {
-  //     const id = row[guidField];
-  //     if (id) {
-  //       if (!this.allParticipantsHash[id]) {
-  //         this.allParticipantsHash[id] = { tables: {} };
-  //       }
-  //       if (!this.allParticipantsHash[id].tables[tableId]) {
-  //         this.allParticipantsHash[id].tables[tableId] = [];
-  //       }
-  //       this.allParticipantsHash[id].tables[tableId].push(row);
-  //     }
-  //   });
-  // }
+  @action async loadScreeningData() {
+    const rows = await this.odk.getTableRows<IParticipant>(
+      PRECISE_SCHEMA.screening.formId
+    );
+    this.screeningData = rows;
+  }
 
   @action setParticipantLists(participantRows: IParticipant[]) {
     this.participantSummaries = Object.values(participantRows).map((p, i) =>
@@ -141,8 +133,12 @@ export class PreciseStore {
     });
   }
   screenNewParticipant() {
-    const f_guid = uuidv4();
     return this.launchForm(PRECISE_SCHEMA.screening, null);
+  }
+  editScreening(screening: IParticipantScreening) {
+    const { tableId, formId } = PRECISE_SCHEMA.screening;
+    const rowId = screening._id;
+    this.odk.editRowWithSurvey(tableId, rowId, formId);
   }
   /**
    * When recording a baby also want to populate a guid to link future
@@ -291,34 +287,40 @@ const PARTICIPANT_SUMMARY_FIELDS = [
 ] as const;
 
 // list of some fields from screening form used to merge with participant registration
-// const PARTICIPANT_SCREENING_FIELDS = [
-//   "f0_0_userID",
-//   "f0_age",
-//   "f0_cohort_consented",
-//   "f0_cohort_existing",
-//   "f0_consent_status",
-//   "f0_eligible_cohort",
-//   "f0_guid",
-//   "f0_ineligible_continue",
-//   "f0_precise_id",
-//   "f0_screen_date",
-//   "f0_screening_id",
-//   "f1_1_userID",
-//   "f1_age",
-//   "f1_consent_status",
-//   "f1_screen_date",
-// ] as const;
+const PARTICIPANT_SCREENING_FIELDS = [
+  "f0_0_userID",
+  "f0_age",
+  "f0_cohort_consented",
+  "f0_cohort_existing",
+  "f0_consent_status",
+  "f0_eligible_cohort",
+  "f0_guid",
+  "f0_ineligible_continue",
+  "f0_precise_id",
+  "f0_screen_date",
+  "f0_screening_id",
+  "f1_1_userID",
+  "f1_age",
+  "f1_consent_status",
+  "f1_screen_date",
+] as const;
 
 /********************************************************************************
  * Types
  ********************************************************************************/
 // create a type from the list of fields above
 type IParticipantSummaryField = typeof PARTICIPANT_SUMMARY_FIELDS[number];
+type IParticipantScreeningField = typeof PARTICIPANT_SUMMARY_FIELDS[number];
 
 // placeholder interface to reflect all fields available within participant table and ODK meta
 export type IParticipant = IODkTableRowData &
   {
     [K in IParticipantSummaryField]: string;
+  };
+
+export type IParticipantScreening = IODkTableRowData &
+  {
+    [K in IParticipantScreeningField]: string;
   };
 
 // summary contains partial participant
