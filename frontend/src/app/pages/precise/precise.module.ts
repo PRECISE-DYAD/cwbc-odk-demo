@@ -23,12 +23,12 @@ const routes: Routes = [
   {
     path: "participants",
     component: PreciseParticipantsComponent,
-    data: { title: "Precise", animation: "precise" },
+    data: { title: "Participants", animation: "precise" },
   },
   {
     path: "screening",
     component: PreciseScreeningComponent,
-    data: { title: "Precise", animation: "precise" },
+    data: { title: "Screening", animation: "precise" },
   },
 
   {
