@@ -39,6 +39,19 @@ define(["promptTypes", "jquery"], function (promptTypes, $) {
         return null;
       },
     }),
+    // numeric input with soft validation checks
+    custom_number_na: promptTypes.input_type.extend({
+      _baseInputAttributes: {
+        type: "number",
+        // by default allow up to 3dp
+        step: "0.001",
+      },
+      templatePath: "../config/assets/templates/custom_number_na.handlebars",
+      // validation checks happen in beforeMove. Skip these
+      beforeMove: function () {
+        return null;
+      },
+    }),
     custom_text: promptTypes.input_type.extend({
       _baseInputAttributes: {
         type: "text",

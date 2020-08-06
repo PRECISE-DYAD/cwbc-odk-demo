@@ -8,6 +8,8 @@ define(["screenTypes"], function (screenTypes) {
   screenTypes.custom_prompts_screen = screenTypes.screen.extend({
     afterRender: function () {
       var that = this;
+      var setFocus = false;
+      
       console.log("custom_log afterRender", this);
       $.each(that.activePrompts, function (idx, prompt) {
         prompt.afterRender();
