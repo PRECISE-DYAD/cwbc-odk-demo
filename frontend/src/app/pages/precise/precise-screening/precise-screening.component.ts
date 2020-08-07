@@ -42,10 +42,6 @@ export class PreciseScreeningComponent implements OnInit {
     }
   }
 
-  enrolParticipant() {
-    this.store.enrolParticipant();
-  }
-
   /**
    * Use default settings to search all data fields for matching string
    * Note, could refine with custom filter function

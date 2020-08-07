@@ -99,7 +99,8 @@ export class OdkService {
   query<T>(
     tableId: string,
     whereClause: string = null,
-    sqlBindParams: string[] = null
+    sqlBindParams: string[] = null,
+    failureCallback = this.handleError
   ): Promise<(IODkTableRowData & T)[]> {
     return new Promise((resolve, reject) => {
       window.odkData.query(
@@ -117,8 +118,8 @@ export class OdkService {
           const resultsJson = queryResultToJsonArray<T>(res);
           resolve(resultsJson);
         },
-        (err) => {
-          this.handleError(err);
+        (err: Error) => {
+          failureCallback(err);
           reject(err);
         }
       );

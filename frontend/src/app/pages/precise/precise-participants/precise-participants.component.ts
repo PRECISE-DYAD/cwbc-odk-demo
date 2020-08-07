@@ -12,8 +12,12 @@ import { MatSort } from "@angular/material/sort";
 })
 export class PreciseParticipantsComponent implements OnInit {
   participants: any[];
-  columns = ["f2a_participant_id", "f2a_full_name", "f2_guid"];
-  displayedColumns = ["f2a_participant_id", "f2a_full_name", "f2_guid"];
+  displayedColumns = [
+    "_savepoint_timestamp",
+    "f2a_participant_id",
+    "f2a_full_name",
+    "f2_guid",
+  ];
   dataSource = new MatTableDataSource<IParticipantSummary>();
   @ViewChild(MatPaginator, { static: true }) paginator: MatPaginator;
   @ViewChild(MatSort, { static: true }) sort: MatSort;
@@ -30,7 +34,7 @@ export class PreciseParticipantsComponent implements OnInit {
     this.dataSource.sort.sort({
       start: "desc",
       disableClear: false,
-      id: "f2a_participant_id",
+      id: "_savepoint_timestamp",
     });
   }
   /**
@@ -44,7 +48,7 @@ export class PreciseParticipantsComponent implements OnInit {
   }
 
   enrolParticipant() {
-    this.store.enrolParticipant();
+    this.store.enrolParticipant(this.router, this.route);
   }
 
   /**
@@ -61,6 +65,6 @@ export class PreciseParticipantsComponent implements OnInit {
   }
 
   handleRowClicked(row) {
-    this.router.navigate([row.f2a_participant_id], { relativeTo: this.route });
+    this.router.navigate([row.f2_guid], { relativeTo: this.route });
   }
 }

@@ -1,7 +1,12 @@
 import { Component } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
 import { IFormMeta } from "src/app/types/types";
-import { PreciseStore, CommonStore, IParticipantForm } from "src/app/stores";
+import {
+  PreciseStore,
+  CommonStore,
+  IParticipantForm,
+  IParticipant,
+} from "src/app/stores";
 import * as Animations from "src/app/animations";
 import {
   ISectionWithMeta,
@@ -28,10 +33,9 @@ export class PreciseProfileComponent {
   constructor(
     public store: PreciseStore,
     private route: ActivatedRoute,
-    common: CommonStore
+    private commonStore: CommonStore
   ) {
-    this.store.setActiveParticipantById(route.snapshot.params.participantId);
-    common.setPageTitle(route.snapshot.params.participantId);
+    this.store.setActiveParticipantById(route.snapshot.params.f2_guid);
     this._subscribeToParamChanges();
   }
 
@@ -41,11 +45,16 @@ export class PreciseProfileComponent {
    */
   async participantUpdated() {
     if (this.store.participantDataLoaded) {
+      this.setPageTitle(this.store.activeParticipant);
       // full data from all linked tables has loaded
       this.participantForms = this.store.participantForms;
       this.participantRevisions = this.store.participantFormsHash.profileSummaryRevisions.entries;
       this.loadParticipantSections();
     }
+  }
+  private setPageTitle(activeParticipant: IParticipant) {
+    const { f2a_full_name, f2a_participant_id } = activeParticipant;
+    this.commonStore.setPageTitle(`${f2a_participant_id} ${f2a_full_name}`);
   }
   private loadParticipantSections() {
     this.sections = PRECISE_FORM_SECTIONS.map((s) => ({
@@ -114,7 +123,8 @@ export class PreciseProfileComponent {
           profile: false,
           precise: true,
         };
-      } else {
+      }
+      if (uptodate === "false") {
         this.store.editParticipant(this.store.activeParticipant);
       }
     });

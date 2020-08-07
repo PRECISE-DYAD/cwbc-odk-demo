@@ -6,6 +6,7 @@ import { IODkTableRowData, ODK_META_EXAMPLE } from "../types/odk.types";
 import { uuidv4 } from "../utils/guid";
 import { IFormMeta, IFormMetaMappedField } from "../types/types";
 import { PRECISE_SCHEMA } from "../models/precise.models";
+import { Router, ActivatedRoute } from "@angular/router";
 
 /**
  * The PreciseStore manages persisted data and operations across the entire application,
@@ -45,6 +46,7 @@ export class PreciseStore {
     const rows = await this.odk.getTableRows<IParticipant>(
       PRECISE_SCHEMA.profileSummary.formId
     );
+    console.log("participants", rows);
     this.setParticipantLists(rows);
   }
 
@@ -59,15 +61,13 @@ export class PreciseStore {
     this.participantSummaries = Object.values(participantRows).map((p, i) =>
       this._generateParticipantSummary(p, i)
     );
-    this.allParticipantsHash = this._arrToHashmap(
-      participantRows,
-      "f2a_participant_id"
-    );
+    this.allParticipantsHash = this._arrToHashmap(participantRows, "f2_guid");
     this.listDataLoaded = true;
   }
 
   // used as part of router methods in web preview
-  @action setActiveParticipantById(ptid: string) {
+  @action async setActiveParticipantById(f2_guid: string, isRetry = false) {
+    console.log("setting active participant", f2_guid);
     this.clearActiveParticipant();
     // ensure participants loaded, use a 'reaction' to subscribe to changes,
     // and unsubscribe (dispose) thereafter to avoid memory leak.
@@ -77,14 +77,26 @@ export class PreciseStore {
         (isLoaded, r) => {
           if (isLoaded) {
             r.dispose();
-            return this.setActiveParticipantById(ptid);
+            return this.setActiveParticipantById(f2_guid);
           }
         }
       );
     }
-    if (this.allParticipantsHash[ptid]) {
-      this.activeParticipant = this.allParticipantsHash[ptid];
+    if (this.allParticipantsHash[f2_guid]) {
+      this.activeParticipant = this.allParticipantsHash[f2_guid];
       this.loadParticipantTableData(this.activeParticipant);
+    } else {
+      console.log(
+        "participant not found",
+        Object.keys(this.allParticipantsHash)
+      );
+      // HACK - possibly the data has not been written to the database yet if just created
+      // so retry in a second
+      if (!isRetry) {
+        await this._wait(1000);
+        await this.loadParticipants();
+        return this.setActiveParticipantById(f2_guid, true);
+      }
     }
   }
   /**
@@ -95,10 +107,18 @@ export class PreciseStore {
     const collated: { [tableId: string]: IODkTableRowData[] } = {};
     const tables = Object.keys(PRECISE_SCHEMA);
     const promises = tables.map(async (tableId) => {
-      const particpantRows = await this.odk.query(tableId, "f2_guid = ?", [
-        f2_guid,
-      ]);
-      collated[tableId] = particpantRows ? particpantRows : [];
+      try {
+        const particpantRows = await this.odk.query(
+          tableId,
+          "f2_guid = ?",
+          [f2_guid],
+          // skip odk error notifications and just handle below
+          (err) => null
+        );
+        collated[tableId] = particpantRows ? particpantRows : [];
+      } catch (error) {
+        // no data if f2_guid does not exist in the table so can just ignore
+      }
     });
     await Promise.all(promises);
     this.setParticipantForms(collated);
@@ -122,12 +142,15 @@ export class PreciseStore {
   }
 
   /**
-   * Wrapper around more generic launchForm method. Additionally
-   * creates globally unique identifier to associate with participant
-   * throughout all forms
+   * When enrolling a participant we first want to navigate to the
+   * profile page that will be generated, so that when the form is complete
+   * we will be on the participant page. Launch the enrollment form
+   * with the generated ID field complete
    */
-  enrolParticipant() {
+  enrolParticipant(router: Router, route: ActivatedRoute) {
     const f2_guid = uuidv4();
+    console.log("enrolling participant", f2_guid);
+    router.navigate([f2_guid], { relativeTo: route });
     return this.launchForm(PRECISE_SCHEMA.profileSummary, null, {
       f2_guid,
     });
@@ -195,8 +218,9 @@ export class PreciseStore {
    */
   launchForm(form: IFormMeta, editRowId: string = null, jsonMap: any = {}) {
     const { formId, tableId, mapFields } = form;
+    // pass active participant guid to form if not otherwise defined
     if (this.activeParticipant) {
-      jsonMap.f2_guid = this.activeParticipant.f2_guid;
+      jsonMap.f2_guid = jsonMap.f2_guid || this.activeParticipant.f2_guid;
     }
     jsonMap = { ...jsonMap, ...this._generateMappedFields(mapFields) };
 
@@ -269,6 +293,10 @@ export class PreciseStore {
     });
     return hash as any;
   }
+
+  private _wait(ms: number) {
+    return new Promise((resolve) => setTimeout(resolve, ms));
+  }
 }
 
 /********************************************************************************
@@ -278,6 +306,7 @@ export class PreciseStore {
 // some fields used in profile form views and search
 // _guid used to uniquely identify participant across all forms
 const PARTICIPANT_SUMMARY_FIELDS = [
+  "_savepoint_timestamp",
   "f2_guid",
   "f2a_participant_id",
   "f2a_national_id",
@@ -328,7 +357,7 @@ export type IParticipantSummary = Partial<IParticipant>;
 
 // hashmap to provide quick lookup of participant by participant id
 // tslint:disable interface-over-type-literal
-type IParticipantsHashmap = { [f2a_participant_id: string]: IParticipant };
+type IParticipantsHashmap = { [f2_guid: string]: IParticipant };
 
 // Participant forms contain full form meta with specific participant entries
 export interface IParticipantForm extends IFormMeta {

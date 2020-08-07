@@ -8,7 +8,6 @@ import { MobxAngularModule } from "mobx-angular";
 import { PreciseStore } from "src/app/stores";
 import remotedev from "mobx-remotedev";
 import { OdkService } from "src/app/services/odk/odk.service";
-import { NotificationService } from "src/app/services/notification/notification.service";
 import { PreciseParticipantsComponent } from "./precise-participants/precise-participants.component";
 import { PreciseHomeComponent } from "./precise-home/precise-home.component";
 import { PreciseProfileComponent } from "./precise-profile/precise-profile.component";
@@ -32,7 +31,7 @@ const routes: Routes = [
   },
 
   {
-    path: "participants/:participantId",
+    path: "participants/:f2_guid",
     component: PreciseProfileComponent,
     data: { animation: "precise" },
   },
@@ -56,7 +55,7 @@ const routes: Routes = [
     {
       provide: PreciseStore,
       useClass: remotedev(PreciseStore, { global: true, onlyActions: true }),
-      deps: [OdkService, NotificationService],
+      deps: [OdkService],
     },
   ],
 })
