@@ -1,4 +1,4 @@
-import { Component } from "@angular/core";
+import { Component, OnDestroy, OnInit } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
 import { IFormMeta } from "src/app/types/types";
 import {
@@ -15,6 +15,7 @@ import {
   PRECISE_BABY_FORM_SECTION,
 } from "src/app/models/precise.models";
 import { toJS } from "mobx";
+import { Subscription } from "rxjs";
 
 @Component({
   selector: "app-precise-profile",
@@ -22,7 +23,7 @@ import { toJS } from "mobx";
   styleUrls: ["./precise-profile.component.scss"],
   animations: [Animations.fadeEntryExit],
 })
-export class PreciseProfileComponent {
+export class PreciseProfileComponent implements OnDestroy, OnInit {
   participantRevisions: IParticipantForm["entries"] = [];
   profileConfirmed = false;
   participantForms: IParticipantForm[];
@@ -30,13 +31,19 @@ export class PreciseProfileComponent {
   expandedSections: any = {
     profile: true,
   };
+  params$: Subscription;
   constructor(
     public store: PreciseStore,
     private route: ActivatedRoute,
     private commonStore: CommonStore
-  ) {
-    this.store.setActiveParticipantById(route.snapshot.params.f2_guid);
-    this._subscribeToParamChanges();
+  ) {}
+  ngOnDestroy() {
+    this.store.clearActiveParticipant();
+    this.params$.unsubscribe();
+  }
+  ngOnInit() {
+    this.store.setActiveParticipantById(this.route.snapshot.params.f2_guid);
+    this.params$ = this._subscribeToParamChanges();
   }
 
   /**
@@ -115,7 +122,7 @@ export class PreciseProfileComponent {
    * Handle changes to this by launching the survey edit form and/or hiding display sections
    */
   _subscribeToParamChanges() {
-    this.route.queryParams.subscribe((params) => {
+    return this.route.queryParams.subscribe((params) => {
       const uptodate = params.uptodate;
       if (uptodate === "true") {
         this.profileConfirmed = true;
