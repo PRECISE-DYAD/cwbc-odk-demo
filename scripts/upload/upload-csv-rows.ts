@@ -1,5 +1,6 @@
 import * as fs from "fs-extra";
 import * as path from "path";
+import * as readline from "readline";
 import { OdkRestService } from "./odkRest/odk.rest";
 import { IODKTypes as IODK } from "./odkRest/odk.types";
 import { parseCSV } from "./upload-utils";
@@ -7,16 +8,18 @@ import { parseCSV } from "./upload-utils";
 const odkRest = new OdkRestService();
 
 /**
- * Read local csv files, check if server schema exists.
+ * Read local csv files as specified in tables.init file, check if server schema exists.
  * Record any data fields missing on server (skip) or missing in csv (add)
  */
 export async function prepareCSVRowUploadActions(): Promise<
   ICSVRowUploadAction[]
 > {
-  const csvBase = "forms/csv";
-  const csvPaths = fs
-    .readdirSync(csvBase)
-    .filter((f) => path.extname(f) === ".csv");
+  console.log("Reading CSV Files from tables.init file");
+  const tablesInit = await _readFileByLine(`forms/csv/tables.init`);
+  // TODO - could provide proper table check and filename lookup instead of assuming table names will match
+  const csvPaths = tablesInit
+    .slice(1)
+    .map((p) => p.split("=")[1].replace("config/assets", "forms"));
   const actions: ICSVRowUploadAction[] = [];
   const tables = (await odkRest.getTables()).tables;
   for (let csvPath of csvPaths) {
@@ -25,9 +28,7 @@ export async function prepareCSVRowUploadActions(): Promise<
     if (schema) {
       const { schemaETag } = schema;
       const definition = await odkRest.getDefinition(tableId, schemaETag);
-      const rowData = await parseCSV<IODK.ICSVTableRow>(
-        `${csvBase}/${csvPath}`
-      );
+      const rowData = await parseCSV<IODK.ICSVTableRow>(csvPath);
       // ignore metadata columns as these will be handled during process
       const csvCols = Object.keys(rowData[0]).filter(
         (c) => c.charAt(0) !== "_"
@@ -98,6 +99,22 @@ function convertCSVToODKRow(
     };
     return row;
   });
+}
+
+/**
+ * Take an input file and parse lines one by one, returning an array of lines
+ */
+async function _readFileByLine(filepath: string): Promise<string[]> {
+  const tablesInitStream = fs.createReadStream(filepath);
+  const rl = readline.createInterface({
+    input: tablesInitStream,
+    crlfDelay: Infinity,
+  });
+  const lines = [];
+  for await (const line of rl) {
+    lines.push(line);
+  }
+  return lines;
 }
 
 export interface ICSVRowUploadAction {
