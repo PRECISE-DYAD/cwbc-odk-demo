@@ -23,6 +23,10 @@ mat-expansion-panel.no-padding .mat-expansion-panel-body {
 mat-expansion-panel-header.mat-expansion-panel-header {
   padding: 0 10px;
 }
+// fix expansion panel header showing white on toggle
+mat-expansion-panel-header.mat-expansion-panel-header:hover {
+  background: rgba(0, 0, 0, 0.04) !important;
+}
 mat-panel-title {
   align-items: center;
 }
