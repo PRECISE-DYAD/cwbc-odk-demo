@@ -36,6 +36,19 @@
           [profileConfirmed]="profileConfirmed"
         ></precise-profile-summary>
       </mat-expansion-panel>
+      <!-- Summary Section -->
+      <mat-expansion-panel
+        [expanded]="expandedSections.summary"
+        class="no-padding"
+      >
+        <mat-expansion-panel-header expandedHeight="48px">
+          <mat-panel-title
+            ><mat-icon>assignment</mat-icon
+            ><span>Summary</span></mat-panel-title
+          >
+        </mat-expansion-panel-header>
+        <precise-table-summary></precise-table-summary>
+      </mat-expansion-panel>
       <!-- other sections -->
       <ng-container *ngIf="profileConfirmed" @fadeEntryExit>
         <mat-expansion-panel

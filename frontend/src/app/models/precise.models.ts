@@ -96,6 +96,54 @@ export const PRECISE_SCHEMA = {
   },
 };
 
+// Fields displayed in the profile under the 'summary' tab
+export const PRECISE_SUMMARY_FIELDS = [
+  {
+    table: "Visit1",
+    field: "f2_visit_date",
+    label: "visit1_date",
+  },
+  {
+    table: "Visit2",
+    field: "f2_visit_date",
+    label: "visit2_date",
+  },
+  {
+    table: "Visit1",
+    field: "f6a_ga_enrol",
+    label: "visit1_ga",
+  },
+  {
+    table: "Visit2",
+    field: "f2_ga_at_visit",
+    label: "visit2_ga",
+  },
+  {
+    table: "Birthbaby",
+    field: "f9_ga_at_delivery",
+    label: "birth_ga",
+  },
+  {
+    table: "Birthbaby",
+    field: "f9_delivery_date",
+    label: "delivery_date",
+  },
+  {
+    table: "Birthbaby",
+    field: "f7_delivery_num_of_babies",
+    label: "number_of_babies",
+  },
+  {
+    table: "Withdrawal",
+    field: "fw_lost_to_followup",
+    label: "LTF",
+  },
+  {
+    table: "Withdrawal",
+    field: "fw_withdraw_from_study",
+    label: "withdrawal",
+  },
+];
 /**
  * Sections shown on front participant page
  */

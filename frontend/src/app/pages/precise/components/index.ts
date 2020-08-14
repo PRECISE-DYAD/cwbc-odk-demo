@@ -6,12 +6,14 @@ import { CommonModule } from "@angular/common";
 import { PreciseSectionSummaryComponent } from "./sectionSummary";
 import { RouterModule } from "@angular/router";
 import { PreciseProfileConfirmationComponent } from "./profileConfirmation";
+import { PreciseTableSummaryComponent } from "./table-summary/table-summary.component";
 import { SavepointTimestamp } from "./savepointTimestampPipe";
 
 const PreciseComponents = [
   PreciseProfileSummaryComponent,
   PreciseSectionSummaryComponent,
   PreciseProfileConfirmationComponent,
+  PreciseTableSummaryComponent,
   SavepointTimestamp,
 ];
 @NgModule({
