@@ -25,6 +25,9 @@ async function post<T = any>(endpoint: string, data: any, headers = {}) {
       headers: {
         ...headers,
         "X-OpenDataKit-Version": "2.0",
+        // set max limits for posting size
+        maxContentLength: 100000000,
+        maxBodyLength: 1000000000,
       },
     })
     .then((res) => handleRes<T>(res))
@@ -36,6 +39,8 @@ async function put<T = any>(endpoint: string, data: any, headers = {}) {
     .put(url, data, {
       auth: { username, password },
       headers: { ...headers, "X-OpenDataKit-Version": "2.0" },
+      // set max limits for posting size
+      maxContentLength: 100000000,
     })
     .then((res) => handleRes<T>(res))
     .catch((err) => handleErr(err));
@@ -58,15 +63,24 @@ function handleRes<T>(res: AxiosResponse) {
   return res.data as T;
 }
 function handleErr<T = any>(err: AxiosError): T {
+  if (err.toJSON) {
+    const { message } = err.toJSON() as Error;
+    console.log(message);
+  }
+  if (err.message) {
+    console.log(err.message);
+  }
   if (err.code) {
     const e = err as any; // possible network error instead of axios
     console.log(`[${e.code}][${e.hostname}]`);
-  } else {
+  } else if (err.response) {
     console.log(
       `[${err.response.status}][${err.request.method}]`,
       err.request.path
     );
     console.log(err.response.data);
+  } else {
+    console.log("err", Object.keys(err));
   }
 
   throw new Error("request failed, see logs for details");
