@@ -28,7 +28,7 @@
     {{ participantRevisions.length - 1 }} Revisions
   </button>
   <div id="lastUpdate" style="flex: 1;">
-    <div>Updated {{ participant._savepoint_timestamp | date }}</div>
+    <div>Updated {{ participant._savepoint_timestamp | savepointTimestamp | date }}</div>
   </div>
 </div>
 
