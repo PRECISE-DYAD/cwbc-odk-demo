@@ -30,8 +30,8 @@
       style="width: 100px; font-weight: bold;"
       (click)="handleRowClicked(row)"
     >
-      <div>{{ row["f0_screen_date"] | date: "dd MMM yyyy" }}</div>
-      <div>{{ row["f0_screen_date"] | date: "h:mm a" }}</div>
+      <div>{{ row["_savepoint_timestamp"] | date: "dd MMM yyyy" }}</div>
+      <div>{{ row["_savepoint_timestamp"] | date: "h:mm a" }}</div>
     </td>
   </ng-container>
   <ng-container matColumnDef="f0_woman_precise_id">
@@ -71,5 +71,8 @@
   <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
 </table>
 <mat-paginator [pageSizeOptions]="[10, 25, 50, 100]"></mat-paginator>
+<div style="padding: 5px;">
+  Note, only participants screened within the past 48h are shown
+</div>
 <!-- Call to refresh data - kept outside table as breaks sort -->
 <div *mobxReaction="setDatasource.bind(this)"></div>

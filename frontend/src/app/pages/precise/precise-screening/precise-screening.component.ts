@@ -38,8 +38,23 @@ export class PreciseScreeningComponent implements OnInit {
    */
   setDatasource() {
     if (this.store.screeningData) {
-      this.dataSource.data = this.store.screeningData;
+      this.dataSource.data = this.store.screeningData.filter(
+        this.filterScreeningByDate
+      );
     }
+  }
+
+  /**
+   * Only show forms that have been screened within past 48 hours
+   */
+  filterScreeningByDate(v) {
+    const dateCreated = new Date(v._savepoint_timestamp);
+    const today = new Date();
+    const diffInHours =
+      (today.getTime() - dateCreated.getTime()) / (1000 * 60 * 60);
+    console.log("today", today);
+    console.log(dateCreated, diffInHours);
+    return diffInHours <= 48;
   }
 
   /**
