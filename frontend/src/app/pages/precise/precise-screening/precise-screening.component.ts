@@ -52,8 +52,6 @@ export class PreciseScreeningComponent implements OnInit {
     const today = new Date();
     const diffInHours =
       (today.getTime() - dateCreated.getTime()) / (1000 * 60 * 60);
-    console.log("today", today);
-    console.log(dateCreated, diffInHours);
     return diffInHours <= 48;
   }
 

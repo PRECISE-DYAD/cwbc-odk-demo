@@ -46,7 +46,6 @@ export class PreciseProfileConfirmationComponent {
    * as a query param to the url for handling by parent component
    */
   setUpToDate(uptodate: boolean) {
-    console.log("setting uptodate");
     this.router.navigate([], {
       queryParams: { uptodate },
       relativeTo: this.route,
