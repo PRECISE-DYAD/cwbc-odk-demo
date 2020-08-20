@@ -10,6 +10,6 @@ import { Pipe, PipeTransform } from "@angular/core";
  */
 export class SavepointTimestamp implements PipeTransform {
   transform(value: string, ...args: any[]): any {
-    return value + "Z";
+    return value ? value + "Z" : value;
   }
 }

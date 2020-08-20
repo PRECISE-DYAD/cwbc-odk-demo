@@ -21,8 +21,8 @@
   *ngIf="!store.listDataLoaded"
 ></mat-progress-bar>
 <table mat-table [dataSource]="dataSource" matSort class="mat-elevation-z8">
-  <!-- ID Column -->
-  <ng-container matColumnDef="f0_screen_date">
+  <!-- Scrren Date -->
+  <ng-container matColumnDef="Screen Date">
     <th mat-header-cell *matHeaderCellDef mat-sort-header>Screen Date</th>
     <td
       mat-cell
@@ -31,43 +31,59 @@
       (click)="handleRowClicked(row)"
     >
       <div>
-        {{
-          row["_savepoint_timestamp"] | savepointTimestamp | date: "dd MMM yyyy"
-        }}
+        {{ row["Screen Date"] | savepointTimestamp | date: "dd MMM yyyy" }}
       </div>
       <div>
-        {{ row["_savepoint_timestamp"] | savepointTimestamp | date: "h:mm a" }}
+        {{ row["Screen Date"] | savepointTimestamp | date: "h:mm a" }}
       </div>
     </td>
   </ng-container>
-  <ng-container matColumnDef="f0_woman_precise_id">
+  <!-- Precise ID -->
+  <ng-container matColumnDef="Precise ID">
     <th mat-header-cell *matHeaderCellDef mat-sort-header>Precise ID</th>
-    <td
-      mat-cell
-      *matCellDef="let row"
-      style="width: 100px; font-weight: bold;"
-      (click)="handleRowClicked(row)"
-    >
-      {{ row["f0_woman_precise_id"] }}
+    <td mat-cell *matCellDef="let row" (click)="handleRowClicked(row)">
+      {{ row["Precise ID"] }}
+    </td>
+  </ng-container>
+  <!-- Eligibility -->
+  <ng-container matColumnDef="Eligibility">
+    <th mat-header-cell *matHeaderCellDef mat-sort-header>Eligibility</th>
+    <td mat-cell *matCellDef="let row" (click)="handleRowClicked(row)">
+      <div class="info-row">
+        <div>Consent Received:</div>
+        <div>{{ row["Eligibility"]["Consent Received"] }}</div>
+      </div>
+      <div class="info-row">
+        <div>Eligible Cohort:</div>
+        <div>{{ row["Eligibility"]["Eligible Cohort"] }}</div>
+      </div>
+      <div class="info-row">
+        <div>Final Cohort:</div>
+        <div>{{ row["Eligibility"]["Final Cohort"] }}</div>
+      </div>
+    </td>
+  </ng-container>
+  <!-- Screening ID -->
+  <ng-container matColumnDef="Screening ID">
+    <th mat-header-cell *matHeaderCellDef mat-sort-header>Screening ID</th>
+    <td mat-cell *matCellDef="let row" (click)="handleRowClicked(row)">
+      {{ row["Screening ID"] }}
     </td>
   </ng-container>
   <!-- Additional info Column -->
-  <ng-container matColumnDef="f2_guid">
-    <th mat-header-cell *matHeaderCellDef></th>
+  <ng-container matColumnDef="Additional">
+    <th mat-header-cell *matHeaderCellDef>Additional</th>
     <td mat-cell *matCellDef="let row" (click)="handleRowClicked(row)">
       <div class="info-row">
-        <mat-icon>folder_shared</mat-icon>
-        <div>{{ row["f2a_national_id"] }}</div>
+        <div>Section:</div>
+        <div>{{ row["Additional"]["Section"] }}</div>
       </div>
       <div class="info-row">
-        <mat-icon>phone</mat-icon>
         <div>
-          <div>
-            {{ row["f2a_phone_number"] }}
-          </div>
-          <div>
-            {{ row["f2a_phone_number_2"] }}
-          </div>
+          Approached to Participate:
+        </div>
+        <div>
+          {{ row["Additional"]["Approached to Participate"] }}
         </div>
       </div>
     </td>

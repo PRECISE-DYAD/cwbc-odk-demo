@@ -9,8 +9,7 @@ require("dotenv").config();
 const odkRest = new OdkRestService();
 
 /**
- * Upload scripts presents an interactive selection of upload options for file
- * and table resources
+ * Export table data from the server to local exports folder
  */
 async function main() {
   const { ODK_SERVER_URL } = process.env;

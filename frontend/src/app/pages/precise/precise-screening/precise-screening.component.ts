@@ -16,7 +16,13 @@ import { MatSort } from "@angular/material/sort";
 })
 export class PreciseScreeningComponent implements OnInit {
   participants: IParticipantScreening[];
-  displayedColumns = ["f0_screen_date", "f0_woman_precise_id"];
+  displayedColumns = [
+    "Screen Date",
+    "Precise ID",
+    "Eligibility",
+    "Screening ID",
+    "Additional",
+  ];
   dataSource = new MatTableDataSource<IParticipantSummary>();
   @ViewChild(MatPaginator, { static: true }) paginator: MatPaginator;
   @ViewChild(MatSort, { static: true }) sort: MatSort;
@@ -29,7 +35,7 @@ export class PreciseScreeningComponent implements OnInit {
     this.dataSource.sort.sort({
       start: "desc",
       disableClear: false,
-      id: "f0_screen_date",
+      id: "Screen Date",
     });
   }
   /**
@@ -38,9 +44,10 @@ export class PreciseScreeningComponent implements OnInit {
    */
   setDatasource() {
     if (this.store.screeningData) {
-      this.dataSource.data = this.store.screeningData.filter(
-        this.filterScreeningByDate
-      );
+      console.log("setting datasource", this.store.screeningData);
+      this.dataSource.data = this.store.screeningData
+        // .filter(this.filterScreeningByDate)
+        .map(this.prepareScreeningSummary);
     }
   }
 
@@ -53,6 +60,28 @@ export class PreciseScreeningComponent implements OnInit {
     const diffInHours =
       (today.getTime() - dateCreated.getTime()) / (1000 * 60 * 60);
     return diffInHours <= 48;
+  }
+
+  /**
+   * Not all fields need to be shown in the table, remove non required
+   */
+  prepareScreeningSummary(v) {
+    console.log("preapring summary", v);
+    // note, _savepoint_timestamp also used but hardcoded
+    return {
+      "Screen Date": v._savepoint_timestamp,
+      "Precise ID": v.f0_woman_precise_id || v.f1_woman_precise_id || "",
+      Eligibility: {
+        "Consent Received": v.f0_consent_status || v.f1_consent_status || "",
+        "Eligible Cohort": v.f0_eligible_cohort || v.f1_eligible_cohort || "",
+        "Final Cohort": v.f0_cohort_consented || v.f1_cohort_consented || "",
+      },
+      "Screening ID": v.f0_screening_id,
+      Additional: {
+        Section: v.f0_screen_section,
+        "Approached to Participate": v.f0_approached_to_participate,
+      },
+    };
   }
 
   /**
