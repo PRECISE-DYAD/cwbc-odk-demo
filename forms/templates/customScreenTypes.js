@@ -9,10 +9,20 @@ define(["screenTypes"], function (screenTypes) {
     afterRender: function () {
       var that = this;
       var setFocus = false;
-      
+
       console.log("custom_log afterRender", this);
       $.each(that.activePrompts, function (idx, prompt) {
         prompt.afterRender();
+        const { renderContext } = prompt;
+        const fieldName = renderContext.name;
+        // Add a data attribute to parent container to specify if
+        // field has data or not. This is styled in custom css
+        if (fieldName) {
+          const fieldValue = renderContext.data[fieldName];
+          // use string for property to make easier to style
+          prompt.$el.attr("data-hasValue", fieldValue ? "true" : "false");
+          prompt.$el.addClass("custom-screen-prompt");
+        }
       });
       // Handle focus of next element
       if (
