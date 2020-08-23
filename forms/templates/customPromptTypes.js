@@ -72,5 +72,8 @@ define(["promptTypes", "jquery"], function (promptTypes, $) {
       templatePath:
         "../config/assets/templates/custom_datetime_picker.handlebars",
     }),
+    custom_date: promptTypes.input_type.extend({
+      templatePath: "../config/assets/templates/custom_date.handlebars",
+    }),
   };
 });

@@ -1,24 +1,23 @@
 /* Custom Screen Styles */
 .custom-screen-prompt {
-    outline: 1px solid black;
+    outline: 1px solid grey;
     padding: 5px;
 }
 .custom-screen-prompt[data-hasvalue="true"] {
-    background: rgba(227, 245, 249, 0.7);
+    background: linear-gradient(rgb(255, 255, 255), rgba(139, 212, 253, 0.4));
 }
 .custom-screen-prompt[data-hasvalue="false"] {
-    background: rgb(255, 254, 219);
+    background: linear-gradient(rgb(255, 252, 229, 0.6),rgb(253, 253, 150, 0.8))
 }
 /* Example to display a green square next to completed questions */
-/* .custom-screen-prompt[data-hasvalue="true"]::before {
+.custom-screen-prompt[data-hasvalue="true"]::before {
     content: "";
-    width: 10px;
-    height: 10px;
-    background: rgba(104, 167, 75, 0.5);
+    width: 6px;
+    height: 6px;
     position: absolute;
-    margin-left: -15px;
+    margin-left: -16px;
     margin-top: 8px;
-    font-size: 10px;
+    background: green;
 }
 
 .custom-screen-prompt[data-hasvalue="false"]::before {
@@ -26,11 +25,11 @@
     width: 10px;
     height: 10px;
     position: absolute;
-    margin-left: -15px;
+    margin-left: -18px;
     margin-top: 8px;
-    font-size: 10px;
-    outline: 1px solid red;
-} */
+    background: red;
+    border-radius: 10px;
+} 
 
 body {
     overflow: auto;
