@@ -30,11 +30,11 @@
             ><mat-icon>person</mat-icon><span>Profile</span></mat-panel-title
           >
         </mat-expansion-panel-header>
-        <precise-profile-summary
+        <precise-profile-section
           [participant]="store.activeParticipant"
           [participantRevisions]="participantRevisions"
           [profileConfirmed]="profileConfirmed"
-        ></precise-profile-summary>
+        ></precise-profile-section>
       </mat-expansion-panel>
       <!-- Summary Section -->
       <mat-expansion-panel
@@ -47,27 +47,56 @@
             ><span>Summary</span></mat-panel-title
           >
         </mat-expansion-panel-header>
-        <precise-table-summary></precise-table-summary>
+        <precise-profile-summary-section></precise-profile-summary-section>
       </mat-expansion-panel>
-      <!-- other sections -->
+
       <ng-container *ngIf="profileConfirmed" @fadeEntryExit>
+        <!-- Precise Visit Section -->
         <mat-expansion-panel
-          *ngFor="let section of sections; let i = index"
-          [class]="
-            'no-padding theme-default primary-inverted color-rotate-' + (i + 1)
-          "
-          [attr.data-section]="section.label"
+          class="no-padding theme-default primary-inverted color-rotate-1"
           expanded
         >
           <mat-expansion-panel-header expandedHeight="48px">
             <mat-panel-title style="color: white;"
-              ><mat-icon [svgIcon]="section.icon"></mat-icon>
-              <span>{{ section.label }}</span></mat-panel-title
+              ><mat-icon svgIcon="visit"></mat-icon>
+              <span>Precise Visit</span></mat-panel-title
             >
           </mat-expansion-panel-header>
-          <precise-section-summary
-            [section]="section"
-          ></precise-section-summary>
+          <precise-profile-general-section
+            [section]="sections.preciseVisitSection"
+          ></precise-profile-general-section>
+        </mat-expansion-panel>
+        <!-- Baby section -->
+
+        <!-- TOD - ANC section -->
+        <mat-expansion-panel
+          class="no-padding theme-default primary-inverted color-rotate-2"
+          expanded
+        >
+          <mat-expansion-panel-header expandedHeight="48px">
+            <mat-panel-title style="color: white;"
+              ><mat-icon svgIcon="disease"></mat-icon>
+              <span>TOD - ANC</span></mat-panel-title
+            >
+          </mat-expansion-panel-header>
+          <precise-profile-general-section
+            [section]="sections.todSection"
+          ></precise-profile-general-section>
+        </mat-expansion-panel>
+        <!-- Lab Section -->
+        <mat-expansion-panel
+          class="no-padding theme-default primary-inverted color-rotate-3"
+          expanded
+        >
+          <mat-expansion-panel-header expandedHeight="48px">
+            <mat-panel-title style="color: white;"
+              ><mat-icon svgIcon="lab"></mat-icon>
+              <span>Lab</span></mat-panel-title
+            >
+          </mat-expansion-panel-header>
+          <precise-profile-general-section
+            [section]="sections.labSection"
+          ></precise-profile-general-section>
         </mat-expansion-panel>
       </ng-container>
     </mat-accordion>

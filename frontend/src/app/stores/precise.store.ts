@@ -24,7 +24,7 @@ export class PreciseStore {
   @observable participantSummaries: IParticipantSummary[];
   @observable screeningData: any[];
   @observable activeParticipant: IParticipant;
-  @observable participantForms: IParticipantForm[];
+  @observable participantForms: IFormMetaWithEntries[];
   @observable listDataLoaded = false;
   @observable participantDataLoaded = false;
 
@@ -360,6 +360,6 @@ export type IParticipantSummary = Partial<IParticipant>;
 type IParticipantsHashmap = { [f2_guid: string]: IParticipant };
 
 // Participant forms contain full form meta with specific participant entries
-export interface IParticipantForm extends IFormMeta {
+export interface IFormMetaWithEntries extends IFormMeta {
   entries: IODkTableRowData[];
 }

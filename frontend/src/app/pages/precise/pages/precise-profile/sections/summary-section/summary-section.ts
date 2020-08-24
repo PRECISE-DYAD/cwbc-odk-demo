@@ -3,11 +3,11 @@ import { PreciseStore } from "src/app/stores";
 import { PRECISE_SUMMARY_FIELDS } from "src/app/models/precise.models";
 
 @Component({
-  selector: "precise-table-summary",
-  templateUrl: "./table-summary.component.html",
-  styleUrls: ["./table-summary.component.scss"],
+  selector: "precise-profile-summary-section",
+  templateUrl: "./summary-section.html",
+  styleUrls: ["./summary-section.scss"],
 })
-export class PreciseTableSummaryComponent implements OnInit {
+export class PreciseProfileSummarySectionComponent implements OnInit {
   constructor(private store: PreciseStore) {}
 
   ngOnInit(): void {
@@ -43,8 +43,8 @@ export class PreciseTableSummaryComponent implements OnInit {
   }
 
   _extractVariablesForCalc() {
-    const today = new Date()
-    const visit1Date = this._getParticipantValue('Visit1','')
+    const today = new Date();
+    const visit1Date = this._getParticipantValue("Visit1", "");
     // const weeksSinceVisit1 = today.getTime() - new Date()
   }
 
