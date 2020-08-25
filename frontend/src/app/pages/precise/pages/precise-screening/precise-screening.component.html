@@ -38,31 +38,6 @@
       </div>
     </td>
   </ng-container>
-  <!-- Precise ID -->
-  <ng-container matColumnDef="Precise ID">
-    <th mat-header-cell *matHeaderCellDef mat-sort-header>Precise ID</th>
-    <td mat-cell *matCellDef="let row" (click)="handleRowClicked(row)">
-      {{ row["Precise ID"] }}
-    </td>
-  </ng-container>
-  <!-- Eligibility -->
-  <ng-container matColumnDef="Eligibility">
-    <th mat-header-cell *matHeaderCellDef mat-sort-header>Eligibility</th>
-    <td mat-cell *matCellDef="let row" (click)="handleRowClicked(row)">
-      <div class="info-row">
-        <div>Consent Received:</div>
-        <div>{{ row["Eligibility"]["Consent Received"] }}</div>
-      </div>
-      <div class="info-row">
-        <div>Eligible Cohort:</div>
-        <div>{{ row["Eligibility"]["Eligible Cohort"] }}</div>
-      </div>
-      <div class="info-row">
-        <div>Final Cohort:</div>
-        <div>{{ row["Eligibility"]["Final Cohort"] }}</div>
-      </div>
-    </td>
-  </ng-container>
   <!-- Screening ID -->
   <ng-container matColumnDef="Screening ID">
     <th mat-header-cell *matHeaderCellDef mat-sort-header>Screening ID</th>
@@ -70,20 +45,41 @@
       {{ row["Screening ID"] }}
     </td>
   </ng-container>
+  <!-- Eligibility -->
+  <ng-container matColumnDef="Eligibility">
+    <th mat-header-cell *matHeaderCellDef mat-sort-header>Eligibility</th>
+    <td mat-cell *matCellDef="let row" (click)="handleRowClicked(row)">
+      <div class="info-row">
+        <div>Consent Received</div>
+        <div>{{ row["Eligibility"]["Consent Received"] | boolIcon }}</div>
+      </div>
+      <div class="info-row">
+        <div>Final Cohort</div>
+        <div>{{ row["Eligibility"]["Final Cohort"] }}</div>
+      </div>
+    </td>
+  </ng-container>
+  <!-- Precise ID -->
+  <ng-container matColumnDef="Precise ID">
+    <th mat-header-cell *matHeaderCellDef mat-sort-header>Precise ID</th>
+    <td mat-cell *matCellDef="let row" (click)="handleRowClicked(row)">
+      {{ row["Precise ID"] }}
+    </td>
+  </ng-container>
   <!-- Additional info Column -->
   <ng-container matColumnDef="Additional">
     <th mat-header-cell *matHeaderCellDef>Additional</th>
     <td mat-cell *matCellDef="let row" (click)="handleRowClicked(row)">
       <div class="info-row">
-        <div>Section:</div>
+        <div>Section</div>
         <div>{{ row["Additional"]["Section"] }}</div>
       </div>
       <div class="info-row">
         <div>
-          Approached to Participate:
+          Approached to Participate
         </div>
         <div>
-          {{ row["Additional"]["Approached to Participate"] }}
+          {{ row["Additional"]["Approached to Participate"] | boolIcon }}
         </div>
       </div>
     </td>

@@ -4,7 +4,7 @@ import { IFormMeta } from "src/app/types/types";
 import {
   PreciseStore,
   CommonStore,
-  IParticipantForm,
+  IFormMetaWithEntries,
   IParticipant,
 } from "src/app/stores";
 import * as Animations from "src/app/animations";
@@ -24,10 +24,11 @@ import { Subscription } from "rxjs";
   animations: [Animations.fadeEntryExit],
 })
 export class PreciseProfileComponent implements OnDestroy, OnInit {
-  participantRevisions: IParticipantForm["entries"] = [];
+  participantRevisions: IFormMetaWithEntries["entries"] = [];
   profileConfirmed = false;
-  participantForms: IParticipantForm[];
-  sections: ISectionWithMeta[];
+  participantForms: IFormMetaWithEntries[];
+  sections: { [sectionID: string]: ISectionWithMeta };
+  babySections: ISectionWithMeta[] = [];
   expandedSections: any = {
     profile: true,
   };
@@ -57,6 +58,7 @@ export class PreciseProfileComponent implements OnDestroy, OnInit {
       this.participantForms = this.store.participantForms;
       this.participantRevisions = this.store.participantFormsHash.profileSummaryRevisions.entries;
       this.loadParticipantSections();
+      this.loadParticipantBabySections();
     }
   }
   private setPageTitle(activeParticipant: IParticipant) {
@@ -64,15 +66,28 @@ export class PreciseProfileComponent implements OnDestroy, OnInit {
     this.commonStore.setPageTitle(`${f2a_participant_id} ${f2a_full_name}`);
   }
   private loadParticipantSections() {
-    this.sections = PRECISE_FORM_SECTIONS.map((s) => ({
-      ...s,
-      forms: s.formIds.map((formId) =>
-        this.getFormWithEntries(formId as string)
-      ),
-    }));
-    // Add sections for each recorded birth
-    this.store.participantFormsHash.Birthbaby.entries.forEach((row) => {
-      this._addBabySection(row.f2_guid_child);
+    const sections: { [sectionID: string]: ISectionWithMeta } = {};
+    PRECISE_FORM_SECTIONS.forEach((s) => {
+      const sectionWithMeta = {
+        ...s,
+        forms: s.formIds.map((formId) =>
+          this.getFormWithEntries(formId as string)
+        ),
+      };
+      sections[s._id] = sectionWithMeta;
+    });
+    this.sections = sections;
+  }
+  private loadParticipantBabySections() {
+    // Add sections for each recorded birth (and by default 1)
+    let babyEntries = this.store.participantFormsHash.Birthbaby.entries;
+    if (babyEntries.length === 0) {
+      // by default ensure at least one placeholder baby section
+      const f2_guid_child = this.store.addParticipantBaby(false) as string;
+      babyEntries = [{ f2_guid_child }];
+    }
+    babyEntries.forEach((row) => {
+      this.babySections.push(this._generateBabySection(row.f2_guid_child));
     });
   }
 
@@ -91,20 +106,18 @@ export class PreciseProfileComponent implements OnDestroy, OnInit {
   /**
    * Given a formId return full form meta with entries
    */
-  getFormWithEntries(formId: string): IParticipantForm {
+  getFormWithEntries(formId: string): IFormMetaWithEntries {
     return toJS(this.store.participantFormsHash[formId]);
   }
 
   /**
    * Dynamically populate baby forms
    */
-  private _addBabySection(f2_guid_child: string) {
-    // default, push section to end
-    const s: IPreciseFormSection = {
+  private _generateBabySection(f2_guid_child: string) {
+    const section: IPreciseFormSection = {
       ...PRECISE_BABY_FORM_SECTION,
-      label: `Baby ${f2_guid_child.split("_").pop()}`,
     };
-    let forms = s.formIds.map((formId) =>
+    let forms = section.formIds.map((formId) =>
       this.getFormWithEntries(formId as string)
     );
     forms = forms.map((f) => {
@@ -112,9 +125,14 @@ export class PreciseProfileComponent implements OnDestroy, OnInit {
       const entries = f.entries.filter(
         (row) => row.f2_guid_child === f2_guid_child
       );
+      if (entries[0]) {
+        const babyId =
+          entries[0].f9_baby_id || entries[0].f2_guid_child.split("_").pop();
+        section.label = babyId;
+      }
       return { ...f, entries };
     });
-    this.sections.push({ ...s, forms });
+    return { ...section, forms };
   }
 
   /**

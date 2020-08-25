@@ -1,10 +1,10 @@
 import { Component, Input } from "@angular/core";
-import { PreciseStore, IParticipantForm } from "src/app/stores";
+import { PreciseStore, IFormMetaWithEntries } from "src/app/stores";
 import { IODkTableRowData } from "src/app/types/odk.types";
 import { ISectionWithMeta } from "src/app/models/precise.models";
 
 @Component({
-  selector: "precise-section-summary",
+  selector: "precise-profile-general-section",
   template: `
     <section class="section-details">
       <div *ngFor="let form of section.forms">
@@ -19,7 +19,7 @@ import { ISectionWithMeta } from "src/app/models/precise.models";
             {{ form.title }}
           </button>
           <div class="form-completion-date">
-            {{ entry._savepoint_timestamp | savepointTimestamp | date }}
+            {{ entry._savepoint_timestamp | savepointTimestamp | date:'MMM dd, yyyy H:MM a' }}
           </div>
         </div>
         <button
@@ -68,12 +68,12 @@ import { ISectionWithMeta } from "src/app/models/precise.models";
     `,
   ],
 })
-export class PreciseSectionSummaryComponent {
+export class PreciseProfileGeneralSectionComponent {
   @Input() section: ISectionWithMeta;
   // Add sections for groups of forms, populating with data form stroe
   constructor(public store: PreciseStore) {}
 
-  openForm(form: IParticipantForm, entry?: IODkTableRowData) {
+  openForm(form: IFormMetaWithEntries, entry?: IODkTableRowData) {
     const editRowId = entry ? entry._id : null;
     this.store.launchForm(form, editRowId);
   }

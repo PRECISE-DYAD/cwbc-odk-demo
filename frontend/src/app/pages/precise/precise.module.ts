@@ -8,10 +8,15 @@ import { MobxAngularModule } from "mobx-angular";
 import { PreciseStore } from "src/app/stores";
 import remotedev from "mobx-remotedev";
 import { OdkService } from "src/app/services/odk/odk.service";
-import { PreciseParticipantsComponent } from "./precise-participants/precise-participants.component";
-import { PreciseHomeComponent } from "./precise-home/precise-home.component";
-import { PreciseProfileComponent } from "./precise-profile/precise-profile.component";
-import { PreciseScreeningComponent } from "./precise-screening/precise-screening.component";
+import { PreciseParticipantsComponent } from "./pages/precise-participants/precise-participants.component";
+import { PreciseHomeComponent } from "./pages/precise-home/precise-home.component";
+import { PreciseProfileComponent } from "./pages/precise-profile/precise-profile.component";
+import { PreciseProfileGeneralSectionComponent } from "./pages/precise-profile/sections/general-section";
+import { PreciseScreeningComponent } from "./pages/precise-screening/precise-screening.component";
+import { PreciseProfileSectionComponent } from "./pages/precise-profile/sections/profile-section/profile-section";
+import { PreciseProfileConfirmationComponent } from "./pages/precise-profile/sections/profile-confirmation";
+import { PrecisePipesModule } from "./pipes";
+import { PreciseProfileSummarySectionComponent } from "./pages/precise-profile/sections/summary-section";
 
 const routes: Routes = [
   {
@@ -41,6 +46,10 @@ const routes: Routes = [
   declarations: [
     PreciseHomeComponent,
     PreciseProfileComponent,
+    PreciseProfileGeneralSectionComponent,
+    PreciseProfileSectionComponent,
+    PreciseProfileSummarySectionComponent,
+    PreciseProfileConfirmationComponent,
     PreciseScreeningComponent,
     PreciseParticipantsComponent,
   ],
@@ -50,7 +59,9 @@ const routes: Routes = [
     RouterModule.forChild(routes),
     PreciseComponentsModule,
     MobxAngularModule,
+    PrecisePipesModule,
   ],
+  exports: [PreciseComponentsModule],
   providers: [
     {
       provide: PreciseStore,

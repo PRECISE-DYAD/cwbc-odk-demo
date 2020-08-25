@@ -1,5 +1,4 @@
 import { Component, OnInit, ViewChild } from "@angular/core";
-import { ActivatedRoute, Router } from "@angular/router";
 import { MatPaginator } from "@angular/material/paginator";
 import {
   PreciseStore,
@@ -18,9 +17,9 @@ export class PreciseScreeningComponent implements OnInit {
   participants: IParticipantScreening[];
   displayedColumns = [
     "Screen Date",
-    "Precise ID",
-    "Eligibility",
     "Screening ID",
+    "Eligibility",
+    "Precise ID",
     "Additional",
   ];
   dataSource = new MatTableDataSource<IParticipantSummary>();
@@ -44,9 +43,8 @@ export class PreciseScreeningComponent implements OnInit {
    */
   setDatasource() {
     if (this.store.screeningData) {
-      console.log("setting datasource", this.store.screeningData);
       this.dataSource.data = this.store.screeningData
-        // .filter(this.filterScreeningByDate)
+        .filter(this.filterScreeningByDate)
         .map(this.prepareScreeningSummary);
     }
   }
@@ -64,16 +62,15 @@ export class PreciseScreeningComponent implements OnInit {
 
   /**
    * Not all fields need to be shown in the table, remove non required
+   * TODO - move logic to models or somewhere easier to interact with
    */
   prepareScreeningSummary(v) {
-    console.log("preapring summary", v);
     // note, _savepoint_timestamp also used but hardcoded
     return {
       "Screen Date": v._savepoint_timestamp,
       "Precise ID": v.f0_woman_precise_id || v.f1_woman_precise_id || "",
       Eligibility: {
         "Consent Received": v.f0_consent_status || v.f1_consent_status || "",
-        "Eligible Cohort": v.f0_eligible_cohort || v.f1_eligible_cohort || "",
         "Final Cohort": v.f0_cohort_consented || v.f1_cohort_consented || "",
       },
       "Screening ID": v.f0_screening_id,

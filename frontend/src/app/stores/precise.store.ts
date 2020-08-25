@@ -24,7 +24,8 @@ export class PreciseStore {
   @observable participantSummaries: IParticipantSummary[];
   @observable screeningData: any[];
   @observable activeParticipant: IParticipant;
-  @observable participantForms: IParticipantForm[];
+  @observable activeParticipantData: { [fieldKey: string]: any };
+  @observable participantForms: IFormMetaWithEntries[];
   @observable listDataLoaded = false;
   @observable participantDataLoaded = false;
 
@@ -37,6 +38,7 @@ export class PreciseStore {
     this.participantForms = undefined;
     this.participantFormsHash = undefined;
     this.participantDataLoaded = false;
+    this.activeParticipantData = undefined;
   }
   /**
    * Called on initial load, pull full participant data from main table
@@ -46,7 +48,6 @@ export class PreciseStore {
     const rows = await this.odk.getTableRows<IParticipant>(
       PRECISE_SCHEMA.profileSummary.formId
     );
-    console.log("participants", rows);
     this.setParticipantLists(rows);
   }
 
@@ -138,6 +139,7 @@ export class PreciseStore {
       this.participantForms,
       "formId"
     );
+    this.activeParticipantData = this._extractDataValues(this.participantForms);
     this.participantDataLoaded = true;
   }
 
@@ -167,15 +169,18 @@ export class PreciseStore {
    * When recording a baby also want to populate a guid to link future
    * forms with a specific baby (e.g. in case of twins)
    * This is the same as the mother guid with additional _${childIndex}
-   * NOTE - child index count from 1 for more human-readable export
+   * NOTE1 - child index count from 1 for more human-readable export
+   * NOTE2 - optional 'launch' form to allow just generation of ID
    */
-  addParticipantBaby() {
+  addParticipantBaby(launchForm = true) {
     const childIndex = this.participantFormsHash.Birthbaby.entries.length + 1;
     const { f2_guid } = this.activeParticipant;
     const f2_guid_child = `${f2_guid}_${childIndex}`;
-    return this.launchForm(PRECISE_SCHEMA.Birthbaby, null, {
-      f2_guid_child,
-    });
+    return launchForm
+      ? this.launchForm(PRECISE_SCHEMA.Birthbaby, null, {
+          f2_guid_child,
+        })
+      : f2_guid_child;
   }
   /**
    * When editing a participant also create a revision entry
@@ -250,6 +255,27 @@ export class PreciseStore {
       summary._index = index;
     });
     return summary as IParticipantSummary;
+  }
+
+  /**
+   *  Take the full list of forms and entries for the active participant and collate all values
+   *  into nested json for faster lookup
+   *  NOTE - in the case of multiple entries takes only the most recent
+   */
+  private _extractDataValues(participantForms: IFormMetaWithEntries[]) {
+    const data = {};
+    for (const form of participantForms) {
+      if (!data[form.tableId]) {
+        data[form.tableId] = {};
+      }
+      const latestEntry = form.entries[form.entries.length - 1];
+      if (latestEntry) {
+        Object.entries(latestEntry).forEach(([key, value]) => {
+          data[form.tableId][key] = value;
+        });
+      }
+    }
+    return data;
   }
 
   /**
@@ -360,6 +386,6 @@ export type IParticipantSummary = Partial<IParticipant>;
 type IParticipantsHashmap = { [f2_guid: string]: IParticipant };
 
 // Participant forms contain full form meta with specific participant entries
-export interface IParticipantForm extends IFormMeta {
+export interface IFormMetaWithEntries extends IFormMeta {
   entries: IODkTableRowData[];
 }

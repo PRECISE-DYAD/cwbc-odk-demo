@@ -3,12 +3,12 @@ import { IParticipant } from "src/app/stores";
 import * as Animations from "src/app/animations";
 
 @Component({
-  selector: "precise-profile-summary",
-  templateUrl: "profileSummary.html",
-  styleUrls: ["profileSummary.scss"],
+  selector: "precise-profile-section",
+  templateUrl: "profile-section.html",
+  styleUrls: ["profile-section.scss"],
   animations: [Animations.fadeEntryExit],
 })
-export class PreciseProfileSummaryComponent {
+export class PreciseProfileSectionComponent {
   @Input() participant: IParticipant;
   @Input() participantRevisions: IParticipant[];
   @Input() profileConfirmed: boolean;
