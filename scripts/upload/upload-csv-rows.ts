@@ -29,14 +29,23 @@ export async function prepareCSVRowUploadActions(): Promise<
       const { schemaETag } = schema;
       const definition = await odkRest.getDefinition(tableId, schemaETag);
       const rowData = await parseCSV<IODK.ICSVTableRow>(csvPath);
+      const cleanedData = rowData.map((r) => {
+        for (let key of Object.keys(r)) {
+          if (r[key] === "") {
+            r[key] = null;
+          }
+        }
+        return r;
+      });
+
       // ignore metadata columns as these will be handled during process
-      const csvCols = Object.keys(rowData[0]).filter(
+      const csvCols = Object.keys(cleanedData[0]).filter(
         (c) => c.charAt(0) !== "_"
       );
       const schemaCols = definition.orderedColumns.map((c) => c.elementKey);
       const skipColumns = csvCols.filter((c) => !schemaCols.includes(c));
       const addColumns = schemaCols.filter((c) => !csvCols.includes(c));
-      actions.push({ schema, rowData, skipColumns, addColumns });
+      actions.push({ schema, rowData: cleanedData, skipColumns, addColumns });
     }
   }
   return actions;
@@ -76,7 +85,7 @@ function convertCSVToODKRow(
       }
     });
     // add blank values for missing columns
-    addColumns.forEach((column) => orderedColumns.push({ column, value: "" }));
+    addColumns.forEach((column) => orderedColumns.push({ column, value: null }));
     // refactor to match rest of schema
     const filterScope: IODK.IUploadTableRow["filterScope"] = {
       defaultAccess: r._default_access,
