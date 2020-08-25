@@ -19,8 +19,9 @@ define(["screenTypes"], function (screenTypes) {
         // field has data or not. This is styled in custom css
         if (fieldName) {
           const fieldValue = renderContext.data[fieldName];
-          // use string for property to make easier to style
-          prompt.$el.attr("data-hasValue", fieldValue ? "true" : "false");
+          // check specifically for blank strings and undefined as indication of value set
+          const hasValue = [null,undefined, ""].indexOf(fieldValue) === -1;
+          prompt.$el.attr("data-hasValue", hasValue);
           prompt.$el.addClass("custom-screen-prompt");
         }
       });
