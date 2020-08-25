@@ -43,9 +43,8 @@ export class PreciseScreeningComponent implements OnInit {
    */
   setDatasource() {
     if (this.store.screeningData) {
-      console.log("setting datasource", this.store.screeningData);
       this.dataSource.data = this.store.screeningData
-        // .filter(this.filterScreeningByDate)
+        .filter(this.filterScreeningByDate)
         .map(this.prepareScreeningSummary);
     }
   }
@@ -66,7 +65,6 @@ export class PreciseScreeningComponent implements OnInit {
    * TODO - move logic to models or somewhere easier to interact with
    */
   prepareScreeningSummary(v) {
-    console.log("preapring summary", v);
     // note, _savepoint_timestamp also used but hardcoded
     return {
       "Screen Date": v._savepoint_timestamp,

@@ -16,7 +16,7 @@ import { PreciseScreeningComponent } from "./pages/precise-screening/precise-scr
 import { PreciseProfileSectionComponent } from "./pages/precise-profile/sections/profile-section/profile-section";
 import { PreciseProfileConfirmationComponent } from "./pages/precise-profile/sections/profile-confirmation";
 import { PrecisePipesModule } from "./pipes";
-import { PreciseProfileSummarySectionComponent } from "./pages/precise-profile/sections/summary-section/summary-section";
+import { PreciseProfileSummarySectionComponent } from "./pages/precise-profile/sections/summary-section";
 
 const routes: Routes = [
   {

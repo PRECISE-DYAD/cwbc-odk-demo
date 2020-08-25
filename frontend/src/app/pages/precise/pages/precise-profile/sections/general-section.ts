@@ -19,7 +19,7 @@ import { ISectionWithMeta } from "src/app/models/precise.models";
             {{ form.title }}
           </button>
           <div class="form-completion-date">
-            {{ entry._savepoint_timestamp | savepointTimestamp | date }}
+            {{ entry._savepoint_timestamp | savepointTimestamp | date:'MMM dd, yyyy H:MM a' }}
           </div>
         </div>
         <button
