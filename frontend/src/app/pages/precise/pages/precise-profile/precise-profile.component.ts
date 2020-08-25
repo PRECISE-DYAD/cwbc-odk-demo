@@ -28,6 +28,7 @@ export class PreciseProfileComponent implements OnDestroy, OnInit {
   profileConfirmed = false;
   participantForms: IFormMetaWithEntries[];
   sections: { [sectionID: string]: ISectionWithMeta };
+  babySections: ISectionWithMeta[] = [];
   expandedSections: any = {
     profile: true,
   };
@@ -57,6 +58,7 @@ export class PreciseProfileComponent implements OnDestroy, OnInit {
       this.participantForms = this.store.participantForms;
       this.participantRevisions = this.store.participantFormsHash.profileSummaryRevisions.entries;
       this.loadParticipantSections();
+      this.loadParticipantBabySections();
     }
   }
   private setPageTitle(activeParticipant: IParticipant) {
@@ -74,17 +76,19 @@ export class PreciseProfileComponent implements OnDestroy, OnInit {
       };
       sections[s._id] = sectionWithMeta;
     });
-    // Add sections for each recorded birth (and by default 1)
-    // const babyEntries = this.store.participantFormsHash.Birthbaby.entries;
-    // babyEntries.forEach((row) => {
-    //   this._addBabySection(row.f2_guid_child);
-    // });
-    // if (babyEntries.length === 0) {
-    //   // TODO
-    // }
-
     this.sections = sections;
-    console.log("sections", this.sections);
+  }
+  private loadParticipantBabySections() {
+    // Add sections for each recorded birth (and by default 1)
+    let babyEntries = this.store.participantFormsHash.Birthbaby.entries;
+    if (babyEntries.length === 0) {
+      // by default ensure at least one placeholder baby section
+      const f2_guid_child = this.store.addParticipantBaby(false) as string;
+      babyEntries = [{ f2_guid_child }];
+    }
+    babyEntries.forEach((row) => {
+      this.babySections.push(this._generateBabySection(row.f2_guid_child));
+    });
   }
 
   viewRevisions() {
@@ -109,22 +113,26 @@ export class PreciseProfileComponent implements OnDestroy, OnInit {
   /**
    * Dynamically populate baby forms
    */
-  private _addBabySection(f2_guid_child: string) {
-    // const section: IPreciseFormSection = {
-    //   ...PRECISE_BABY_FORM_SECTION,
-    //   label: `Baby ${f2_guid_child.split("_").pop()}`,
-    // };
-    // let forms = section.formIds.map((formId) =>
-    //   this.getFormWithEntries(formId as string)
-    // );
-    // forms = forms.map((f) => {
-    //   // take all form entries and assign only those with matching baby guid
-    //   const entries = f.entries.filter(
-    //     (row) => row.f2_guid_child === f2_guid_child
-    //   );
-    //   return { ...f, entries };
-    // });
-    // this.sections.push({ ...section, forms });
+  private _generateBabySection(f2_guid_child: string) {
+    const section: IPreciseFormSection = {
+      ...PRECISE_BABY_FORM_SECTION,
+    };
+    let forms = section.formIds.map((formId) =>
+      this.getFormWithEntries(formId as string)
+    );
+    forms = forms.map((f) => {
+      // take all form entries and assign only those with matching baby guid
+      const entries = f.entries.filter(
+        (row) => row.f2_guid_child === f2_guid_child
+      );
+      if (entries[0]) {
+        const babyId =
+          entries[0].f9_baby_id || entries[0].f2_guid_child.split("_").pop();
+        section.label = babyId;
+      }
+      return { ...f, entries };
+    });
+    return { ...section, forms };
   }
 
   /**
