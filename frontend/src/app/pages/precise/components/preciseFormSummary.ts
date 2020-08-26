@@ -42,6 +42,18 @@ import { IODkTableRowData } from "src/app/types/odk.types";
         {{ form.title }}
       </button>
     </div>
+    <button
+      mat-button
+      *ngIf="!form.allowRepeats && !form.entries[0]"
+      (click)="openForm(form)"
+    >
+      <mat-icon>check_box_outline_blank</mat-icon>
+      {{ form.title }}
+    </button>
+    <button mat-button *ngIf="form.allowRepeats" (click)="openForm(form)">
+      <mat-icon>add</mat-icon>
+      {{ form.title }}
+    </button>
   `,
   styles: [
     `

@@ -19,17 +19,15 @@
 }
 
 #addBabySection {
-  border: 2px dashed;
   text-align: center;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  opacity: 1;
-  background: #f3f3f3;
-  color: #8c8c8c;
+  color: rgba(255, 255, 255, 0.9);
   cursor: pointer;
-  margin-top: 1em;
+  width: 100px;
+  margin: 1em auto;
 }
 
 /***********************************************

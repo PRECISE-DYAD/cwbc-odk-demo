@@ -1,6 +1,6 @@
 <div *mobxReaction="participantUpdated.bind(this)" class="primary page">
   <div
-    style="padding: 1em; flex: 1;"
+    style="padding: 1em; flex: 1"
     *ngIf="store.listDataLoaded && store.participantDataLoaded"
   >
     <div id="participantMenu">
@@ -53,7 +53,7 @@
           class="no-padding theme-default primary-inverted color-rotate-1"
         >
           <mat-expansion-panel-header expandedHeight="48px">
-            <mat-panel-title style="color: white;"
+            <mat-panel-title style="color: white"
               ><mat-icon svgIcon="visit"></mat-icon>
               <span>Precise Visit</span></mat-panel-title
             >
@@ -65,10 +65,10 @@
         <!-- Baby section -->
         <mat-expansion-panel
           class="no-padding theme-default primary-inverted color-rotate-2"
-          *ngFor="let babySection of babySections"
+          *ngFor="let babySection of babySections; index as i"
         >
           <mat-expansion-panel-header expandedHeight="48px">
-            <mat-panel-title style="color: white;"
+            <mat-panel-title style="color: white"
               ><mat-icon svgIcon="baby"></mat-icon>
               <span>Baby {{ babySection.label }}</span></mat-panel-title
             >
@@ -76,6 +76,18 @@
           <precise-profile-baby-section
             [section]="babySection"
           ></precise-profile-baby-section>
+          <!-- Add baby section -->
+          <div
+            class="section-tile"
+            id="addBabySection"
+            (click)="store.addParticipantBaby()"
+            *ngIf="
+              babySection.forms[0].entries[0] && babySections.length - 1 == i
+            "
+          >
+            <mat-icon>add</mat-icon>
+            <span>Add Baby</span>
+          </div>
         </mat-expansion-panel>
 
         <!-- TOD - ANC section -->
@@ -83,7 +95,7 @@
           class="no-padding theme-default primary-inverted color-rotate-3"
         >
           <mat-expansion-panel-header expandedHeight="48px">
-            <mat-panel-title style="color: white;"
+            <mat-panel-title style="color: white"
               ><mat-icon svgIcon="disease"></mat-icon>
               <span>TOD - ANC</span></mat-panel-title
             >
@@ -97,7 +109,7 @@
           class="no-padding theme-default primary-inverted color-rotate-4"
         >
           <mat-expansion-panel-header expandedHeight="48px">
-            <mat-panel-title style="color: white;"
+            <mat-panel-title style="color: white"
               ><mat-icon svgIcon="lab"></mat-icon>
               <span>Lab</span></mat-panel-title
             >
@@ -109,16 +121,6 @@
       </ng-container>
     </mat-accordion>
 
-    <!-- Add baby section -->
-    <section
-      class="section-tile"
-      id="addBabySection"
-      (click)="store.addParticipantBaby()"
-      *ngIf="profileConfirmed"
-    >
-      <mat-icon>add</mat-icon>
-      <span>Add Baby</span>
-    </section>
     <!-- profile confirmation -->
     <div
       *ngIf="!profileConfirmed && store.participantDataLoaded"

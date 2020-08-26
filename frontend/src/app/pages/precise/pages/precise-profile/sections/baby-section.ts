@@ -13,7 +13,11 @@ import {
         *ngFor="let form of section.forms"
         [form]="form"
       ></precise-form-summary>
-      <table style="background:none; margin:1em;">
+      <!-- HACK - only show summary table if data collected for first (birthbaby) form. Could be linked better -->
+      <table
+        style="background:none; margin:1em;"
+        *ngIf="section.forms[0].entries[0]"
+      >
         <tr *ngFor="let summary of summaryFields">
           <td class="field-label">{{ summary.label }}</td>
           <td class="field-value">
