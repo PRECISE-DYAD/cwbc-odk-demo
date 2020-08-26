@@ -7,69 +7,161 @@
 export const PRECISE_SUMMARY_FIELDS: IPreciseFieldSummary[] = [
   {
     label: "Visit 1 Date",
-    calculation: "data.Visit1.f2_visit_date",
+    tableId: "Visit1",
+    field: "f2_visit_date",
   },
   {
     label: "visit2_date",
-    calculation: "data.Visit2.f2_visit_date",
+    tableId: "Visit2",
+    field: "f2_visit_date",
   },
   {
     label: "visit1_ga",
-    calculation: "data.Visit1.f6a_ga_enrol",
+    tableId: "Visit1",
+    field: "f6a_ga_enrol",
   },
   {
     label: "visit2_ga",
-    calculation: "data.Visit2.f2_ga_at_visit",
+    tableId: "Visit2",
+    field: "f2_ga_at_visit",
   },
   {
     label: "birth_ga",
-    calculation: "data.Birthbaby.f9_ga_at_delivery",
+    tableId: "Birthbaby",
+    field: "f9_ga_at_delivery",
   },
   {
     label: "delivery_date",
-    calculation: "data.Birthbaby.f9_delivery_date",
+    tableId: "Birthbaby",
+    field: "f9_delivery_date",
   },
   {
     label: "number_of_babies",
-    calculation: "data.Birthbaby.f7_delivery_num_of_babies",
+    tableId: "Birthbaby",
+    field: "f7_delivery_num_of_babies",
   },
   {
     label: "LTF",
-    calculation: "data.Withdrawal.fw_lost_to_followup",
+    tableId: "Withdrawal",
+    field: "fw_lost_to_followup",
   },
   {
     label: "withdrawal",
-    calculation: "data.Withdrawal.fw_withdraw_from_study",
+    tableId: "Withdrawal",
+    field: "fw_withdraw_from_study",
   },
   {
     label: "Gestational age at today",
-    calculation: "data._calcs.ga_today",
+    calculation: (data) => calculateGA(data),
   },
   {
     label: "Weeks since PRECISE Visit 1",
-    calculation: "data._calcs.visit_1_to_today",
+    calculation: (data) => calculateVisit1ToToday(data),
+  },
+];
+
+export const PRECISE_PROFILE_FIELDS: IPreciseFieldSummary[] = [
+  {
+    tableId: "Visit1",
+    field: "f2a_national_id",
+    label: "National ID",
+    grouping: "Profile",
+  },
+  {
+    tableId: "Visit1",
+    field: "f2a_full_name",
+    label: "Name",
+    grouping: "Profile",
+  },
+  {
+    tableId: "Visit1",
+    field: "f2a_phone_number",
+    label: "Phone 1",
+    grouping: "Profile",
+  },
+  {
+    tableId: "Visit1",
+    field: "f2a_phone_number_2",
+    label: "Phone 2",
+    grouping: "Profile",
+  },
+  {
+    tableId: "Visit1",
+    field: "f2_woman_addr",
+    label: "Address",
+    grouping: "Profile",
+  },
+  {
+    tableId: "Visit1",
+    field: "f2_ke_health_facility",
+    label: "Health Facility",
+    grouping: "Additional",
+  },
+  {
+    tableId: "Visit1",
+    field: "f2a_cohort",
+    label: "Cohort",
+    grouping: "Additional",
+  },
+  {
+    tableId: "Visit1",
+    field: "f2a_hdss",
+    label: "HDSS",
+    grouping: "Additional",
+  },
+  {
+    tableId: "Visit1",
+    field: "f3_ethnicity_ke",
+    label: "Ethnicity",
+    grouping: "Additional",
+  },
+  {
+    tableId: "Visit1",
+    field: "f3a_dob",
+    label: "DOB",
+    grouping: "Additional",
   },
 ];
 
 /**
- * Additional calculated fields that can be referenced from the PRECISE_SUMMARY_FIELDS list above.
- * These will be merged into the `data` object, and available as data._calcs.calc_name
- * @Remark - longer calculations can also be called as functions
+ * NOTE - in the case of multiple babies unique data is sent each time to calculations
+ * and shown within the specific baby section
  */
-export const PRECISE_SUMMARY_FIELD_CALCS = (data: IPreciseParticipantData) => ({
-  ga_today: calculateGA(data),
-  visit_1_to_today: calculateVisit1ToToday(data),
-});
+export const PRECISE_BABY_SUMMARY_FIELDS: IPreciseFieldSummary[] = [
+  {
+    label: "Delivery Date",
+    calculation: (data) => {
+      const { f9_delivery_date, f9_delivery_time } = data.Birthbaby;
+      return f9_delivery_date + " : " + f9_delivery_time;
+    },
+  },
+  {
+    label: "Is the baby still alive",
+    calculation: (data) => {
+      if (data.Birthbaby.f9_baby_alive === "1") {
+        return "Y";
+      }
+      if (data.Birthbaby.f9_baby_alive === "0") {
+        return "N";
+      }
+      return "";
+    },
+  },
+];
 
 /******************************************************************************************
  * Functions used in calculations
  ******************************************************************************************/
 
 function calculateVisit1ToToday(data: IPreciseParticipantData) {
-  console.log("calc", data.Visit1.f2_visit_date);
-  const d1 = new Date().getTime();
-  const d2 = _strToDate(data.Visit1.f2_visit_date).getTime();
-  return ((d1 - d2) / (1000 * 60 * 60 * 24 * 7)).toFixed(1);
+  try {
+    const d1 = new Date().getTime();
+    const d2 = _strToDate(data.Visit1.f2_visit_date).getTime();
+    return ((d1 - d2) / (1000 * 60 * 60 * 24 * 7)).toFixed(1);
+  } catch (error) {
+    console.warn("error in calculateVisit1ToToday", error);
+    return undefined;
+  }
 }
 
 function calculateGA(data: IPreciseParticipantData) {
@@ -146,19 +238,21 @@ function _strToDate(str: string) {
  * ```
  */
 export type IPreciseParticipantData = {
-  [tableId: string]: { [field: string]: string };
+  [tableId: string]: { [field: string]: any };
 };
 
 /**
  * Calc data is the combination of all data known about a participant,
  * listed as nested json by form
  * @param label - Text that appears before the value on a form
- * @param value - Specific value to show (will not be able to read data values)
+ * @param tableId - If supplied with a field, will return specific value
+ * @param field
  * @param calc - String representing alculation required for value.
  * Can call JS functions, and/or access `data` object for parameters, e.g.
  * ```
  * calc: "Math.min(data.Visit1.f2_some_field, data.Visit2.f3_another_field)"
  * ```
+ * @param grouping - (WiP) - group fields together (only used in profile table)
  * @param icon - (WiP) - optional icon to appear before text
  * @param transformation - (WiP) - additional transformation to be applied to
  * the final value, such as specific representation for a date (TBC)
@@ -166,8 +260,10 @@ export type IPreciseParticipantData = {
  */
 export interface IPreciseFieldSummary {
   label: string;
-  value?: string;
-  calculation?: string;
+  tableId?: string;
+  field?: string;
+  calculation?: (data: IPreciseParticipantData) => string;
+  grouping?: string;
   icon?: string;
   transformation?: string;
 }

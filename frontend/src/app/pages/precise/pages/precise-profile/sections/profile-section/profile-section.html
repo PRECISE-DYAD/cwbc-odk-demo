@@ -1,4 +1,3 @@
-<!-- <div class="summary-container"> -->
 <table>
   <th *ngFor="let heading of tableHeadings"></th>
   <!-- Main Table -->
@@ -28,12 +27,14 @@
     {{ participantRevisions.length - 1 }} Revisions
   </button>
   <div id="lastUpdate" style="flex: 1;">
-    <div>Updated {{ participant._savepoint_timestamp | savepointTimestamp | date }}</div>
+    <div>
+      Updated {{ participant._savepoint_timestamp | savepointTimestamp | date }}
+    </div>
   </div>
 </div>
 
 <!-- Additional Info Expansion -->
-<mat-expansion-panel >
+<mat-expansion-panel>
   <mat-expansion-panel-header>
     <mat-panel-title>Additional Information</mat-panel-title>
   </mat-expansion-panel-header>

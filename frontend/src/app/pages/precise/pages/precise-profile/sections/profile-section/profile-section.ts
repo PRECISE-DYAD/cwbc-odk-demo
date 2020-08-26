@@ -1,32 +1,40 @@
 import { Component, Input } from "@angular/core";
 import { IParticipant } from "src/app/stores";
 import * as Animations from "src/app/animations";
+import {
+  IPreciseFieldSummary,
+  PRECISE_PROFILE_FIELDS,
+} from "src/app/models/participant-summary.model";
 
 @Component({
   selector: "precise-profile-section",
   templateUrl: "profile-section.html",
-  styleUrls: ["profile-section.scss"],
+  styleUrls: ["profile-section.scss", "../../precise-profile.component.scss"],
   animations: [Animations.fadeEntryExit],
 })
 export class PreciseProfileSectionComponent {
   @Input() participant: IParticipant;
   @Input() participantRevisions: IParticipant[];
   @Input() profileConfirmed: boolean;
-  summaryFields: IFieldMapping[];
-  additionalFields: IFieldMapping[];
-  tableHeadings = ["Icon", "Field", "Value"];
+  summaryFields: IPreciseFieldSummaryWithMeta[];
+  additionalFields: IPreciseFieldSummaryWithMeta[];
+  tableHeadings = ["Field", "Value"];
 
   constructor() {
-    this.generateSummary();
+    this.generateSummary(PRECISE_PROFILE_FIELDS);
   }
   /**
    * Separate the core list of fields into summary and additional expansion content
    * @param fields - default use the full list of fields, but can be overwritten
    * if revision info has been retrieved
    */
-  generateSummary(fields: IFieldMapping[] = FIELD_MAPPINGS) {
-    this.summaryFields = fields.filter((f) => !f.additional);
-    this.additionalFields = fields.filter((f) => f.additional);
+  generateSummary(fields: IPreciseFieldSummary[]) {
+    this.summaryFields = fields
+      .filter((f) => f.grouping !== "Additional")
+      .map((f) => ({ ...f, revisions: [] }));
+    this.additionalFields = fields
+      .filter((f) => f.grouping === "Additional")
+      .map((f) => ({ ...f, revisions: [] }));
   }
 
   /**
@@ -35,7 +43,7 @@ export class PreciseProfileSectionComponent {
    * populated asynchronously (could use input setter/props change instead)
    */
   showRevisions() {
-    const allFields = FIELD_MAPPINGS.map((f) => {
+    const allFields = PRECISE_PROFILE_FIELDS.map((f) => {
       const fieldRevisions = {};
       this.participantRevisions.forEach((rev) => {
         if (rev[f.field] && rev[f.field] !== this.participant[f.field]) {
@@ -57,77 +65,7 @@ export class PreciseProfileSectionComponent {
     }));
   }
 }
-const FIELD_MAPPINGS: IFieldMapping[] = [
-  {
-    field: "f2a_national_id",
-    label: "National ID",
-    icon: "folder_shared",
-    revisions: [],
-  },
-  {
-    field: "f2a_full_name",
-    label: "Name",
-    icon: "person",
-    revisions: [],
-  },
-  {
-    field: "f2a_phone_number",
-    label: "Phone 1",
-    icon: "phone",
-    revisions: [],
-  },
-  {
-    field: "f2a_phone_number_2",
-    label: "Phone 2",
-    icon: "phone",
-    revisions: [],
-  },
-  {
-    field: "f2_woman_addr",
-    label: "Address",
-    icon: "home",
-    revisions: [],
-  },
-  {
-    field: "f2_ke_health_facility",
-    label: "Health Facility",
-    icon: "",
-    revisions: [],
-    additional: true,
-  },
-  {
-    field: "f2a_cohort",
-    label: "Cohort",
-    icon: "",
-    revisions: [],
-    additional: true,
-  },
-  {
-    field: "f2a_hdss",
-    label: "HDSS",
-    icon: "",
-    revisions: [],
-    additional: true,
-  },
-  {
-    field: "f3_ethnicity_ke",
-    label: "Ethnicity",
-    icon: "",
-    revisions: [],
-    additional: true,
-  },
-  {
-    field: "f3a_dob",
-    label: "DOB",
-    icon: "",
-    revisions: [],
-    additional: true,
-  },
-];
-interface IFieldMapping {
-  field: string;
-  label: string;
-  icon: string;
+
+interface IPreciseFieldSummaryWithMeta extends IPreciseFieldSummary {
   revisions: string[];
-  additional?: boolean;
 }

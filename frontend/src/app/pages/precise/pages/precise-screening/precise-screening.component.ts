@@ -95,7 +95,6 @@ export class PreciseScreeningComponent implements OnInit {
   }
 
   handleRowClicked(row: IParticipantScreening) {
-    console.log("row clicked", row);
     this.store.editScreening(row);
   }
 }

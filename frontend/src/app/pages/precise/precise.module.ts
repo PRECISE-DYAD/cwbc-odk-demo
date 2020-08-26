@@ -17,6 +17,7 @@ import { PreciseProfileSectionComponent } from "./pages/precise-profile/sections
 import { PreciseProfileConfirmationComponent } from "./pages/precise-profile/sections/profile-confirmation";
 import { PrecisePipesModule } from "./pipes";
 import { PreciseProfileSummarySectionComponent } from "./pages/precise-profile/sections/summary-section";
+import { PreciseProfileBabySectionComponent } from "./pages/precise-profile/sections/baby-section";
 
 const routes: Routes = [
   {
@@ -47,6 +48,7 @@ const routes: Routes = [
     PreciseHomeComponent,
     PreciseProfileComponent,
     PreciseProfileGeneralSectionComponent,
+    PreciseProfileBabySectionComponent,
     PreciseProfileSectionComponent,
     PreciseProfileSummarySectionComponent,
     PreciseProfileConfirmationComponent,

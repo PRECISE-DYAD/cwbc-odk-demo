@@ -7,6 +7,7 @@ import { uuidv4 } from "../utils/guid";
 import { IFormMeta, IFormMetaMappedField } from "../types/types";
 import { PRECISE_SCHEMA } from "../models/precise.models";
 import { Router, ActivatedRoute } from "@angular/router";
+import { IPreciseParticipantData } from "../models/participant-summary.model";
 
 /**
  * The PreciseStore manages persisted data and operations across the entire application,
@@ -24,7 +25,7 @@ export class PreciseStore {
   @observable participantSummaries: IParticipantSummary[];
   @observable screeningData: any[];
   @observable activeParticipant: IParticipant;
-  @observable activeParticipantData: { [fieldKey: string]: any };
+  @observable activeParticipantData: IPreciseParticipantData;
   @observable participantForms: IFormMetaWithEntries[];
   @observable listDataLoaded = false;
   @observable participantDataLoaded = false;
@@ -127,6 +128,7 @@ export class PreciseStore {
 
   /**
    * Separate action from async load code to allow mobx to update synchronously
+   * Additionally collate all participant data from forms into a single object, organised by table
    */
   @action setParticipantForms(collated: {
     [tableId: string]: IODkTableRowData[];

@@ -20,28 +20,38 @@ import { IODkTableRowData } from "src/app/types/odk.types";
         {{ form.title }}
       </button>
       <div class="form-completion-date">
-        {{ entry._savepoint_timestamp | savepointTimestamp | date }}
+        <div>
+          {{
+            entry._savepoint_timestamp
+              | savepointTimestamp
+              | date: "dd MMM yyyy,
+          h:mm a"
+          }}
+        </div>
       </div>
+      <button
+        mat-button
+        *ngIf="!form.allowRepeats && !form.entries[0]"
+        (click)="openForm(form)"
+      >
+        <mat-icon>check_box_outline_blank</mat-icon>
+        {{ form.title }}
+      </button>
+      <button mat-button *ngIf="form.allowRepeats" (click)="openForm(form)">
+        <mat-icon>add</mat-icon>
+        {{ form.title }}
+      </button>
     </div>
-    <button
-      mat-button
-      *ngIf="!form.allowRepeats && !form.entries[0]"
-      (click)="openForm(form)"
-    >
-      <mat-icon>check_box_outline_blank</mat-icon>
-      {{ form.title }}
-    </button>
-    <button mat-button *ngIf="form.allowRepeats" (click)="openForm(form)">
-      <mat-icon>add</mat-icon>
-      {{ form.title }}
-    </button>
   `,
   styles: [
     `
       .form-completion-date {
         font-size: smaller;
-        margin-left: 44px;
-        margin-top: -5px;
+        margin-left: 55px;
+        margin-top: -8px;
+      }
+      :host {
+        display: block;
       }
     `,
   ],

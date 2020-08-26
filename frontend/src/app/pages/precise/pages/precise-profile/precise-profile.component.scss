@@ -31,3 +31,39 @@
   cursor: pointer;
   margin-top: 1em;
 }
+
+/***********************************************
+  Common styles shared with section components
+***********************************************/
+table {
+  background: white;
+  width: calc(100% - 2em);
+  max-width: 500px;
+  border-collapse: collapse;
+  margin: 0 1em;
+  border-collapse: collapse;
+}
+section {
+  transition: all 0.2s ease-in-out;
+  background: white;
+}
+
+.section-details {
+  color: var(--color-black);
+  padding: 5px 0;
+  width: 100%;
+  /* let parent background show through */
+  background: rgba(255, 255, 255, 0.75);
+}
+.section-details button {
+  width: 100%;
+  text-align: left;
+}
+
+td.field-label {
+  width: 150px;
+}
+td {
+  border: 1px solid rgba(0, 0, 0, 0.2);
+  padding: 5px;
+}

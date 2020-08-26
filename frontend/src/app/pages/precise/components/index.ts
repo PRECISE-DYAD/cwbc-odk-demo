@@ -5,8 +5,13 @@ import { CommonModule } from "@angular/common";
 import { RouterModule } from "@angular/router";
 import { PreciseFormSummaryComponent } from "./preciseFormSummary";
 import { PrecisePipesModule } from "../pipes";
+import { PreciseFieldSummaryComponent } from "./preciseFieldSummary";
+import { MobxAngularModule } from "mobx-angular";
 
-const PreciseComponents = [PreciseFormSummaryComponent];
+const PreciseComponents = [
+  PreciseFormSummaryComponent,
+  PreciseFieldSummaryComponent,
+];
 @NgModule({
   declarations: PreciseComponents,
   imports: [
@@ -14,6 +19,7 @@ const PreciseComponents = [PreciseFormSummaryComponent];
     CommonModule,
     RouterModule,
     PrecisePipesModule,
+    MobxAngularModule,
   ],
   exports: PreciseComponents,
 })
