@@ -1,3 +1,4 @@
+/* CWBC-ODKX App Custom Styles */
 /* Custom Screen Styles */
 .custom-screen-prompt {
     padding: 5px;
@@ -10,7 +11,10 @@
     background: linear-gradient(rgb(255, 255, 255), rgba(139, 212, 253, 0.4));
 }
 .custom-screen-prompt[data-hasvalue="false"] {
-    background: linear-gradient(rgb(255, 252, 229, 0.6),rgb(253, 253, 150, 0.8))
+    background: linear-gradient(
+        rgb(255, 252, 229, 0.6),
+        rgb(253, 253, 150, 0.8)
+    );
 }
 /* Example to display a green square next to completed questions */
 .custom-screen-prompt[data-hasvalue="true"]::before {
@@ -32,8 +36,12 @@
     margin-top: 8px;
     background: red;
     border-radius: 10px;
-} 
-
+}
+/* option wrapping */
+option {
+    white-space: pre-line;
+}
+/* End of CWBC-ODKX App Custom Styles */
 body {
     overflow: auto;
     min-width: 100%;
