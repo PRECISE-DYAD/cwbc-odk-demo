@@ -61,6 +61,13 @@ export class PreciseProfileComponent implements OnDestroy, OnInit {
       this.loadParticipantBabySections();
     }
   }
+  /**
+   * Add additional baby section when triggered by user pressing button
+   */
+  addBabySection() {
+    const f2_guid_child = this.store.addParticipantBaby(false) as string;
+    this.babySections.push(this._generateBabySection(f2_guid_child));
+  }
   private setPageTitle(activeParticipant: IParticipant) {
     const { f2a_full_name, f2a_participant_id } = activeParticipant;
     this.commonStore.setPageTitle(`${f2a_participant_id} ${f2a_full_name}`);
@@ -120,16 +127,23 @@ export class PreciseProfileComponent implements OnDestroy, OnInit {
     let forms = section.formIds.map((formId) =>
       this.getFormWithEntries(formId as string)
     );
-    forms = forms.map((f) => {
+    forms = forms.map((f, i) => {
       // take all form entries and assign only those with matching baby guid
       const entries = f.entries.filter(
         (row) => row.f2_guid_child === f2_guid_child
       );
-      if (entries[0]) {
-        const babyId =
-          entries[0].f9_baby_id || entries[0].f2_guid_child.split("_").pop();
-        section.label = babyId;
+      // add label from baby_id if available
+      if (f.formId === "Birthbaby") {
+        section.label = entries[0]
+          ? entries[0].f9_baby_id
+          : f2_guid_child.split("_").pop();
       }
+      // include fixed value to pass as f2_guid_child when opening forms
+      f.mapFields.push({
+        field_name: "f2_guid_child",
+        value: f2_guid_child,
+        table_id: null,
+      });
       return { ...f, entries };
     });
     return { ...section, forms };
