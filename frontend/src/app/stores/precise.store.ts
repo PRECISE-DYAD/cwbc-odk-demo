@@ -23,7 +23,7 @@ export class PreciseStore {
   participantFormsHash;
 
   @observable participantSummaries: IParticipantSummary[];
-  @observable screeningData: any[];
+  @observable screeningData: IParticipantScreening[];
   @observable activeParticipant: IParticipant;
   @observable activeParticipantData: IPreciseParticipantData;
   @observable participantForms: IFormMetaWithEntries[];

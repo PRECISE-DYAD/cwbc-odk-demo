@@ -52,7 +52,7 @@ export class PreciseScreeningComponent implements OnInit {
   /**
    * Only show forms that have been screened within past 48 hours
    */
-  filterScreeningByDate(v) {
+  filterScreeningByDate(v: IParticipantScreening) {
     const dateCreated = new Date(v._savepoint_timestamp);
     const today = new Date();
     const diffInHours =
@@ -64,7 +64,7 @@ export class PreciseScreeningComponent implements OnInit {
    * Not all fields need to be shown in the table, remove non required
    * TODO - move logic to models or somewhere easier to interact with
    */
-  prepareScreeningSummary(v) {
+  prepareScreeningSummary(v: IParticipantScreening) {
     // note, _savepoint_timestamp also used but hardcoded
     return {
       "Screen Date": v._savepoint_timestamp,
@@ -78,6 +78,7 @@ export class PreciseScreeningComponent implements OnInit {
         Section: v.f0_screen_section,
         "Approached to Participate": v.f0_approached_to_participate,
       },
+      _id: v._id,
     };
   }
 
