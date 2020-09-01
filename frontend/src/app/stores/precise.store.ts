@@ -289,12 +289,15 @@ export class PreciseStore {
   private _generateMappedFields(fields: IFormMetaMappedField[] = []) {
     const mapping = {};
     for (const field of fields) {
-      const { table_id, field_name, mapped_field_name } = field;
+      const { table_id, field_name, mapped_field_name, value } = field;
+
       const fieldName = mapped_field_name || field_name;
-      const { entries } = (mapping[fieldName] = this.participantFormsHash[
-        table_id
-      ]);
-      mapping[fieldName] = entries[0] ? entries[0][fieldName] : null;
+      if (value) {
+        mapping[fieldName] = value;
+      } else {
+        const { entries } = this.participantFormsHash[table_id];
+        mapping[fieldName] = entries[0] ? entries[0][fieldName] : null;
+      }
     }
     return mapping;
   }
