@@ -38,8 +38,12 @@
     border-radius: 10px;
 }
 /* option wrapping */
-option {
+option,select {
     white-space: pre-line;
+}
+/* specific question select box sizes */
+select[name="f8_cause_of_death"]{
+    height: 6em;
 }
 /* End of CWBC-ODKX App Custom Styles */
 body {
