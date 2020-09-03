@@ -34,6 +34,7 @@ export const PRECISE_SCHEMA = {
       { table_id: "Visit1", field_name: "f6a_ultrasound3_edd_date" },
       { table_id: "Visit1", field_name: "f6a_lmp" },
       { table_id: "Visit1", field_name: "f6a_as_sfh" },
+      { table_id: "Visit1", field_name: "f6a_final_edd" },
       { table_id: "profileSummary", field_name: "f2a_cohort" },
       { table_id: "Visit1", field_name: "f6a_ga_enrol" },
       { table_id: "Birthmother", field_name: "f7_delivery_location" },
@@ -55,6 +56,7 @@ export const PRECISE_SCHEMA = {
       { table_id: "Visit1", field_name: "f6a_as_sfh" },
       { table_id: "profileSummary", field_name: "f2a_cohort" },
       { table_id: "Visit1", field_name: "f6a_ga_enrol" },
+      { table_id: "Visit1", field_name: "f6a_final_edd" },
       { table_id: "Visit1", field_name: "f6a_tod_fgr_cohort" },
       { table_id: "Visit1", field_name: "f6a_tod_hypertension_cohort" },
       { table_id: "Visit1", field_name: "f6a_tod_stillbirth_cohort" },
@@ -91,6 +93,7 @@ export const PRECISE_SCHEMA = {
       { table_id: "Visit1", field_name: "f6a_ultrasound3_edd_date" },
       { table_id: "Visit1", field_name: "f6a_lmp" },
       { table_id: "Visit1", field_name: "f6a_as_sfh" },
+      { table_id: "Visit1", field_name: "f6a_final_edd" },
     ],
   },
   Postpartum_baby: {
@@ -98,7 +101,11 @@ export const PRECISE_SCHEMA = {
     formId: "Postpartum_baby",
     tableId: "Postpartum_baby",
     icon: "baby",
-    mapFields: [{ table_id: "profileSummary", field_name: "f2a_cohort" }],
+    mapFields: [
+      { table_id: "profileSummary", field_name: "f2a_cohort" },
+      { table_id: "Visit1", field_name: "f6a_final_edd" },
+    ],
+
   },
   Postpartum_mother: {
     title: "Postpartum Mother",
@@ -116,6 +123,7 @@ export const PRECISE_SCHEMA = {
       { table_id: "Visit1", field_name: "f6a_as_sfh" },
       { table_id: "profileSummary", field_name: "f2a_cohort" },
       { table_id: "Visit1", field_name: "f6a_ga_enrol" },
+      { table_id: "Visit1", field_name: "f6a_final_edd" },
     ],
   },
   screening: {
@@ -140,6 +148,7 @@ export const PRECISE_SCHEMA = {
       { table_id: "Visit1", field_name: "f6a_ultrasound3_edd_date" },
       { table_id: "Visit1", field_name: "f6a_lmp" },
       { table_id: "Visit1", field_name: "f6a_as_sfh" },
+      { table_id: "Visit1", field_name: "f6a_final_edd" },
       { table_id: "Visit1", field_name: "f6a_tod_fgr_cohort" },
       { table_id: "Visit1", field_name: "f6a_tod_hypertension_cohort" },
       { table_id: "Visit1", field_name: "f6a_tod_stillbirth_cohort" },
@@ -170,6 +179,7 @@ export const PRECISE_SCHEMA = {
       { table_id: "Visit1", field_name: "f6a_as_sfh" },
       { table_id: "profileSummary", field_name: "f2a_cohort" },
       { table_id: "Visit1", field_name: "f6a_ga_enrol" },
+      { table_id: "Visit1", field_name: "f6a_final_edd" },
       { table_id: "Visit1", field_name: "f6a_tod_fgr_cohort" },
       { table_id: "Visit1", field_name: "f6a_tod_hypertension_cohort" },
       { table_id: "Visit1", field_name: "f6a_tod_stillbirth_cohort" },

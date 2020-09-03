@@ -6,58 +6,62 @@
  */
 export const PRECISE_SUMMARY_FIELDS: IPreciseFieldSummary[] = [
   {
-    label: "Visit 1 Date",
+    label: "Date of PRECISE Visit 1",
     tableId: "Visit1",
     field: "f2_visit_date",
   },
   {
-    label: "visit2_date",
-    tableId: "Visit2",
-    field: "f2_visit_date",
+    label: "Gestational Age at Visit 1 (weeks)",
+    calculation: (data) => getEDD_GA(data).ga_enrol,
   },
   {
-    label: "visit1_ga",
-    tableId: "Visit1",
-    field: "f6a_ga_enrol",
-  },
-  {
-    label: "visit2_ga",
-    tableId: "Visit2",
-    field: "f2_ga_at_visit",
-  },
-  {
-    label: "birth_ga",
-    tableId: "Birthbaby",
-    field: "f9_ga_at_delivery",
-  },
-  {
-    label: "delivery_date",
-    tableId: "Birthbaby",
-    field: "f9_delivery_date",
-  },
-  {
-    label: "number_of_babies",
-    tableId: "Birthbaby",
-    field: "f7_delivery_num_of_babies",
-  },
-  {
-    label: "LTF",
-    tableId: "Withdrawal",
-    field: "fw_lost_to_followup",
-  },
-  {
-    label: "withdrawal",
-    tableId: "Withdrawal",
-    field: "fw_withdraw_from_study",
-  },
-  {
-    label: "Gestational age at today",
-    calculation: (data) => calculateGA(data),
+    label: "Gestational Age at Today (weeks)",
+    calculation: (data) => calculateGAtoday(data),
   },
   {
     label: "Weeks since PRECISE Visit 1",
     calculation: (data) => calculateVisit1ToToday(data),
   },
+  {
+    label: "Date of PRECISE Visit 2",
+    tableId: "Visit2",
+    field: "f2_visit_date",
+  },
+  {
+    label: "Gestational Age at Visit 2 (weeks)",
+    tableId: "Visit2",
+    field: "f2_ga_at_visit",
+  },
+  {
+    label: "Estimated Delivery Date",
+    calculation: (data) => calculateEDD(data),
+  },
+  {
+    label: "Gestational Age at Delivery (weeks)",
+    tableId: "Birthbaby",
+    field: "f9_ga_at_delivery",
+  },
+  {
+    label: "Date of Delivery",
+    tableId: "Birthbaby",
+    field: "f9_delivery_date",
+  },
+  {
+    label: "Number of Babies",
+    tableId: "Birthbaby",
+    field: "f7_delivery_num_of_babies",
+  },
+  {
+    label: "Lost To Follow-up",
+    tableId: "Withdrawal",
+    field: "fw_lost_to_followup",
+  },
+  {
+    label: "Withdrawal",
+    tableId: "Withdrawal",
+    field: "fw_withdraw_from_study",
+  },
+
 ];
 
 export const PRECISE_PROFILE_FIELDS: IPreciseFieldSummary[] = [
@@ -164,45 +168,109 @@ function calculateVisit1ToToday(data: IPreciseParticipantData) {
   }
 }
 
-function calculateGA(data: IPreciseParticipantData) {
-  //make an array object with ultrasound dates and edd
-  let edds = [];
-  for (let i = 0; i < 3; i++) {
-    let edd = _strToDate(data.Visit1["f6a_ultrasound" + i + "_edd_date"]);
-    if (edd) {
-      edds.push(edd);
+function getEDD_GA(data: IPreciseParticipantData) {
+  let ga_enrol = '';
+  let ga_method = 'None';
+  let final_edd = '';
+  try {
+    //get ultrasound dates
+    const dummyDateStr = '1900-01-01';
+    const dummyDate = new Date(dummyDateStr);
+    const dummyDateCompare = new Date('1900-01-04');
+    let ua1_date = (data.Visit1.f6a_ultrasound1_date && data.Visit1.f6a_ultrasound1_date != dummyDateStr) ? new Date(data.Visit1.f6a_ultrasound1_date) : dummyDate;
+    let ua2_date = (data.Visit1.f6a_ultrasound2_date && data.Visit1.f6a_ultrasound2_date != dummyDateStr) ? new Date(data.Visit1.f6a_ultrasound2_date) : dummyDate;
+    let ua3_date = (data.Visit1.f6a_ultrasound3_date && data.Visit1.f6a_ultrasound3_date != dummyDateStr) ? new Date(data.Visit1.f6a_ultrasound3_date) : dummyDate;
+    let ua1_edd = (data.Visit1.f6a_ultrasound1_edd_date && data.Visit1.f6a_ultrasound1_edd_date != dummyDateStr) ? new Date(data.Visit1.f6a_ultrasound1_edd_date) : dummyDate;
+    let ua2_edd = (data.Visit1.f6a_ultrasound2_edd_date && data.Visit1.f6a_ultrasound2_edd_date != dummyDateStr) ? new Date(data.Visit1.f6a_ultrasound2_edd_date) : dummyDate;
+    let ua3_edd = (data.Visit1.f6a_ultrasound3_edd_date && data.Visit1.f6a_ultrasound3_edd_date != dummyDateStr) ? new Date(data.Visit1.f6a_ultrasound3_edd_date) : dummyDate;
+    //make an array object with ultrasound dates and edd
+    let date_obj = [
+      { edd: ua1_edd, date: ua1_date },
+      { edd: ua2_edd, date: ua2_date },
+      { edd: ua3_edd, date: ua3_date },
+    ];
+    //sort array by ultrasound dates, with a dummyDate being the smallest value
+    let sorted_ua_dates = date_obj.sort(function (a, b) {
+      return a.date.valueOf() - b.date.valueOf();
+    });
+    //get earliest edd without any dummyDate
+    let earliest_edd = dummyDate;
+    if (sorted_ua_dates[0].date > dummyDateCompare && sorted_ua_dates[0].edd > dummyDateCompare) {
+      earliest_edd = sorted_ua_dates[0].edd;
+    } else if (sorted_ua_dates[1].date > dummyDateCompare && sorted_ua_dates[1].edd > dummyDateCompare) {
+      earliest_edd = sorted_ua_dates[1].edd;
+    } else if (sorted_ua_dates[2].date > dummyDateCompare && sorted_ua_dates[2].edd > dummyDateCompare) {
+      earliest_edd = sorted_ua_dates[2].edd;
+    } else {
+      // Otherwise, get the edd with a dummyDate in U/S date, which should be rare)
+      if (earliest_edd < dummyDateCompare) {
+        if (sorted_ua_dates[0].edd > dummyDateCompare) {
+          earliest_edd = sorted_ua_dates[0].edd;
+        } else if (sorted_ua_dates[1].edd > dummyDateCompare) {
+          earliest_edd = sorted_ua_dates[1].edd;
+        } else if (sorted_ua_dates[2].edd > dummyDateCompare) {
+          earliest_edd = sorted_ua_dates[2].edd;
+        }
+      }
     }
-  }
-  //get earliest non-empty edd
-  let earliest_edd = edds.sort()[0];
-  console.log("edds", edds);
-  console.log("earliest_edd", earliest_edd);
 
-  //compute ga and relevant vars
-  let ga_enrol: string;
-  let f6a_lmp = _strToDate(data.Visit1.f6a_lmp);
-  let f2_visit_date = _strToDate(data.Visit1.f2_visit_date);
-  let sfh = data.Visit1.f6a_as_sfh;
-  if (earliest_edd && f2_visit_date) {
-    //if edd not null, use it to get ga
-    ga_enrol = (
-      40 -
-      (earliest_edd.getTime() - f2_visit_date.getTime()) / 604800000
-    ).toFixed(2);
-  } else if (f6a_lmp && f2_visit_date) {
-    //if edd is null, use lmp
-    ga_enrol = (
-      (f2_visit_date.getTime() - f6a_lmp.getTime()) /
-      604800000
-    ).toFixed(2);
-  } else if (sfh) {
-    //if lmp missing, use sfh
-    ga_enrol = sfh;
-  } else {
-    //last case, return empty string to avoid errors
-    ga_enrol = " ";
+    //compute ga and relevant vars
+    let f6a_lmp = (data.Visit1.f6a_lmp && data.Visit1.f6a_lmp != dummyDateStr) ? new Date(data.Visit1.f6a_lmp) : dummyDate;
+    let f2_visit_date = (data.Visit1.f2_visit_date && data.Visit1.f2_visit_date != dummyDateStr) ? new Date(data.Visit1.f2_visit_date) : dummyDate;
+    //let sfh = data.Visit1.f6a_as_sfh && data.Visit1.f6a_as_sfh != '-99' ? parseInt(data.Visit1.f6a_as_sfh) : '';
+
+    if (earliest_edd > dummyDateCompare) {
+      //if edd not null, use it to get ga
+      ga_enrol = f2_visit_date > dummyDateCompare ? (40 - ((earliest_edd.getTime() - f2_visit_date.getTime()) / 604800000)).toFixed(2) : ' ';
+      ga_method = 'Ultrasound';
+      final_edd = earliest_edd.toISOString().slice(0, 10);
+    } else if (f6a_lmp > dummyDateCompare) {
+      //if edd is null, use lmp 
+      ga_enrol = f2_visit_date > dummyDateCompare ? ((f2_visit_date.getTime() - f6a_lmp.getTime()) / 604800000).toFixed(2) : ' ';
+      ga_method = 'LMP';
+      let f_edd = f6a_lmp;
+      f_edd.setDate(f6a_lmp.getUTCDate() + 280);
+      final_edd = f_edd.toISOString().slice(0, 10);
+    }
+    // else if (sfh) {
+    //   //if lmp missing, use sfh
+    //   ga_enrol = sfh;
+    //   ga_method = 'SFH';
+    //   let s_edd = new Date();
+    //   s_edd.setDate(s_edd.getUTCDate() + 280 - (sfh * 7))
+    //   final_edd = s_edd.toISOString().slice(0, 10);
+    // } 
+    else {
+      ga_enrol = '';
+      ga_method = 'None';
+      final_edd = '';
+    }
+    //ga_enrol = ga_enrol ? ga_enrol + '  weeks' : ''
+    return { ga_enrol, ga_method, final_edd };
+  } catch (error) {
+    console.warn("error in getEDD_GA", error);
+    return { ga_enrol, ga_method, final_edd };
   }
-  return `GA_Enrol: ${ga_enrol}`;
+}
+
+function calculateEDD(data: IPreciseParticipantData) {
+  return getEDD_GA(data).final_edd != ' ' ? `${getEDD_GA(data).final_edd}  by ${getEDD_GA(data).ga_method}` : ` `;
+}
+
+function calculateGAtoday(data: IPreciseParticipantData) {
+  let ga_today = ' ';
+  try {
+    let edd = getEDD_GA(data).final_edd;
+    if (edd) {
+      let today = new Date(new Date().toISOString().substring(0, 10));
+      let final_edd = new Date(edd);
+      ga_today = (40 - ((final_edd.getTime() - today.getTime()) / 604800000)).toFixed(2);
+    }
+    return ga_today;
+  } catch (error) {
+    console.warn("error in getEDD_GA", error);
+    return ga_today;
+  }
 }
 
 // TEMP function to handle converting older custom template date strings
@@ -210,6 +278,10 @@ function calculateGA(data: IPreciseParticipantData) {
 // TODO - check if custom template is returning in better format
 function _strToDate(str: string) {
   return str ? new Date(str.split("/").reverse().join("-")) : undefined;
+}
+
+function _strToDateStr(str: string) {
+  return str ? str.split("/").reverse().join("-") : undefined;
 }
 
 /******************************************************************************************
