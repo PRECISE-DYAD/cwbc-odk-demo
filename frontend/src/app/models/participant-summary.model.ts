@@ -6,6 +6,11 @@
  */
 export const PRECISE_SUMMARY_FIELDS: IPreciseFieldSummary[] = [
   {
+    label: "PRECISE Cohort",
+    tableId: "Visit1",
+    field: "f2a_cohort",
+  },
+  {
     label: "Date of PRECISE Visit 1",
     tableId: "Visit1",
     field: "f2_visit_date",
@@ -159,7 +164,7 @@ export const PRECISE_BABY_SUMMARY_FIELDS: IPreciseFieldSummary[] = [
 
 function calculateVisit1ToToday(data: IPreciseParticipantData) {
   try {
-    const d1 = new Date().getTime();
+    const d1 = new Date(new Date().toISOString().slice(0,10)).getTime();
     const d2 = _strToDate(data.Visit1.f2_visit_date).getTime();
     return ((d1 - d2) / (1000 * 60 * 60 * 24 * 7)).toFixed(1);
   } catch (error) {
@@ -229,7 +234,7 @@ function getEDD_GA(data: IPreciseParticipantData) {
       ga_enrol = f2_visit_date > dummyDateCompare ? ((f2_visit_date.getTime() - f6a_lmp.getTime()) / 604800000).toFixed(2) : ' ';
       ga_method = 'LMP';
       let f_edd = f6a_lmp;
-      f_edd.setDate(f6a_lmp.getUTCDate() + 280);
+      f_edd.setDate(f6a_lmp.getDate() + 280);
       final_edd = f_edd.toISOString().slice(0, 10);
     }
     // else if (sfh) {
@@ -254,7 +259,7 @@ function getEDD_GA(data: IPreciseParticipantData) {
 }
 
 function calculateEDD(data: IPreciseParticipantData) {
-  return getEDD_GA(data).final_edd != ' ' ? `${getEDD_GA(data).final_edd}  by ${getEDD_GA(data).ga_method}` : ` `;
+  return getEDD_GA(data).final_edd != '' ? `${getEDD_GA(data).final_edd}  by ${getEDD_GA(data).ga_method}` : ` `;
 }
 
 function calculateGAtoday(data: IPreciseParticipantData) {
@@ -262,7 +267,7 @@ function calculateGAtoday(data: IPreciseParticipantData) {
   try {
     let edd = getEDD_GA(data).final_edd;
     if (edd) {
-      let today = new Date(new Date().toISOString().substring(0, 10));
+      let today = new Date(new Date().toISOString().slice(0, 10));
       let final_edd = new Date(edd);
       ga_today = (40 - ((final_edd.getTime() - today.getTime()) / 604800000)).toFixed(2);
     }
