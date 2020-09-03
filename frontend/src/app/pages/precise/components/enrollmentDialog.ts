@@ -20,17 +20,17 @@ import {
           #input
           placeholder="e.g. 254-xxxxx"
           cdkFocusInitial
-          (keyup)="screeningRecords = null; existingParticipant = null"
+          (keyup)="existingParticipant = null"
         />
       </mat-form-field>
-      <div style="height:2em" *ngIf="!existingParticipant">
+      <!-- <div style="height:2em" *ngIf="!existingParticipant">
         <span *ngIf="screeningRecords"
           ><strong>{{ screeningRecords.length }}</strong> Screening Records
           Found</span
         >
-      </div>
-      <div style="height:2em" *ngIf="existingParticipant">
-        <span>Participant already enrolled</span>
+      </div> -->
+      <div style="height:2em">
+        <span *ngIf="existingParticipant">Participant already enrolled</span>
       </div>
     </mat-dialog-content>
 
@@ -43,11 +43,11 @@ import {
         mat-stroked-button
         [disabled]="!input.value || disableButtons"
         (click)="verifyScreening(input.value)"
-        *ngIf="!screeningRecords"
+        *ngIf="!existingParticipant"
       >
-        Verify Screening
+        Verify PTID
       </button>
-      <button
+      <!-- <button
         style="flex:1"
         mat-raised-button
         color="accent"
@@ -56,18 +56,17 @@ import {
       >
         <mat-icon>add</mat-icon>
         Add New Screening
-      </button>
+      </button> -->
       <button
         style="flex:1"
         mat-raised-button
         color="primary"
-        *ngIf="
-          screeningRecords &&
-          screeningRecords.length > 0 &&
-          !existingParticipant
-        "
+        *ngIf="!existingParticipant"
         (click)="
-          dialogRef.close({ action: 'enrol', data: screeningRecords[0] })
+          dialogRef.close({
+            action: 'enrol',
+            data: { f2a_participant_id: input.value }
+          })
         "
       >
         Enrol Participant
@@ -88,7 +87,7 @@ import {
 })
 export class EnrollmentDialogComponent implements OnInit {
   disableButtons = false;
-  screeningRecords: IParticipantScreening[];
+  // screeningRecords: IParticipantScreening[];
   existingParticipant: IParticipant;
   constructor(
     public dialogRef: MatDialogRef<EnrollmentDialogComponent>,
@@ -99,13 +98,13 @@ export class EnrollmentDialogComponent implements OnInit {
 
   verifyScreening(ptid: string) {
     this.disableButtons = true;
-    this.screeningRecords = undefined;
+    // this.screeningRecords = undefined;
     this.existingParticipant = null;
     // use timeout to give better impression of searching
     setTimeout(() => {
-      this.screeningRecords = this.store.screeningData.filter(
-        (d) => d.f0_precise_id === ptid
-      );
+      // this.screeningRecords = this.store.screeningData.filter(
+      //   (d) => d.f0_precise_id === ptid
+      // );
 
       const participantRecords = this.store.allParticipants.filter(
         (p) => p.f2a_participant_id === ptid
