@@ -19,7 +19,7 @@ import {
           #input
           placeholder="e.g. 254-xxxxx"
           cdkFocusInitial
-          (keyup)="screeningRecords = null; existingParticipant = false"
+          (keyup)="screeningRecords = null; existingParticipant = null"
         />
       </mat-form-field>
       <div style="height:2em" *ngIf="!existingParticipant">
