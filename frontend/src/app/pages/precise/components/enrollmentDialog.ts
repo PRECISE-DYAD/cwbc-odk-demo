@@ -9,7 +9,6 @@ import {
 @Component({
   selector: "app-enrollment-dialog",
   template: `
-    <!-- <button mat-button (click)="dialogRef.close()">Close</button> -->
     <h2 mat-dialog-title>Enrol Participant</h2>
     <mat-dialog-content>
       <p>What is the PTID for the participant you wish to enrol?</p>
@@ -45,7 +44,7 @@ import {
         (click)="verifyScreening(input.value)"
         *ngIf="!screeningRecords"
       >
-        Verify Screening
+        Verify PTID
       </button>
       <button
         style="flex:1"
@@ -55,22 +54,18 @@ import {
         *ngIf="screeningRecords && screeningRecords.length == 0"
       >
         <mat-icon>add</mat-icon>
-        Add New Screening
+        Screening
       </button>
       <button
         style="flex:1"
         mat-raised-button
         color="primary"
-        *ngIf="
-          screeningRecords &&
-          screeningRecords.length > 0 &&
-          !existingParticipant
-        "
+        *ngIf="screeningRecords && !existingParticipant"
         (click)="
           dialogRef.close({ action: 'enrol', data: screeningRecords[0] })
         "
       >
-        Enrol Participant
+        Enrol
       </button>
       <button
         style="flex:1"
