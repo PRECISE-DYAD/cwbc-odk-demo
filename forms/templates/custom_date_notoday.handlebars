@@ -1,0 +1,78 @@
+<div id="container-{{promptId}}">
+    <form action="javascript:void(0);" onsubmit="odkLeaveField(this);">
+        <div class="form-group">
+            <label for="slider-{{promptId}}">{{> labelHint}}</label>
+            <div class="input-container">
+                <input id="slider-{{promptId}}" style="width:228px;" type="date" name="{{name}}" value="{{value}}" tabindex="0"
+                    style="background-color:#ffffff" {{#eachProperty inputAttributes}} {{property}}="{{value}}"
+                    {{/eachProperty}} {{#if disabled}} style="background-color:lightgray;" disabled="true" {{/if}}>
+                <button id="slider-{{promptId}}-button" style="display:none;">Today</button>
+                {{#if inputAttributes.showIDK}}
+                <input type="checkbox" id="idk-{{promptId}}" name="{{name}}" value="{{value}}"
+                  style="margin:0 8px 0 50px; width:44px; height:34px;">
+                <label for="idk-{{promptId}}" style="font-weight:normal; margin-top:4px; width:174px;">Do Not Know</label>
+                {{/if}}
+            </div>
+        </div>
+    </form>
+</div>
+<div class="alert alert-warning" role="alert" id="validation-message-{{promptId}}"></div>
+<script>
+    function dummyValue() {
+      return formatDateForInput(new Date(1900,0,1)); // Dummy Date: 1900-01-01
+    }
+
+    document.getElementById("slider-{{promptId}}-button").addEventListener('click', function (e) {
+      e.stopPropagation();
+    })
+
+    // take a given date (default local datetime) and format as YYYY-MM-DD
+    // (pad leading 0s for day and month where necessary)
+    function formatDateForInput(d = new Date()) {
+        return d.getFullYear() + "-" + pad(d.getMonth() + 1) + "-" + pad(d.getDate())
+        function pad(n) {
+            return n < 10 ? '0' + n : n
+        }
+    }
+
+    // Used to handle toggle of a 'Do not know' checkbox and automatically assign default value (-99) when checked
+    function handleIDKCheckbox() {
+      //const dummyValue = formatDateForInput(new Date(50, 0));
+      // set default checkbox state
+      if ("{{value}}" == dummyValue()) {
+        $("#idk-{{promptId}}").prop('checked', true);
+        $("#slider-{{promptId}}").prop('disabled', true);
+      }
+      // handle checkbox click by setting input value to -99 or "" if checked or not
+      $('#idk-{{promptId}}').click(function (e) {
+        // prevent default change handler assigned by odk propagating checkbox value to data
+        e.stopPropagation();
+        // toggle checkbox state and set associated values
+        let isChecked = $("#idk-{{promptId}}").prop("checked");
+        const targetValue = isChecked ? dummyValue() : "";
+        $("#idk-{{promptId}}").prop("checked", isChecked);
+        $("#idk-{{promptId}}").val(targetValue);
+        $("#slider-{{promptId}}").val(targetValue);
+        $("#slider-{{promptId}}").prop('disabled', isChecked);
+        $("#slider-{{promptId}}-button").prop('disabled', isChecked);
+        $("#slider-{{promptId}}").trigger('change')
+      });
+    }
+    handleIDKCheckbox()
+
+    // check validation status and messages from input el. Display in message div if exists
+    function checkValidation() {
+      var inputEl = document.getElementById('slider-{{promptId}}')
+      var messageEl$ = $("#validation-message-{{promptId}}")
+      const isValid = inputEl.checkValidity();
+      if (!isValid) {
+        const validationMsg = inputEl.validationMessage
+        messageEl$.text(validationMsg)
+        messageEl$.removeClass('hide')
+      }
+      else {
+        messageEl$.addClass('hide')
+      }
+    }
+    checkValidation()
+</script>
