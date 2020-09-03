@@ -53,7 +53,7 @@ export class PreciseStore {
   }
 
   @action async loadScreeningData() {
-    const rows = await this.odk.getTableRows<IParticipant>(
+    const rows = await this.odk.getTableRows<IParticipantScreening>(
       PRECISE_SCHEMA.screening.formId
     );
     this.screeningData = rows;
@@ -151,16 +151,17 @@ export class PreciseStore {
    * we will be on the participant page. Launch the enrollment form
    * with the generated ID field complete
    */
-  enrolParticipant(router: Router, route: ActivatedRoute) {
+  enrolParticipant(router: Router, route: ActivatedRoute, ptid: string) {
     const f2_guid = uuidv4();
-    console.log("enrolling participant", f2_guid);
     router.navigate([f2_guid], { relativeTo: route });
     return this.launchForm(PRECISE_SCHEMA.profileSummary, null, {
       f2_guid,
+      f2a_participant_id: ptid,
     });
   }
-  screenNewParticipant() {
-    return this.launchForm(PRECISE_SCHEMA.screening, null);
+
+  screenNewParticipant(jsonMap = null) {
+    return this.launchForm(PRECISE_SCHEMA.screening, null, jsonMap);
   }
   editScreening(screening: IParticipantScreening) {
     const { tableId, formId } = PRECISE_SCHEMA.screening;
@@ -370,7 +371,7 @@ const PARTICIPANT_SCREENING_FIELDS = [
  ********************************************************************************/
 // create a type from the list of fields above
 type IParticipantSummaryField = typeof PARTICIPANT_SUMMARY_FIELDS[number];
-type IParticipantScreeningField = typeof PARTICIPANT_SUMMARY_FIELDS[number];
+type IParticipantScreeningField = typeof PARTICIPANT_SCREENING_FIELDS[number];
 
 // placeholder interface to reflect all fields available within participant table and ODK meta
 export type IParticipant = IODkTableRowData &

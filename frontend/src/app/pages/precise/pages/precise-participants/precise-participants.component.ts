@@ -1,9 +1,11 @@
 import { Component, OnInit, ViewChild } from "@angular/core";
 import { ActivatedRoute, Router } from "@angular/router";
 import { MatPaginator } from "@angular/material/paginator";
-import { PreciseStore, IParticipantSummary } from "src/app/stores";
+import { PreciseStore, IParticipantSummary, CommonStore } from "src/app/stores";
 import { MatTableDataSource } from "@angular/material/table";
 import { MatSort } from "@angular/material/sort";
+import { MatDialog } from "@angular/material/dialog";
+import { EnrollmentDialogComponent } from "../../components/enrollmentDialog";
 
 @Component({
   selector: "app-precise-participants",
@@ -24,7 +26,9 @@ export class PreciseParticipantsComponent implements OnInit {
   constructor(
     public store: PreciseStore,
     private route: ActivatedRoute,
-    private router: Router
+    private router: Router,
+    private dialog: MatDialog,
+    private common: CommonStore
   ) {}
 
   ngOnInit(): void {
@@ -47,8 +51,36 @@ export class PreciseParticipantsComponent implements OnInit {
     }
   }
 
-  enrolParticipant() {
-    this.store.enrolParticipant(this.router, this.route);
+  /**
+   * Load pre-enrollment screen to verify screening records and unique ptid
+   */
+  async enrolParticipant() {
+    // modal opens outside root so need to additionally pass theme if want to keep using
+    const theme = this.common.activeTheme;
+    const dialogRef = this.dialog.open(EnrollmentDialogComponent, {
+      height: "300px",
+      width: "400px",
+      panelClass: ["dialog-bg-white", theme],
+      autoFocus: true,
+    });
+    const res = await dialogRef.afterClosed().toPromise();
+    console.log("res", res);
+    switch (res.action) {
+      case "addScreening":
+        return this.store.screenNewParticipant({ f0_precise_id: res.data });
+      case "enrol":
+        return this.store.enrolParticipant(
+          this.router,
+          this.route,
+          res.data.f2a_participant_id
+        );
+      case "viewExisting":
+        return this.handleRowClicked(res.data);
+
+      default:
+        console.log("unhandled res", res);
+        break;
+    }
   }
 
   /**

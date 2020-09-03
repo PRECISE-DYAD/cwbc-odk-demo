@@ -43,5 +43,5 @@ $dyad-theme: mat-dark-theme($dyad-primary, $dyad-accent, $dyad-warn);
 }
 .theme-dyad {
   @include angular-material-theme($dyad-theme);
-  @include custom-component-mixin($precise-theme);
+  @include custom-component-mixin($dyad-theme);
 }

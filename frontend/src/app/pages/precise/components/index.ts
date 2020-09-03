@@ -7,10 +7,12 @@ import { PreciseFormSummaryComponent } from "./preciseFormSummary";
 import { PrecisePipesModule } from "../pipes";
 import { PreciseFieldSummaryComponent } from "./preciseFieldSummary";
 import { MobxAngularModule } from "mobx-angular";
+import { EnrollmentDialogComponent } from "./enrollmentDialog";
 
 const PreciseComponents = [
   PreciseFormSummaryComponent,
   PreciseFieldSummaryComponent,
+  EnrollmentDialogComponent,
 ];
 @NgModule({
   declarations: PreciseComponents,
