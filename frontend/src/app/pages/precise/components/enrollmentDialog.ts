@@ -83,7 +83,7 @@ import {
     </mat-dialog-actions>
   `,
 })
-export class EnrollmentDialogComponent implements OnInit {
+export class EnrollmentDialogComponent {
   disableButtons = false;
   screeningRecords: IParticipantScreening[];
   existingParticipant: IParticipant;
@@ -91,10 +91,6 @@ export class EnrollmentDialogComponent implements OnInit {
     public dialogRef: MatDialogRef<EnrollmentDialogComponent>,
     public store: PreciseStore
   ) {}
-
-  ngOnInit() {
-    throw new Error("test bug from Chris 🐛");
-  }
 
   verifyScreening(ptid: string) {
     this.disableButtons = true;

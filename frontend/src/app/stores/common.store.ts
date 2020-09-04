@@ -46,18 +46,3 @@ export class CommonStore {
     });
   }
 }
-
-/*************************************************************************************
- * Deprected (retained simply for reference)
- * ***********************************************************************************/
-
-/*
-  @observable framework: any;
-
-  @action async getFramework() {
-    const framework = await this.http
-      .get("../../assets/odk/framework.json")
-      .toPromise();
-    this.framework = framework;
-  }
-  */
