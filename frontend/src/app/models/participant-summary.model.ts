@@ -7,7 +7,7 @@
 export const PRECISE_SUMMARY_FIELDS: IPreciseFieldSummary[] = [
   {
     label: "PRECISE Cohort",
-    tableId: "Visit1",
+    tableId: "profileSummary",
     field: "f2a_cohort",
   },
   {
@@ -103,12 +103,6 @@ export const PRECISE_PROFILE_FIELDS: IPreciseFieldSummary[] = [
     tableId: "Visit1",
     field: "f2_ke_health_facility",
     label: "Health Facility",
-    grouping: "Additional",
-  },
-  {
-    tableId: "Visit1",
-    field: "f2a_cohort",
-    label: "Cohort",
     grouping: "Additional",
   },
   {
