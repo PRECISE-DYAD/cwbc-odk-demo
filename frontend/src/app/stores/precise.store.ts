@@ -88,10 +88,6 @@ export class PreciseStore {
       this.activeParticipant = this.allParticipantsHash[f2_guid];
       this.loadParticipantTableData(this.activeParticipant);
     } else {
-      console.log(
-        "participant not found",
-        Object.keys(this.allParticipantsHash)
-      );
       // HACK - possibly the data has not been written to the database yet if just created
       // so retry in a second
       if (!isRetry) {
@@ -290,12 +286,14 @@ export class PreciseStore {
   private _generateMappedFields(fields: IFormMetaMappedField[] = []) {
     const mapping = {};
     for (const field of fields) {
+      console.log("generating mapped field", field);
       const { table_id, field_name, mapped_field_name, value } = field;
-
       const fieldName = mapped_field_name || field_name;
-      if (value) {
+      // do not ignore "" values, test against object properties
+      if (field.hasOwnProperty("value")) {
         mapping[fieldName] = value;
       } else {
+        console.log("looking up", table_id);
         const { entries } = this.participantFormsHash[table_id];
         mapping[fieldName] = entries[0] ? entries[0][fieldName] : null;
       }

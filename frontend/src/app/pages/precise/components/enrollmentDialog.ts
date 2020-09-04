@@ -62,7 +62,10 @@ import {
         color="primary"
         *ngIf="screeningRecords && !existingParticipant"
         (click)="
-          dialogRef.close({ action: 'enrol', data: screeningRecords[0] })
+          dialogRef.close({
+            action: 'enrol',
+            data: { f2a_participant_id: input.value }
+          })
         "
       >
         Enrol
