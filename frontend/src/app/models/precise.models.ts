@@ -36,6 +36,7 @@ export const PRECISE_SCHEMA = {
       { table_id: "Visit1", field_name: "f6a_as_sfh" },
       { table_id: "Visit1", field_name: "f6a_final_edd" },
       { table_id: "profileSummary", field_name: "f2a_cohort" },
+      { table_id: "profileSummary", field_name: "f2a_participant_id" },
       { table_id: "Visit1", field_name: "f6a_ga_enrol" },
       { table_id: "Birthmother", field_name: "f7_delivery_location" },
     ],
@@ -55,6 +56,7 @@ export const PRECISE_SCHEMA = {
       { table_id: "Visit1", field_name: "f6a_lmp" },
       { table_id: "Visit1", field_name: "f6a_as_sfh" },
       { table_id: "profileSummary", field_name: "f2a_cohort" },
+      { table_id: "profileSummary", field_name: "f2a_participant_id" },
       { table_id: "Visit1", field_name: "f6a_ga_enrol" },
       { table_id: "Visit1", field_name: "f6a_final_edd" },
       { table_id: "Visit1", field_name: "f6a_tod_fgr_cohort" },
@@ -94,6 +96,7 @@ export const PRECISE_SCHEMA = {
       { table_id: "Visit1", field_name: "f6a_lmp" },
       { table_id: "Visit1", field_name: "f6a_as_sfh" },
       { table_id: "Visit1", field_name: "f6a_final_edd" },
+      { table_id: "profileSummary", field_name: "f2a_participant_id" },
     ],
   },
   Postpartum_baby: {
@@ -104,6 +107,7 @@ export const PRECISE_SCHEMA = {
     mapFields: [
       { table_id: "profileSummary", field_name: "f2a_cohort" },
       { table_id: "Visit1", field_name: "f6a_final_edd" },
+      { table_id: "profileSummary", field_name: "f2a_participant_id" },
     ],
 
   },
@@ -122,6 +126,7 @@ export const PRECISE_SCHEMA = {
       { table_id: "Visit1", field_name: "f6a_lmp" },
       { table_id: "Visit1", field_name: "f6a_as_sfh" },
       { table_id: "profileSummary", field_name: "f2a_cohort" },
+      { table_id: "profileSummary", field_name: "f2a_participant_id" },
       { table_id: "Visit1", field_name: "f6a_ga_enrol" },
       { table_id: "Visit1", field_name: "f6a_final_edd" },
     ],
@@ -140,6 +145,7 @@ export const PRECISE_SCHEMA = {
     allowRepeats: true,
     mapFields: [
       { table_id: "profileSummary", field_name: "f2a_cohort" },
+      { table_id: "profileSummary", field_name: "f2a_participant_id" },
       { table_id: "Visit1", field_name: "f6a_ultrasound1_date" },
       { table_id: "Visit1", field_name: "f6a_ultrasound2_date" },
       { table_id: "Visit1", field_name: "f6a_ultrasound3_date" },
@@ -161,7 +167,10 @@ export const PRECISE_SCHEMA = {
     formId: "Visit1",
     tableId: "Visit1",
     icon: "visit",
-    mapFields: [{ table_id: "profileSummary", field_name: "f2a_cohort" }],
+    mapFields: [
+      { table_id: "profileSummary", field_name: "f2a_cohort" },
+      { table_id: "profileSummary", field_name: "f2a_participant_id" },
+    ],
   },
   Visit2: {
     title: "Precise Visit 2",
@@ -178,6 +187,7 @@ export const PRECISE_SCHEMA = {
       { table_id: "Visit1", field_name: "f6a_lmp" },
       { table_id: "Visit1", field_name: "f6a_as_sfh" },
       { table_id: "profileSummary", field_name: "f2a_cohort" },
+      { table_id: "profileSummary", field_name: "f2a_participant_id" },
       { table_id: "Visit1", field_name: "f6a_ga_enrol" },
       { table_id: "Visit1", field_name: "f6a_final_edd" },
       { table_id: "Visit1", field_name: "f6a_tod_fgr_cohort" },
@@ -190,7 +200,10 @@ export const PRECISE_SCHEMA = {
     formId: "Withdrawal",
     tableId: "Withdrawal",
     icon: "",
-    mapFields: [{ table_id: "profileSummary", field_name: "f2a_cohort" }],
+    mapFields: [
+      { table_id: "profileSummary", field_name: "f2a_cohort" },
+      { table_id: "profileSummary", field_name: "f2a_participant_id" },
+    ],
   },
 };
 
