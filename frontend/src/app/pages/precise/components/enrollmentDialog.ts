@@ -53,8 +53,7 @@ import {
         (click)="dialogRef.close({ action: 'addScreening', data: input.value })"
         *ngIf="screeningRecords && screeningRecords.length == 0"
       >
-        <mat-icon>add</mat-icon>
-        Screening
+        Screen
       </button>
       <button
         style="flex:1"
@@ -102,7 +101,7 @@ export class EnrollmentDialogComponent implements OnInit {
     // use timeout to give better impression of searching
     setTimeout(() => {
       this.screeningRecords = this.store.screeningData.filter(
-        (d) => d.f0_precise_id === ptid
+        (d) => d.f0_woman_precise_id === ptid || d.f1_woman_precise_id === ptid
       );
 
       const participantRecords = this.store.allParticipants.filter(
