@@ -21,7 +21,7 @@ export const PRECISE_SUMMARY_FIELDS: IPreciseFieldSummary[] = [
   },
   {
     label: "Gestational Age at Today (weeks)",
-    calculation: (data) => calculateGAtoday(data),
+    calculation: (data) => calculateGAatEvent(data).ga_today,
   },
   {
     label: "Weeks since PRECISE Visit 1",
@@ -34,8 +34,7 @@ export const PRECISE_SUMMARY_FIELDS: IPreciseFieldSummary[] = [
   },
   {
     label: "Gestational Age at Visit 2 (weeks)",
-    tableId: "Visit2",
-    field: "f2_ga_at_visit",
+    calculation: (data) => calculateGAatEvent(data).ga_visit2,
   },
   {
     label: "Estimated Delivery Date",
@@ -43,8 +42,7 @@ export const PRECISE_SUMMARY_FIELDS: IPreciseFieldSummary[] = [
   },
   {
     label: "Gestational Age at Delivery (weeks)",
-    tableId: "Birthbaby",
-    field: "f9_ga_at_delivery",
+    calculation: (data) => calculateGAatEvent(data).ga_delivery,
   },
   {
     label: "Date of Delivery",
@@ -307,22 +305,49 @@ function calculateEDD(data: IPreciseParticipantData) {
     : ` `;
 }
 
-function calculateGAtoday(data: IPreciseParticipantData) {
+function calculateGAatEvent(data: IPreciseParticipantData) {
+  let ga_delivery = " ";
+  let ga_visit2 = " ";
   let ga_today = " ";
+  const dummyDateStr = "1900-01-01";
+  const dummyDate = new Date(dummyDateStr);
+  const dummyDateCompare = new Date("1900-01-04");
   try {
     let edd = getEDD_GA(data).final_edd;
-    if (edd) {
-      let today = new Date(new Date().toISOString().slice(0, 10));
+    if (edd ) {
       let final_edd = new Date(edd);
+      let today = new Date(new Date().toISOString().slice(0, 10));
       ga_today = (
         40 -
         (final_edd.getTime() - today.getTime()) / 604800000
       ).toFixed(2);
+
+      let delivery_date =
+        data.Birthbaby.f9_delivery_date &&
+        data.Birthbaby.f9_delivery_date != dummyDateStr
+          ? new Date(data.Birthbaby.f9_delivery_date)
+          : dummyDate;
+      let f2_visit_date =
+        data.Visit2.f2_visit_date && data.Visit2.f2_visit_date != dummyDateStr
+          ? new Date(data.Visit2.f2_visit_date)
+          : dummyDate;
+      if (delivery_date > dummyDateCompare) {
+        ga_delivery = (
+          40 -
+          (final_edd.getTime() - delivery_date.getTime()) / 604800000
+        ).toFixed(2);
+      }
+      if (f2_visit_date > dummyDateCompare) {
+        ga_visit2 = (
+          40 -
+          (final_edd.getTime() - f2_visit_date.getTime()) / 604800000
+        ).toFixed(2);
+      }
     }
-    return ga_today;
+    return { ga_today, ga_delivery, ga_visit2 };
   } catch (error) {
     console.warn("error in getEDD_GA", error);
-    return ga_today;
+    return { ga_today, ga_delivery, ga_visit2 };
   }
 }
 
