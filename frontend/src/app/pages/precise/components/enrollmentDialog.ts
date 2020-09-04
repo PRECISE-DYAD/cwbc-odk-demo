@@ -92,7 +92,9 @@ export class EnrollmentDialogComponent implements OnInit {
     public store: PreciseStore
   ) {}
 
-  ngOnInit() {}
+  ngOnInit() {
+    throw new Error("test bug from Chris 🐛");
+  }
 
   verifyScreening(ptid: string) {
     this.disableButtons = true;
