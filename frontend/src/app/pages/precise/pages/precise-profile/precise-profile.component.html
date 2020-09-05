@@ -37,7 +37,7 @@
         ></precise-profile-section>
       </mat-expansion-panel>
 
-      <ng-container *ngIf="profileConfirmed" @fadeEntryExit>
+      <ng-container *ngIf="profileConfirmed" [@fadeEntryExit]>
         <!-- Summary Section -->
         <mat-expansion-panel class="no-padding" expanded>
           <mat-expansion-panel-header expandedHeight="48px">
@@ -124,7 +124,7 @@
     <!-- profile confirmation -->
     <div
       *ngIf="!profileConfirmed && store.participantDataLoaded"
-      @fadeEntryExit
+      [@fadeEntryExit]
     >
       <precise-profile-confirmation></precise-profile-confirmation>
     </div>

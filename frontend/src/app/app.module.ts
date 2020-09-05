@@ -1,5 +1,5 @@
 import { BrowserModule } from "@angular/platform-browser";
-import { NgModule } from "@angular/core";
+import { NgModule, ErrorHandler } from "@angular/core";
 import { HttpClientModule } from "@angular/common/http";
 
 import { AppRoutingModule } from "./app-routing.module";
@@ -15,6 +15,8 @@ import { CoreComponentsModule } from "./components";
 import { HomeComponent } from "./pages/home/home.component";
 import { InstallComponent } from "./pages/install/install.component";
 import { BrowserAnimationsModule } from "@angular/platform-browser/animations";
+// error handling
+import { createErrorHandler as createSentryErrorHandler } from "@sentry/angular";
 
 @NgModule({
   declarations: [AppComponent, HomeComponent, InstallComponent],
@@ -32,6 +34,12 @@ import { BrowserAnimationsModule } from "@angular/platform-browser/animations";
       provide: CommonStore,
       useClass: remotedev(CommonStore, { global: true, onlyActions: true }),
       deps: [Router],
+    },
+    {
+      provide: ErrorHandler,
+      useValue: createSentryErrorHandler({
+        showDialog: false,
+      }),
     },
   ],
   bootstrap: [AppComponent],

@@ -7,13 +7,13 @@
     "declaration": false,
     "downlevelIteration": true,
     "experimentalDecorators": true,
-    "module": "esnext",
+    "module": "es2020",
     "moduleResolution": "node",
     "resolveJsonModule": true,
     "allowSyntheticDefaultImports": true,
     "importHelpers": true,
     "target": "es5",
-    "lib": ["es2018", "dom"]
+    "lib": ["es2019", "dom"]
   },
   "angularCompilerOptions": {
     "fullTemplateTypeCheck": true,
