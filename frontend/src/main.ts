@@ -6,12 +6,10 @@ import { environment } from "./environments/environment";
 import { init as sentryInit } from "@sentry/angular";
 
 if (environment.production) {
-  sentryInit({
-    dsn:
-      "https://6e0349ddbf724d77bce8b5adef4cbf4a@o443859.ingest.sentry.io/5418172",
-    integrations: [],
-  });
   enableProdMode();
+}
+if (environment.SENTRY_DSN) {
+  sentryInit({ dsn: environment.SENTRY_DSN });
 }
 
 platformBrowserDynamic()
