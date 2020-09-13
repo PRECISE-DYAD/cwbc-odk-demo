@@ -78,5 +78,8 @@ define(["promptTypes", "jquery"], function (promptTypes, $) {
     custom_date_notoday: promptTypes.input_type.extend({
       templatePath: "../config/assets/templates/custom_date_notoday.handlebars",
     }),
+    custom_as_date: promptTypes.input_type.extend({
+      templatePath: "../config/assets/templates/custom_as_date.handlebars",
+    }),
   };
 });
