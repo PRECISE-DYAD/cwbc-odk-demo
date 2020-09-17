@@ -5,20 +5,26 @@ import {
   IParticipantScreening,
   IParticipant,
 } from "src/app/stores";
+import { environment } from "src/environments/environment";
 
 @Component({
   selector: "app-enrollment-dialog",
+  styles: [],
   template: `
     <h2 mat-dialog-title>Enrol Participant</h2>
     <mat-dialog-content>
       <p>What is the PTID for the participant you wish to enrol?</p>
+
       <mat-form-field color="primary">
         <input
           matInput
           type="text"
-          #input
-          placeholder="e.g. 220-xxxxx"
+          ngModel
+          #ptid="ngModel"
+          [placeholder]="'e.g. ' + COUNTRY_CODE + '-xxxxx'"
           cdkFocusInitial
+          [pattern]="validationPattern"
+          required
           (keyup)="screeningRecords = null; existingParticipant = null"
         />
       </mat-form-field>
@@ -40,8 +46,8 @@ import {
       <button
         style="flex:1"
         mat-stroked-button
-        [disabled]="!input.value || disableButtons"
-        (click)="verifyScreening(input.value)"
+        [disabled]="!ptid.valid || disableButtons"
+        (click)="verifyScreening(ptid.value)"
         *ngIf="!screeningRecords"
       >
         Verify PTID
@@ -50,7 +56,7 @@ import {
         style="flex:1"
         mat-raised-button
         color="accent"
-        (click)="dialogRef.close({ action: 'addScreening', data: input.value })"
+        (click)="dialogRef.close({ action: 'addScreening', data: ptid.value })"
         *ngIf="screeningRecords && screeningRecords.length == 0"
       >
         Screen
@@ -63,7 +69,7 @@ import {
         (click)="
           dialogRef.close({
             action: 'enrol',
-            data: { f2a_participant_id: input.value }
+            data: { f2a_participant_id: ptid.value }
           })
         "
       >
@@ -84,6 +90,8 @@ import {
   `,
 })
 export class EnrollmentDialogComponent {
+  COUNTRY_CODE = environment.COUNTRY_CODE;
+  validationPattern = `${this.COUNTRY_CODE}-\\d{5}`;
   disableButtons = false;
   screeningRecords: IParticipantScreening[];
   existingParticipant: IParticipant;
