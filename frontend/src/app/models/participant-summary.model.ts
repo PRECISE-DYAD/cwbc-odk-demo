@@ -32,7 +32,7 @@ export const PRECISE_SUMMARY_FIELDS: IPreciseFieldSummary[] = [
     calculation: (data) => calculateVisit1ToToday(data),
   },
   {
-    label: "Is eligible for PRECISE Visit 2 today?",
+    label: "<strong>Is eligible for PRECISE Visit 2 today?</strong>",
     calculation: (data) => isTodayForVisit2(data),
   },
   {
