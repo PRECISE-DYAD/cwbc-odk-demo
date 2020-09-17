@@ -28,6 +28,11 @@ import { environment } from "src/environments/environment";
           (keyup)="screeningRecords = null; existingParticipant = null"
         />
       </mat-form-field>
+      <div style="height:2em" style="color:#f44336">
+        <span *ngIf="ptid.invalid && ptid.touched"
+          >Please enter PTID in correct format: {{ COUNTRY_CODE }}-XXXXX</span
+        >
+      </div>
       <div style="height:2em" *ngIf="!existingParticipant">
         <span *ngIf="screeningRecords"
           ><strong>{{ screeningRecords.length }}</strong> Screening Records
