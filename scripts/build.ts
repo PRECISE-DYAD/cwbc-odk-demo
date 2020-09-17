@@ -1,6 +1,7 @@
-const fs = require("fs-extra");
-const path = require("path");
-const child = require("child_process");
+import { promptOptions } from "./utils";
+import * as fs from "fs-extra";
+import * as path from "path";
+import * as child from "child_process";
 
 const rootPath = process.cwd();
 const designerPath = path.join(rootPath, "designer");
@@ -14,12 +15,19 @@ const frontendPath = path.join(rootPath, "frontend");
  */
 async function main() {
   // build and copy frontend
-  // Angular - build basehref used
-  console.log("building app...");
+
+  const site = await promptOptions(
+    ["kenya", "gambia"],
+    "Do you wish to build for a specific site?"
+  );
+  const configuration =
+    site === "default" ? "production" : `production,${site}`;
+  console.log("configuration", site);
   copyAppVersion();
   await fs.ensureDir(`${designerAssetsPath}/build`);
   await fs.emptyDir(`${designerAssetsPath}/build`);
-  child.spawnSync("npm run build:odk", {
+  // Angular - build basehref used
+  child.spawnSync(`npm run build:odk -- --configuration=${configuration}`, {
     cwd: frontendPath,
     stdio: ["inherit", "inherit", "pipe"],
     shell: true,

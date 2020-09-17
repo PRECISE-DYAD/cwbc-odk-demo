@@ -22,3 +22,13 @@ export interface IFormMetaMappedField {
   // optional rename
   mapped_field_name?: string;
 }
+
+/**
+ * Enforce strict type-checking for local environment variables
+ */
+export interface IEnvironment {
+  SITE: "gambia" | "kenya";
+  COUNTRY_CODE: "220" | "254";
+  production: boolean;
+  SENTRY_DSN: string;
+}

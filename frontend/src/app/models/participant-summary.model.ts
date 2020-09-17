@@ -1,9 +1,13 @@
 // tslint:disable
+
+import { environment } from "src/environments/environment";
+
 /**
  * Fields displayed in the profile under the 'summary' tab
  * @Remark - in the case of calculations, if multiple entries exist ONLY THE MOST RECENT will be used
  * TODO - pass back array in cases where multiple entries possible
  */
+const SITE = environment.SITE;
 export const PRECISE_SUMMARY_FIELDS: IPreciseFieldSummary[] = [
   {
     label: "PRECISE Cohort",
@@ -177,18 +181,36 @@ function getEDD_GA(data: IPreciseParticipantData) {
     const dummyDateStr = "1900-01-01";
     const dummyDate = new Date(dummyDateStr);
     const dummyDateCompare = new Date("1900-01-04");
-    let ua1_date = data.Visit1.f6a_ultrasound1_date && data.Visit1.f6a_ultrasound1_date != dummyDateStr
-        ? new Date(data.Visit1.f6a_ultrasound1_date) : dummyDate;
-    let ua2_date = data.Visit1.f6a_ultrasound2_date && data.Visit1.f6a_ultrasound2_date != dummyDateStr
-        ? new Date(data.Visit1.f6a_ultrasound2_date) : dummyDate;
-    let ua3_date = data.Visit1.f6a_ultrasound3_date && data.Visit1.f6a_ultrasound3_date != dummyDateStr
-        ? new Date(data.Visit1.f6a_ultrasound3_date) : dummyDate;
-    let ua1_edd = data.Visit1.f6a_ultrasound1_edd_date && data.Visit1.f6a_ultrasound1_edd_date != dummyDateStr
-        ? new Date(data.Visit1.f6a_ultrasound1_edd_date) : dummyDate;
-    let ua2_edd = data.Visit1.f6a_ultrasound2_edd_date && data.Visit1.f6a_ultrasound2_edd_date != dummyDateStr
-        ? new Date(data.Visit1.f6a_ultrasound2_edd_date) : dummyDate;
-    let ua3_edd = data.Visit1.f6a_ultrasound3_edd_date && data.Visit1.f6a_ultrasound3_edd_date != dummyDateStr
-        ? new Date(data.Visit1.f6a_ultrasound3_edd_date) : dummyDate;
+    let ua1_date =
+      data.Visit1.f6a_ultrasound1_date &&
+      data.Visit1.f6a_ultrasound1_date != dummyDateStr
+        ? new Date(data.Visit1.f6a_ultrasound1_date)
+        : dummyDate;
+    let ua2_date =
+      data.Visit1.f6a_ultrasound2_date &&
+      data.Visit1.f6a_ultrasound2_date != dummyDateStr
+        ? new Date(data.Visit1.f6a_ultrasound2_date)
+        : dummyDate;
+    let ua3_date =
+      data.Visit1.f6a_ultrasound3_date &&
+      data.Visit1.f6a_ultrasound3_date != dummyDateStr
+        ? new Date(data.Visit1.f6a_ultrasound3_date)
+        : dummyDate;
+    let ua1_edd =
+      data.Visit1.f6a_ultrasound1_edd_date &&
+      data.Visit1.f6a_ultrasound1_edd_date != dummyDateStr
+        ? new Date(data.Visit1.f6a_ultrasound1_edd_date)
+        : dummyDate;
+    let ua2_edd =
+      data.Visit1.f6a_ultrasound2_edd_date &&
+      data.Visit1.f6a_ultrasound2_edd_date != dummyDateStr
+        ? new Date(data.Visit1.f6a_ultrasound2_edd_date)
+        : dummyDate;
+    let ua3_edd =
+      data.Visit1.f6a_ultrasound3_edd_date &&
+      data.Visit1.f6a_ultrasound3_edd_date != dummyDateStr
+        ? new Date(data.Visit1.f6a_ultrasound3_edd_date)
+        : dummyDate;
     //make an array object with ultrasound dates and edd
     let date_obj = [
       { edd: ua1_edd, date: ua1_date },
@@ -201,11 +223,20 @@ function getEDD_GA(data: IPreciseParticipantData) {
     });
     //get earliest edd without any dummyDate
     let earliest_edd = dummyDate;
-    if (sorted_ua_dates[0].date > dummyDateCompare && sorted_ua_dates[0].edd > dummyDateCompare) {
+    if (
+      sorted_ua_dates[0].date > dummyDateCompare &&
+      sorted_ua_dates[0].edd > dummyDateCompare
+    ) {
       earliest_edd = sorted_ua_dates[0].edd;
-    } else if (sorted_ua_dates[1].date > dummyDateCompare && sorted_ua_dates[1].edd > dummyDateCompare) {
+    } else if (
+      sorted_ua_dates[1].date > dummyDateCompare &&
+      sorted_ua_dates[1].edd > dummyDateCompare
+    ) {
       earliest_edd = sorted_ua_dates[1].edd;
-    } else if (sorted_ua_dates[2].date > dummyDateCompare && sorted_ua_dates[2].edd > dummyDateCompare) {
+    } else if (
+      sorted_ua_dates[2].date > dummyDateCompare &&
+      sorted_ua_dates[2].edd > dummyDateCompare
+    ) {
       earliest_edd = sorted_ua_dates[2].edd;
     } else {
       // Otherwise, get the edd with a dummyDate in U/S date, which should be rare)
@@ -221,11 +252,18 @@ function getEDD_GA(data: IPreciseParticipantData) {
     }
 
     //compute ga and relevant vars
-    let f6a_lmp = data.Visit1.f6a_lmp && data.Visit1.f6a_lmp != dummyDateStr
-      ? new Date(data.Visit1.f6a_lmp) : dummyDate;
-    let f2_visit_date = data.Visit1.f2_visit_date && data.Visit1.f2_visit_date != dummyDateStr
-      ? new Date(data.Visit1.f2_visit_date) : dummyDate;
-    let sfh = data.Visit1.f6a_as_sfh && data.Visit1.f6a_as_sfh != '-99' ? parseInt(data.Visit1.f6a_as_sfh) : null;
+    let f6a_lmp =
+      data.Visit1.f6a_lmp && data.Visit1.f6a_lmp != dummyDateStr
+        ? new Date(data.Visit1.f6a_lmp)
+        : dummyDate;
+    let f2_visit_date =
+      data.Visit1.f2_visit_date && data.Visit1.f2_visit_date != dummyDateStr
+        ? new Date(data.Visit1.f2_visit_date)
+        : dummyDate;
+    let sfh =
+      data.Visit1.f6a_as_sfh && data.Visit1.f6a_as_sfh != "-99"
+        ? parseInt(data.Visit1.f6a_as_sfh)
+        : null;
     if (earliest_edd > dummyDateCompare) {
       //if edd not null, use it to get ga
       ga_enrol =
@@ -330,11 +368,19 @@ function isTodayForVisit2(data: IPreciseParticipantData) {
       ? new Date(data.Visit1.f2_visit_date)
       : null;
   try {
-    const ga_today = calculateGAatEvent(data).ga_today && calculateGAatEvent(data).ga_today != " " ? +(calculateGAatEvent(data).ga_today) : null;
-    const weeksAfterVisit1 = calculateVisit1ToToday(data) ? Number(calculateVisit1ToToday(data)) : null;
+    const ga_today =
+      calculateGAatEvent(data).ga_today &&
+      calculateGAatEvent(data).ga_today != " "
+        ? +calculateGAatEvent(data).ga_today
+        : null;
+    const weeksAfterVisit1 = calculateVisit1ToToday(data)
+      ? Number(calculateVisit1ToToday(data))
+      : null;
     if (ga_today && weeksAfterVisit1) {
       result = ga_today >= 28 && weeksAfterVisit1 >= 4 ? "Yes" : "No";
-      if (visit2_date) { result = "Visit 2 entered. Check if not sure."; }
+      if (visit2_date) {
+        result = "Visit 2 entered. Check if not sure.";
+      }
     } else {
       result = "Cannot tell.";
     }

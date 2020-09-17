@@ -1,4 +1,5 @@
 import { NgModule } from "@angular/core";
+import { FormsModule } from "@angular/forms";
 
 import { CoreComponentsModule } from "src/app/components";
 import { CommonModule } from "@angular/common";
@@ -22,6 +23,7 @@ const PreciseComponents = [
     RouterModule,
     PrecisePipesModule,
     MobxAngularModule,
+    FormsModule,
   ],
   exports: PreciseComponents,
 })
