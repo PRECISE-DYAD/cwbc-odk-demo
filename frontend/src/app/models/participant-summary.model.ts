@@ -28,6 +28,10 @@ export const PRECISE_SUMMARY_FIELDS: IPreciseFieldSummary[] = [
     calculation: (data) => calculateVisit1ToToday(data),
   },
   {
+    label: "Is eligible for PRECISE Visit 2 today?",
+    calculation: (data) => isTodayForVisit2(data),
+  },
+  {
     label: "Date of PRECISE Visit 2",
     tableId: "Visit2",
     field: "f2_visit_date",
@@ -173,36 +177,18 @@ function getEDD_GA(data: IPreciseParticipantData) {
     const dummyDateStr = "1900-01-01";
     const dummyDate = new Date(dummyDateStr);
     const dummyDateCompare = new Date("1900-01-04");
-    let ua1_date =
-      data.Visit1.f6a_ultrasound1_date &&
-      data.Visit1.f6a_ultrasound1_date != dummyDateStr
-        ? new Date(data.Visit1.f6a_ultrasound1_date)
-        : dummyDate;
-    let ua2_date =
-      data.Visit1.f6a_ultrasound2_date &&
-      data.Visit1.f6a_ultrasound2_date != dummyDateStr
-        ? new Date(data.Visit1.f6a_ultrasound2_date)
-        : dummyDate;
-    let ua3_date =
-      data.Visit1.f6a_ultrasound3_date &&
-      data.Visit1.f6a_ultrasound3_date != dummyDateStr
-        ? new Date(data.Visit1.f6a_ultrasound3_date)
-        : dummyDate;
-    let ua1_edd =
-      data.Visit1.f6a_ultrasound1_edd_date &&
-      data.Visit1.f6a_ultrasound1_edd_date != dummyDateStr
-        ? new Date(data.Visit1.f6a_ultrasound1_edd_date)
-        : dummyDate;
-    let ua2_edd =
-      data.Visit1.f6a_ultrasound2_edd_date &&
-      data.Visit1.f6a_ultrasound2_edd_date != dummyDateStr
-        ? new Date(data.Visit1.f6a_ultrasound2_edd_date)
-        : dummyDate;
-    let ua3_edd =
-      data.Visit1.f6a_ultrasound3_edd_date &&
-      data.Visit1.f6a_ultrasound3_edd_date != dummyDateStr
-        ? new Date(data.Visit1.f6a_ultrasound3_edd_date)
-        : dummyDate;
+    let ua1_date = data.Visit1.f6a_ultrasound1_date && data.Visit1.f6a_ultrasound1_date != dummyDateStr
+        ? new Date(data.Visit1.f6a_ultrasound1_date) : dummyDate;
+    let ua2_date = data.Visit1.f6a_ultrasound2_date && data.Visit1.f6a_ultrasound2_date != dummyDateStr
+        ? new Date(data.Visit1.f6a_ultrasound2_date) : dummyDate;
+    let ua3_date = data.Visit1.f6a_ultrasound3_date && data.Visit1.f6a_ultrasound3_date != dummyDateStr
+        ? new Date(data.Visit1.f6a_ultrasound3_date) : dummyDate;
+    let ua1_edd = data.Visit1.f6a_ultrasound1_edd_date && data.Visit1.f6a_ultrasound1_edd_date != dummyDateStr
+        ? new Date(data.Visit1.f6a_ultrasound1_edd_date) : dummyDate;
+    let ua2_edd = data.Visit1.f6a_ultrasound2_edd_date && data.Visit1.f6a_ultrasound2_edd_date != dummyDateStr
+        ? new Date(data.Visit1.f6a_ultrasound2_edd_date) : dummyDate;
+    let ua3_edd = data.Visit1.f6a_ultrasound3_edd_date && data.Visit1.f6a_ultrasound3_edd_date != dummyDateStr
+        ? new Date(data.Visit1.f6a_ultrasound3_edd_date) : dummyDate;
     //make an array object with ultrasound dates and edd
     let date_obj = [
       { edd: ua1_edd, date: ua1_date },
@@ -215,20 +201,11 @@ function getEDD_GA(data: IPreciseParticipantData) {
     });
     //get earliest edd without any dummyDate
     let earliest_edd = dummyDate;
-    if (
-      sorted_ua_dates[0].date > dummyDateCompare &&
-      sorted_ua_dates[0].edd > dummyDateCompare
-    ) {
+    if (sorted_ua_dates[0].date > dummyDateCompare && sorted_ua_dates[0].edd > dummyDateCompare) {
       earliest_edd = sorted_ua_dates[0].edd;
-    } else if (
-      sorted_ua_dates[1].date > dummyDateCompare &&
-      sorted_ua_dates[1].edd > dummyDateCompare
-    ) {
+    } else if (sorted_ua_dates[1].date > dummyDateCompare && sorted_ua_dates[1].edd > dummyDateCompare) {
       earliest_edd = sorted_ua_dates[1].edd;
-    } else if (
-      sorted_ua_dates[2].date > dummyDateCompare &&
-      sorted_ua_dates[2].edd > dummyDateCompare
-    ) {
+    } else if (sorted_ua_dates[2].date > dummyDateCompare && sorted_ua_dates[2].edd > dummyDateCompare) {
       earliest_edd = sorted_ua_dates[2].edd;
     } else {
       // Otherwise, get the edd with a dummyDate in U/S date, which should be rare)
@@ -244,16 +221,11 @@ function getEDD_GA(data: IPreciseParticipantData) {
     }
 
     //compute ga and relevant vars
-    let f6a_lmp =
-      data.Visit1.f6a_lmp && data.Visit1.f6a_lmp != dummyDateStr
-        ? new Date(data.Visit1.f6a_lmp)
-        : dummyDate;
-    let f2_visit_date =
-      data.Visit1.f2_visit_date && data.Visit1.f2_visit_date != dummyDateStr
-        ? new Date(data.Visit1.f2_visit_date)
-        : dummyDate;
-    //let sfh = data.Visit1.f6a_as_sfh && data.Visit1.f6a_as_sfh != '-99' ? parseInt(data.Visit1.f6a_as_sfh) : '';
-
+    let f6a_lmp = data.Visit1.f6a_lmp && data.Visit1.f6a_lmp != dummyDateStr
+      ? new Date(data.Visit1.f6a_lmp) : dummyDate;
+    let f2_visit_date = data.Visit1.f2_visit_date && data.Visit1.f2_visit_date != dummyDateStr
+      ? new Date(data.Visit1.f2_visit_date) : dummyDate;
+    let sfh = data.Visit1.f6a_as_sfh && data.Visit1.f6a_as_sfh != '-99' ? parseInt(data.Visit1.f6a_as_sfh) : null;
     if (earliest_edd > dummyDateCompare) {
       //if edd not null, use it to get ga
       ga_enrol =
@@ -277,16 +249,14 @@ function getEDD_GA(data: IPreciseParticipantData) {
       let f_edd = f6a_lmp;
       f_edd.setDate(f6a_lmp.getDate() + 280);
       final_edd = f_edd.toISOString().slice(0, 10);
-    }
-    // else if (sfh) {
-    //   //if lmp missing, use sfh
-    //   ga_enrol = sfh;
-    //   ga_method = 'SFH';
-    //   let s_edd = new Date();
-    //   s_edd.setDate(s_edd.getUTCDate() + 280 - (sfh * 7))
-    //   final_edd = s_edd.toISOString().slice(0, 10);
-    // }
-    else {
+    } else if (sfh && f2_visit_date) {
+      //if lmp missing, use sfh
+      ga_enrol = `${sfh}`;
+      ga_method = "SFH";
+      let s_edd = f2_visit_date;
+      s_edd.setDate(s_edd.getDate() + 280 - sfh * 7);
+      final_edd = s_edd.toISOString().substring(0, 10);
+    } else {
       ga_enrol = "";
       ga_method = "None";
       final_edd = "";
@@ -314,7 +284,7 @@ function calculateGAatEvent(data: IPreciseParticipantData) {
   const dummyDateCompare = new Date("1900-01-04");
   try {
     let edd = getEDD_GA(data).final_edd;
-    if (edd ) {
+    if (edd) {
       let final_edd = new Date(edd);
       let today = new Date(new Date().toISOString().slice(0, 10));
       ga_today = (
@@ -348,6 +318,30 @@ function calculateGAatEvent(data: IPreciseParticipantData) {
   } catch (error) {
     console.warn("error in getEDD_GA", error);
     return { ga_today, ga_delivery, ga_visit2 };
+  }
+}
+
+function isTodayForVisit2(data: IPreciseParticipantData) {
+  const dummyDateStr = "1900-01-01";
+  const today = new Date(new Date().toISOString().slice(0, 10));
+  let result = " ";
+  let visit2_date =
+    data.Visit2.f2_visit_date && data.Visit2.f2_visit_date != dummyDateStr
+      ? new Date(data.Visit1.f2_visit_date)
+      : null;
+  try {
+    const ga_today = calculateGAatEvent(data).ga_today && calculateGAatEvent(data).ga_today != " " ? +(calculateGAatEvent(data).ga_today) : null;
+    const weeksAfterVisit1 = calculateVisit1ToToday(data) ? Number(calculateVisit1ToToday(data)) : null;
+    if (ga_today && weeksAfterVisit1) {
+      result = ga_today >= 28 && weeksAfterVisit1 >= 4 ? "Yes" : "No";
+      if (visit2_date) { result = "Visit 2 entered. Check if not sure."; }
+    } else {
+      result = "Cannot tell.";
+    }
+    return result;
+  } catch (error) {
+    console.warn("error in getEDD_GA", error);
+    return " ";
   }
 }
 

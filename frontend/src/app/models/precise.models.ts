@@ -39,6 +39,7 @@ export const PRECISE_SCHEMA = {
       { table_id: "profileSummary", field_name: "f2a_participant_id" },
       { table_id: "Visit1", field_name: "f6a_ga_enrol" },
       { table_id: "Birthmother", field_name: "f7_delivery_location" },
+      { table_id: "Visit1", field_name: "f2_visit_date", mapped_field_name: "visit1_f2_visit_date" },
     ],
   },
   Birthmother: {
@@ -65,6 +66,7 @@ export const PRECISE_SCHEMA = {
       { table_id: "Visit2", field_name: "f6a2_tod_fgr_cohort" },
       { table_id: "Visit2", field_name: "f6a2_tod_hypertension_cohort" },
       { table_id: "Visit2", field_name: "f6a2_tod_stillbirth_cohort" },
+      { table_id: "Visit1", field_name: "f2_visit_date", mapped_field_name: "visit1_f2_visit_date" },
     ],
   },
   profileSummary: {
@@ -97,6 +99,7 @@ export const PRECISE_SCHEMA = {
       { table_id: "Visit1", field_name: "f6a_as_sfh" },
       { table_id: "Visit1", field_name: "f6a_final_edd" },
       { table_id: "profileSummary", field_name: "f2a_participant_id" },
+      { table_id: "Visit1", field_name: "f2_visit_date", mapped_field_name: "visit1_f2_visit_date" },
     ],
   },
   Postpartum_baby: {
@@ -109,7 +112,6 @@ export const PRECISE_SCHEMA = {
       { table_id: "Visit1", field_name: "f6a_final_edd" },
       { table_id: "profileSummary", field_name: "f2a_participant_id" },
     ],
-
   },
   Postpartum_mother: {
     title: "Postpartum Mother",
@@ -160,6 +162,7 @@ export const PRECISE_SCHEMA = {
       { table_id: "Visit1", field_name: "f6a_tod_stillbirth_cohort" },
       { table_id: "Visit2", field_name: "f6a2_tod_fgr_cohort" },
       { table_id: "Visit2", field_name: "f6a2_tod_hypertension_cohort" },
+      { table_id: "Visit1", field_name: "f2_visit_date", mapped_field_name: "visit1_f2_visit_date" },
     ],
   },
   Visit1: {
@@ -193,6 +196,7 @@ export const PRECISE_SCHEMA = {
       { table_id: "Visit1", field_name: "f6a_tod_fgr_cohort" },
       { table_id: "Visit1", field_name: "f6a_tod_hypertension_cohort" },
       { table_id: "Visit1", field_name: "f6a_tod_stillbirth_cohort" },
+      { table_id: "Visit1", field_name: "f2_visit_date", mapped_field_name: "visit1_f2_visit_date" },
     ],
   },
   Withdrawal: {

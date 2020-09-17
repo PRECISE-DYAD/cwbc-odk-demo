@@ -17,7 +17,7 @@ import {
           matInput
           type="text"
           #input
-          placeholder="e.g. 254-xxxxx"
+          placeholder="e.g. 220-xxxxx"
           cdkFocusInitial
           (keyup)="screeningRecords = null; existingParticipant = null"
         />
