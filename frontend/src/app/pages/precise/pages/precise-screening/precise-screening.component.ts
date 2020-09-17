@@ -7,6 +7,7 @@ import {
 } from "src/app/stores";
 import { MatTableDataSource } from "@angular/material/table";
 import { MatSort } from "@angular/material/sort";
+import { environment } from "src/environments/environment";
 
 @Component({
   selector: "app-precise-screening",
@@ -14,6 +15,7 @@ import { MatSort } from "@angular/material/sort";
   styleUrls: ["./precise-screening.component.scss"],
 })
 export class PreciseScreeningComponent implements OnInit {
+  SITE = environment.SITE;
   participants: IParticipantScreening[];
   displayedColumns = [
     "Screen Date",
