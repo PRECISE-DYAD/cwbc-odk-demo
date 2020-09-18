@@ -380,9 +380,11 @@ function isTodayForVisit2(data: IPreciseParticipantData) {
       result = ga_today >= 28 && weeksAfterVisit1 >= 4 ? "Yes" : "No";
       if (visit2_date) {
         result = "Visit 2 entered. Check if not sure.";
+      } else if (data.Birthbaby.f9_delivery_date) {
+        result = "No visit 2 entered (has birth visit)";
       }
     } else {
-      result = "Cannot tell.";
+      result = "No EDD or visit date";
     }
     return result;
   } catch (error) {
