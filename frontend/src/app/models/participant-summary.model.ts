@@ -76,25 +76,25 @@ export const PRECISE_SUMMARY_FIELDS: IPreciseFieldSummary[] = [
 
 export const PRECISE_PROFILE_FIELDS: IPreciseFieldSummary[] = [
   {
-    tableId: "Visit1",
+    tableId: "profileSummary",
     field: "f2a_national_id",
     label: "National ID",
     grouping: "Profile",
   },
   {
-    tableId: "Visit1",
+    tableId: "profileSummary",
     field: "f2a_full_name",
     label: "Name",
     grouping: "Profile",
   },
   {
-    tableId: "Visit1",
+    tableId: "profileSummary",
     field: "f2a_phone_number",
     label: "Phone 1",
     grouping: "Profile",
   },
   {
-    tableId: "Visit1",
+    tableId: "profileSummary",
     field: "f2a_phone_number_2",
     label: "Phone 2",
     grouping: "Profile",
@@ -106,30 +106,52 @@ export const PRECISE_PROFILE_FIELDS: IPreciseFieldSummary[] = [
     grouping: "Profile",
   },
   {
-    tableId: "Visit1",
-    field: "f2_ke_health_facility",
-    label: "Health Facility",
-    grouping: "Additional",
-  },
-  {
-    tableId: "Visit1",
+    tableId: "profileSummary",
     field: "f2a_hdss",
     label: "HDSS",
     grouping: "Additional",
   },
   {
     tableId: "Visit1",
-    field: "f3_ethnicity_ke",
-    label: "Ethnicity",
-    grouping: "Additional",
-  },
-  {
-    tableId: "Visit1",
-    field: "f3a_dob",
-    label: "DOB",
+    field: "f3_year_of_birth",
+    label: "Year of Birth",
     grouping: "Additional",
   },
 ];
+switch (SITE) {
+  case "gambia":
+    PRECISE_PROFILE_FIELDS.push(
+      {
+        tableId: "Visit1",
+        field: "f2_gm_health_facility",
+        label: "Health Facility",
+        grouping: "Additional",
+      }
+    );
+    PRECISE_PROFILE_FIELDS.push(
+      {
+        tableId: "Visit1",
+        field: "f3_ethnicity_gm",
+        label: "Ethnicity",
+        grouping: "Additional",
+      }
+    );
+  case "kenya":
+    PRECISE_PROFILE_FIELDS.push({
+      tableId: "Visit1",
+      field: "f2_ke_health_facility",
+      label: "Health Facility",
+      grouping: "Additional",
+    });
+    PRECISE_PROFILE_FIELDS.push({
+      tableId: "Visit1",
+      field: "f3_ethnicity_ke",
+      label: "Ethnicity",
+      grouping: "Additional",
+    });
+  default:
+    /* do nothing here */
+}
 
 /**
  * NOTE - in the case of multiple babies unique data is sent each time to calculations
@@ -264,6 +286,10 @@ function getEDD_GA(data: IPreciseParticipantData) {
       data.Visit1.f6a_as_sfh && data.Visit1.f6a_as_sfh != "-99"
         ? parseInt(data.Visit1.f6a_as_sfh)
         : null;
+    if (SITE == "kenya") {
+      sfh = null;
+    } 
+
     if (earliest_edd > dummyDateCompare) {
       //if edd not null, use it to get ga
       ga_enrol =
