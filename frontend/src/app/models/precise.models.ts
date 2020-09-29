@@ -4,6 +4,8 @@
  ********************************************************************************/
 
 import { IFormMetaWithEntries } from "../stores";
+import { environment } from "src/environments/environment";
+const SITE = environment.SITE;
 
 /**
  * Schema where keys represent table ID and values represent form metadata
@@ -19,55 +21,143 @@ import { IFormMetaWithEntries } from "../stores";
  * ```
  * @remark - only supports a single subform for each table
  */
+const BirthBabyMapFields: IMapFields[] = [
+  { table_id: "Visit1", field_name: "f6a_ultrasound1_date" },
+  { table_id: "Visit1", field_name: "f6a_ultrasound2_date" },
+  { table_id: "Visit1", field_name: "f6a_ultrasound3_date" },
+  { table_id: "Visit1", field_name: "f6a_ultrasound1_edd_date" },
+  { table_id: "Visit1", field_name: "f6a_ultrasound2_edd_date" },
+  { table_id: "Visit1", field_name: "f6a_ultrasound3_edd_date" },
+  { table_id: "Visit1", field_name: "f6a_lmp" },
+  { table_id: "Visit1", field_name: "f6a_as_sfh" },
+  { table_id: "Visit1", field_name: "f6a_final_edd" },
+  { table_id: "profileSummary", field_name: "f2a_cohort" },
+  { table_id: "profileSummary", field_name: "f2a_participant_id" },
+  { table_id: "Visit1", field_name: "f6a_ga_enrol" },
+  { table_id: "Birthmother", field_name: "f7_delivery_location" },
+];
+if (SITE == "gambia") {
+  BirthBabyMapFields.push({
+    table_id: "Visit1",
+    field_name: "f2_visit_date",
+    mapped_field_name: "visit1_f2_visit_date",
+  });
+}
+
+const BirthMotherMapFields: IMapFields[] = [
+  { table_id: "Visit1", field_name: "f6a_ultrasound1_date" },
+  { table_id: "Visit1", field_name: "f6a_ultrasound2_date" },
+  { table_id: "Visit1", field_name: "f6a_ultrasound3_date" },
+  { table_id: "Visit1", field_name: "f6a_ultrasound1_edd_date" },
+  { table_id: "Visit1", field_name: "f6a_ultrasound2_edd_date" },
+  { table_id: "Visit1", field_name: "f6a_ultrasound3_edd_date" },
+  { table_id: "Visit1", field_name: "f6a_lmp" },
+  { table_id: "Visit1", field_name: "f6a_as_sfh" },
+  { table_id: "profileSummary", field_name: "f2a_cohort" },
+  { table_id: "profileSummary", field_name: "f2a_participant_id" },
+  { table_id: "Visit1", field_name: "f6a_ga_enrol" },
+  { table_id: "Visit1", field_name: "f6a_final_edd" },
+  { table_id: "Visit1", field_name: "f6a_tod_fgr_cohort" },
+  { table_id: "Visit1", field_name: "f6a_tod_hypertension_cohort" },
+  { table_id: "Visit1", field_name: "f6a_tod_stillbirth_cohort" },
+  { table_id: "Visit2", field_name: "f6a2_tod_fgr_cohort" },
+  { table_id: "Visit2", field_name: "f6a2_tod_hypertension_cohort" },
+  { table_id: "Visit2", field_name: "f6a2_tod_stillbirth_cohort" },
+];
+if (SITE == "gambia") {
+  BirthMotherMapFields.push({
+    table_id: "Visit1",
+    field_name: "f2_visit_date",
+    mapped_field_name: "visit1_f2_visit_date",
+  });
+}
+
+const LabMapFields: IMapFields[] = [
+  { table_id: "profileSummary", field_name: "f2a_cohort" },
+  { table_id: "Visit1", field_name: "f6a_ultrasound1_date" },
+  { table_id: "Visit1", field_name: "f6a_ultrasound2_date" },
+  { table_id: "Visit1", field_name: "f6a_ultrasound3_date" },
+  { table_id: "Visit1", field_name: "f6a_ultrasound1_edd_date" },
+  { table_id: "Visit1", field_name: "f6a_ultrasound2_edd_date" },
+  { table_id: "Visit1", field_name: "f6a_ultrasound3_edd_date" },
+  { table_id: "Visit1", field_name: "f6a_lmp" },
+  { table_id: "Visit1", field_name: "f6a_as_sfh" },
+  { table_id: "Visit1", field_name: "f6a_final_edd" },
+  { table_id: "profileSummary", field_name: "f2a_participant_id" },
+];
+if (SITE == "gambia") {
+  LabMapFields.push({
+    table_id: "Visit1",
+    field_name: "f2_visit_date",
+    mapped_field_name: "visit1_f2_visit_date",
+  });
+}
+
+const ToD_ANCMapFields: IMapFields[] = [
+  { table_id: "profileSummary", field_name: "f2a_cohort" },
+  { table_id: "profileSummary", field_name: "f2a_participant_id" },
+  { table_id: "Visit1", field_name: "f6a_ultrasound1_date" },
+  { table_id: "Visit1", field_name: "f6a_ultrasound2_date" },
+  { table_id: "Visit1", field_name: "f6a_ultrasound3_date" },
+  { table_id: "Visit1", field_name: "f6a_ultrasound1_edd_date" },
+  { table_id: "Visit1", field_name: "f6a_ultrasound2_edd_date" },
+  { table_id: "Visit1", field_name: "f6a_ultrasound3_edd_date" },
+  { table_id: "Visit1", field_name: "f6a_lmp" },
+  { table_id: "Visit1", field_name: "f6a_as_sfh" },
+  { table_id: "Visit1", field_name: "f6a_final_edd" },
+  { table_id: "Visit1", field_name: "f6a_tod_fgr_cohort" },
+  { table_id: "Visit1", field_name: "f6a_tod_hypertension_cohort" },
+  { table_id: "Visit1", field_name: "f6a_tod_stillbirth_cohort" },
+  { table_id: "Visit2", field_name: "f6a2_tod_fgr_cohort" },
+  { table_id: "Visit2", field_name: "f6a2_tod_hypertension_cohort" },
+];
+if (environment.SITE == "gambia") {
+  ToD_ANCMapFields.push({
+    table_id: "Visit1",
+    field_name: "f2_visit_date",
+    mapped_field_name: "visit1_f2_visit_date",
+  });
+}
+
+const Visit2MapFields: IMapFields[] = [
+  { table_id: "Visit1", field_name: "f6a_ultrasound1_date" },
+  { table_id: "Visit1", field_name: "f6a_ultrasound2_date" },
+  { table_id: "Visit1", field_name: "f6a_ultrasound3_date" },
+  { table_id: "Visit1", field_name: "f6a_ultrasound1_edd_date" },
+  { table_id: "Visit1", field_name: "f6a_ultrasound2_edd_date" },
+  { table_id: "Visit1", field_name: "f6a_ultrasound3_edd_date" },
+  { table_id: "Visit1", field_name: "f6a_lmp" },
+  { table_id: "Visit1", field_name: "f6a_as_sfh" },
+  { table_id: "profileSummary", field_name: "f2a_cohort" },
+  { table_id: "profileSummary", field_name: "f2a_participant_id" },
+  { table_id: "Visit1", field_name: "f6a_ga_enrol" },
+  { table_id: "Visit1", field_name: "f6a_final_edd" },
+  { table_id: "Visit1", field_name: "f6a_tod_fgr_cohort" },
+  { table_id: "Visit1", field_name: "f6a_tod_hypertension_cohort" },
+  { table_id: "Visit1", field_name: "f6a_tod_stillbirth_cohort" },
+];
+if (environment.SITE == "gambia") {
+  Visit2MapFields.push({
+    table_id: "Visit1",
+    field_name: "f2_visit_date",
+    mapped_field_name: "visit1_f2_visit_date",
+  });
+}
+
 export const PRECISE_SCHEMA = {
   Birthbaby: {
     title: "Birth Baby",
     formId: "Birthbaby",
     tableId: "Birthbaby",
     icon: "baby",
-    mapFields: [
-      { table_id: "Visit1_v2", field_name: "f6a_ultrasound1_date" },
-      { table_id: "Visit1_v2", field_name: "f6a_ultrasound2_date" },
-      { table_id: "Visit1_v2", field_name: "f6a_ultrasound3_date" },
-      { table_id: "Visit1_v2", field_name: "f6a_ultrasound1_edd_date" },
-      { table_id: "Visit1_v2", field_name: "f6a_ultrasound2_edd_date" },
-      { table_id: "Visit1_v2", field_name: "f6a_ultrasound3_edd_date" },
-      { table_id: "Visit1_v2", field_name: "f6a_lmp" },
-      { table_id: "Visit1_v2", field_name: "f6a_as_sfh" },
-      { table_id: "Visit1_v2", field_name: "f6a_final_edd" },
-      { table_id: "profileSummary", field_name: "f2a_cohort" },
-      { table_id: "profileSummary", field_name: "f2a_participant_id" },
-      { table_id: "Visit1_v2", field_name: "f6a_ga_enrol" },
-      { table_id: "Birthmother", field_name: "f7_delivery_location" },
-      { table_id: "Visit1_v2", field_name: "f2_visit_date", mapped_field_name: "visit1_f2_visit_date" },
-    ],
+    mapFields: BirthBabyMapFields,
   },
   Birthmother: {
     title: "Birth Mother",
     formId: "Birthmother",
     tableId: "Birthmother",
     icon: "mother",
-    mapFields: [
-      { table_id: "Visit1_v2", field_name: "f6a_ultrasound1_date" },
-      { table_id: "Visit1_v2", field_name: "f6a_ultrasound2_date" },
-      { table_id: "Visit1_v2", field_name: "f6a_ultrasound3_date" },
-      { table_id: "Visit1_v2", field_name: "f6a_ultrasound1_edd_date" },
-      { table_id: "Visit1_v2", field_name: "f6a_ultrasound2_edd_date" },
-      { table_id: "Visit1_v2", field_name: "f6a_ultrasound3_edd_date" },
-      { table_id: "Visit1_v2", field_name: "f6a_lmp" },
-      { table_id: "Visit1_v2", field_name: "f6a_as_sfh" },
-      { table_id: "profileSummary", field_name: "f2a_cohort" },
-      { table_id: "profileSummary", field_name: "f2a_participant_id" },
-      { table_id: "Visit1_v2", field_name: "f6a_ga_enrol" },
-      { table_id: "Visit1_v2", field_name: "f6a_final_edd" },
-      { table_id: "Visit1_v2", field_name: "f6a_tod_fgr_cohort" },
-      { table_id: "Visit1_v2", field_name: "f6a_tod_hypertension_cohort" },
-      { table_id: "Visit1_v2", field_name: "f6a_tod_stillbirth_cohort" },
-      { table_id: "Visit2_v2", field_name: "f6a2_tod_fgr_cohort" },
-      { table_id: "Visit2_v2", field_name: "f6a2_tod_hypertension_cohort" },
-      { table_id: "Visit2_v2", field_name: "f6a2_tod_stillbirth_cohort" },
-      { table_id: "Visit1_v2", field_name: "f2_visit_date", mapped_field_name: "visit1_f2_visit_date" },
-    ],
+    mapFields: BirthMotherMapFields,
   },
   profileSummary: {
     title: "General Info",
@@ -87,20 +177,7 @@ export const PRECISE_SCHEMA = {
     tableId: "Lab",
     icon: "lab",
     allowRepeats: true,
-    mapFields: [
-      { table_id: "profileSummary", field_name: "f2a_cohort" },
-      { table_id: "Visit1_v2", field_name: "f6a_ultrasound1_date" },
-      { table_id: "Visit1_v2", field_name: "f6a_ultrasound2_date" },
-      { table_id: "Visit1_v2", field_name: "f6a_ultrasound3_date" },
-      { table_id: "Visit1_v2", field_name: "f6a_ultrasound1_edd_date" },
-      { table_id: "Visit1_v2", field_name: "f6a_ultrasound2_edd_date" },
-      { table_id: "Visit1_v2", field_name: "f6a_ultrasound3_edd_date" },
-      { table_id: "Visit1_v2", field_name: "f6a_lmp" },
-      { table_id: "Visit1_v2", field_name: "f6a_as_sfh" },
-      { table_id: "Visit1_v2", field_name: "f6a_final_edd" },
-      { table_id: "profileSummary", field_name: "f2a_participant_id" },
-      { table_id: "Visit1_v2", field_name: "f2_visit_date", mapped_field_name: "visit1_f2_visit_date" },
-    ],
+    mapFields: LabMapFields,
   },
   Postpartum_baby: {
     title: "Postpartum Baby",
@@ -145,25 +222,7 @@ export const PRECISE_SCHEMA = {
     tableId: "TOD_ANC",
     icon: "disease",
     allowRepeats: true,
-    mapFields: [
-      { table_id: "profileSummary", field_name: "f2a_cohort" },
-      { table_id: "profileSummary", field_name: "f2a_participant_id" },
-      { table_id: "Visit1_v2", field_name: "f6a_ultrasound1_date" },
-      { table_id: "Visit1_v2", field_name: "f6a_ultrasound2_date" },
-      { table_id: "Visit1_v2", field_name: "f6a_ultrasound3_date" },
-      { table_id: "Visit1_v2", field_name: "f6a_ultrasound1_edd_date" },
-      { table_id: "Visit1_v2", field_name: "f6a_ultrasound2_edd_date" },
-      { table_id: "Visit1_v2", field_name: "f6a_ultrasound3_edd_date" },
-      { table_id: "Visit1_v2", field_name: "f6a_lmp" },
-      { table_id: "Visit1_v2", field_name: "f6a_as_sfh" },
-      { table_id: "Visit1_v2", field_name: "f6a_final_edd" },
-      { table_id: "Visit1_v2", field_name: "f6a_tod_fgr_cohort" },
-      { table_id: "Visit1_v2", field_name: "f6a_tod_hypertension_cohort" },
-      { table_id: "Visit1_v2", field_name: "f6a_tod_stillbirth_cohort" },
-      { table_id: "Visit2_v2", field_name: "f6a2_tod_fgr_cohort" },
-      { table_id: "Visit2_v2", field_name: "f6a2_tod_hypertension_cohort" },
-      { table_id: "Visit1_v2", field_name: "f2_visit_date", mapped_field_name: "visit1_f2_visit_date" },
-    ],
+    mapFields: ToD_ANCMapFields,
   },
   Visit1_v2: {
     title: "Precise Visit 1",
@@ -180,24 +239,7 @@ export const PRECISE_SCHEMA = {
     formId: "Visit2_v2",
     tableId: "Visit2_v2",
     icon: "visit",
-    mapFields: [
-      { table_id: "Visit1_v2", field_name: "f6a_ultrasound1_date" },
-      { table_id: "Visit1_v2", field_name: "f6a_ultrasound2_date" },
-      { table_id: "Visit1_v2", field_name: "f6a_ultrasound3_date" },
-      { table_id: "Visit1_v2", field_name: "f6a_ultrasound1_edd_date" },
-      { table_id: "Visit1_v2", field_name: "f6a_ultrasound2_edd_date" },
-      { table_id: "Visit1_v2", field_name: "f6a_ultrasound3_edd_date" },
-      { table_id: "Visit1_v2", field_name: "f6a_lmp" },
-      { table_id: "Visit1_v2", field_name: "f6a_as_sfh" },
-      { table_id: "profileSummary", field_name: "f2a_cohort" },
-      { table_id: "profileSummary", field_name: "f2a_participant_id" },
-      { table_id: "Visit1_v2", field_name: "f6a_ga_enrol" },
-      { table_id: "Visit1_v2", field_name: "f6a_final_edd" },
-      { table_id: "Visit1_v2", field_name: "f6a_tod_fgr_cohort" },
-      { table_id: "Visit1_v2", field_name: "f6a_tod_hypertension_cohort" },
-      { table_id: "Visit1_v2", field_name: "f6a_tod_stillbirth_cohort" },
-      { table_id: "Visit1_v2", field_name: "f2_visit_date", mapped_field_name: "visit1_f2_visit_date" },
-    ],
+    mapFields: Visit2MapFields,
   },
   Withdrawal: {
     title: "Withdraw Participant",
@@ -250,4 +292,10 @@ export interface IPreciseFormSection {
 
 export interface ISectionWithMeta extends IPreciseFormSection {
   forms: IFormMetaWithEntries[];
+}
+
+export interface IMapFields {
+  table_id: string;
+  field_name: string;
+  mapped_field_name?: string;
 }
