@@ -111,7 +111,7 @@ const ToD_ANCMapFields: IMapFields[] = [
   { table_id: "Visit2", field_name: "f6a2_tod_fgr_cohort" },
   { table_id: "Visit2", field_name: "f6a2_tod_hypertension_cohort" },
 ];
-if (environment.SITE == "gambia") {
+if (SITE == "gambia") {
   ToD_ANCMapFields.push({
     table_id: "Visit1",
     field_name: "f2_visit_date",
@@ -136,7 +136,7 @@ const Visit2MapFields: IMapFields[] = [
   { table_id: "Visit1", field_name: "f6a_tod_hypertension_cohort" },
   { table_id: "Visit1", field_name: "f6a_tod_stillbirth_cohort" },
 ];
-if (environment.SITE == "gambia") {
+if (SITE == "gambia") {
   Visit2MapFields.push({
     table_id: "Visit1",
     field_name: "f2_visit_date",
