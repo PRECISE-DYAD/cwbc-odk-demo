@@ -25,6 +25,7 @@
     "@angular/router": "~10.1.0",
     "@sentry/angular": "^5.22.3",
     "component": "^1.1.0",
+    "date-fns": "^2.16.1",
     "material-design-icons": "^3.0.1",
     "mobx": "^5.15.6",
     "mobx-angular": "^4.1.0",
