@@ -186,7 +186,7 @@ export const PRECISE_SCHEMA = {
     icon: "baby",
     mapFields: [
       { table_id: "profileSummary", field_name: "f2a_cohort" },
-      { table_id: "Visit1_v2", field_name: "f6a_final_edd" },
+      { table_id: "Visit1", field_name: "f6a_final_edd" },
       { table_id: "profileSummary", field_name: "f2a_participant_id" },
     ],
   },
@@ -196,18 +196,18 @@ export const PRECISE_SCHEMA = {
     tableId: "Postpartum_mother",
     icon: "mother",
     mapFields: [
-      { table_id: "Visit1_v2", field_name: "f6a_ultrasound1_date" },
-      { table_id: "Visit1_v2", field_name: "f6a_ultrasound2_date" },
-      { table_id: "Visit1_v2", field_name: "f6a_ultrasound3_date" },
-      { table_id: "Visit1_v2", field_name: "f6a_ultrasound1_edd_date" },
-      { table_id: "Visit1_v2", field_name: "f6a_ultrasound2_edd_date" },
-      { table_id: "Visit1_v2", field_name: "f6a_ultrasound3_edd_date" },
-      { table_id: "Visit1_v2", field_name: "f6a_lmp" },
-      { table_id: "Visit1_v2", field_name: "f6a_as_sfh" },
+      { table_id: "Visit1", field_name: "f6a_ultrasound1_date" },
+      { table_id: "Visit1", field_name: "f6a_ultrasound2_date" },
+      { table_id: "Visit1", field_name: "f6a_ultrasound3_date" },
+      { table_id: "Visit1", field_name: "f6a_ultrasound1_edd_date" },
+      { table_id: "Visit1", field_name: "f6a_ultrasound2_edd_date" },
+      { table_id: "Visit1", field_name: "f6a_ultrasound3_edd_date" },
+      { table_id: "Visit1", field_name: "f6a_lmp" },
+      { table_id: "Visit1", field_name: "f6a_as_sfh" },
       { table_id: "profileSummary", field_name: "f2a_cohort" },
       { table_id: "profileSummary", field_name: "f2a_participant_id" },
-      { table_id: "Visit1_v2", field_name: "f6a_ga_enrol" },
-      { table_id: "Visit1_v2", field_name: "f6a_final_edd" },
+      { table_id: "Visit1", field_name: "f6a_ga_enrol" },
+      { table_id: "Visit1", field_name: "f6a_final_edd" },
     ],
   },
   screening: {
@@ -224,20 +224,20 @@ export const PRECISE_SCHEMA = {
     allowRepeats: true,
     mapFields: ToD_ANCMapFields,
   },
-  Visit1_v2: {
+  Visit1: {
     title: "Precise Visit 1",
-    formId: "Visit1_v2",
-    tableId: "Visit1_v2",
+    formId: "Visit1",
+    tableId: "Visit1",
     icon: "visit",
     mapFields: [
       { table_id: "profileSummary", field_name: "f2a_cohort" },
       { table_id: "profileSummary", field_name: "f2a_participant_id" },
     ],
   },
-  Visit2_v2: {
+  Visit2: {
     title: "Precise Visit 2",
-    formId: "Visit2_v2",
-    tableId: "Visit2_v2",
+    formId: "Visit2",
+    tableId: "Visit2",
     icon: "visit",
     mapFields: Visit2MapFields,
   },
@@ -266,7 +266,7 @@ export const PRECISE_BABY_FORM_SECTION: IPreciseFormSection = {
 export const PRECISE_FORM_SECTIONS: IPreciseFormSection[] = [
   {
     _id: "preciseVisitSection",
-    formIds: ["Visit1_v2", "Visit2_v2", "Birthmother", "Postpartum_mother"],
+    formIds: ["Visit1", "Visit2", "Birthmother", "Postpartum_mother"],
   },
   {
     _id: "todSection",

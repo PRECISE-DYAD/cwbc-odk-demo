@@ -8,6 +8,7 @@ import { IFormMeta, IFormMetaMappedField } from "../types/types";
 import { PRECISE_SCHEMA } from "../models/precise.models";
 import { Router, ActivatedRoute } from "@angular/router";
 import { IPreciseParticipantData } from "../models/participant-summary.model";
+import { environment } from "src/environments/environment";
 
 /**
  * The PreciseStore manages persisted data and operations across the entire application,
@@ -47,14 +48,14 @@ export class PreciseStore {
    */
   async loadParticipants() {
     const rows = await this.odk.getTableRows<IParticipant>(
-      PRECISE_SCHEMA.profileSummary.formId
+      this._mapTableId(PRECISE_SCHEMA.profileSummary.tableId)
     );
     this.setParticipantLists(rows);
   }
 
   @action async loadScreeningData() {
     const rows = await this.odk.getTableRows<IParticipantScreening>(
-      PRECISE_SCHEMA.screening.formId
+      this._mapTableId(PRECISE_SCHEMA.screening.tableId)
     );
     this.screeningData = rows;
   }
@@ -105,6 +106,7 @@ export class PreciseStore {
     const collated: { [tableId: string]: IODkTableRowData[] } = {};
     const tables = Object.keys(PRECISE_SCHEMA);
     const promises = tables.map(async (tableId) => {
+      tableId = this._mapTableId(tableId);
       try {
         const particpantRows = await this.odk.query(
           tableId,
@@ -131,7 +133,7 @@ export class PreciseStore {
   }) {
     this.participantForms = Object.values(PRECISE_SCHEMA).map((f) => ({
       ...f,
-      entries: collated[f.tableId],
+      entries: collated[this._mapTableId(f.tableId)],
     }));
     this.participantFormsHash = this._arrToHashmap(
       this.participantForms,
@@ -160,7 +162,9 @@ export class PreciseStore {
     return this.launchForm(PRECISE_SCHEMA.screening, null, jsonMap);
   }
   editScreening(screening: IParticipantScreening) {
-    const { tableId, formId } = PRECISE_SCHEMA.screening;
+    let { tableId, formId } = PRECISE_SCHEMA.screening;
+    tableId = this._mapTableId(tableId);
+    formId = this._mapFormId(formId);
     const rowId = screening._id;
     this.odk.editRowWithSurvey(tableId, rowId, formId);
   }
@@ -187,7 +191,9 @@ export class PreciseStore {
   async editParticipant(participant: IParticipant) {
     // TODO - fix errors thrown when editing on local
     await this.backupParticipant(participant);
-    const { tableId, formId } = PRECISE_SCHEMA.profileSummary;
+    let { tableId, formId } = PRECISE_SCHEMA.profileSummary;
+    tableId = this._mapTableId(tableId);
+    formId = this._mapFormId(formId);
     const rowId = participant._id;
     this.odk.editRowWithSurvey(tableId, rowId, formId);
   }
@@ -221,7 +227,9 @@ export class PreciseStore {
    * NOTE - any additional fields listed in formMeta also populated
    */
   launchForm(form: IFormMeta, editRowId: string = null, jsonMap: any = {}) {
-    const { formId, tableId, mapFields } = form;
+    let { formId, tableId, mapFields } = form;
+    tableId = this._mapTableId(tableId);
+    formId = this._mapFormId(formId);
     // pass active participant guid to form if not otherwise defined
     if (this.activeParticipant) {
       jsonMap.f2_guid = jsonMap.f2_guid || this.activeParticipant.f2_guid;
@@ -234,6 +242,22 @@ export class PreciseStore {
       return this.odk.editRowWithSurvey(tableId, editRowId, formId);
     }
     return this.odk.addRowWithSurvey(tableId, formId, editRowId, jsonMap);
+  }
+  /**
+   * To more easily allow for changing table names for different sites
+   * provide a lookup for modified table names
+   */
+  private _mapTableId(tableId: string) {
+    console.log(
+      "map table",
+      tableId,
+      environment.tableMapping[tableId] || tableId
+    );
+    return environment.tableMapping[tableId] || tableId;
+  }
+  private _mapFormId(formId: string) {
+    console.log("map form", formId, environment.tableMapping[formId] || formId);
+    return environment.formMapping[formId] || formId;
   }
 
   /**
@@ -264,13 +288,14 @@ export class PreciseStore {
   private _extractDataValues(participantForms: IFormMetaWithEntries[]) {
     const data = {};
     for (const form of participantForms) {
-      if (!data[form.tableId]) {
-        data[form.tableId] = {};
+      const tableId = this._mapTableId(form.tableId);
+      if (!data[tableId]) {
+        data[tableId] = {};
       }
       const latestEntry = form.entries[form.entries.length - 1];
       if (latestEntry) {
         Object.entries(latestEntry).forEach(([key, value]) => {
-          data[form.tableId][key] = value;
+          data[tableId][key] = value;
         });
       }
     }

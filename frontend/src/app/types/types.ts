@@ -31,4 +31,10 @@ export interface IEnvironment {
   COUNTRY_CODE: "220" | "254";
   production: boolean;
   SENTRY_DSN: string;
+  tableMapping: {
+    [tableId: string]: string;
+  };
+  formMapping: {
+    [formId: string]: string;
+  };
 }

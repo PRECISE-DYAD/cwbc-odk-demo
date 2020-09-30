@@ -14,3 +14,9 @@ with addtional calculation steps. These are defined and edited from [`frontend/s
 By default all forms receive the `f2_guid` identifier, and as such should include within the form model definition.
 
 Any additional fields that need to be accessed from another form should be included in the `mapFields` property of the schema above.
+
+## Changing form names
+
+A limitation with ODK-X is that you cannot easily change form data structures once data collection has been started. The current best-solution is to simply recreate the table using an alternative name. 
+
+To keep code simpler (particularly across sites), all original hardcoded table names are retained and changes to those names are recorded in site-specific environment files, e.g. [`frontend/src/environments/environment.gambia.ts`](../frontend/src/environments/environment.gambia.ts)
