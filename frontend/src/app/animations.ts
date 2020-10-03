@@ -4,6 +4,7 @@ import {
   style,
   query,
   animate,
+  state,
 } from "@angular/animations";
 
 export const routeChange = trigger("routeAnimations", [
@@ -39,4 +40,13 @@ export const fadeEntryExit = trigger("fadeEntryExit", [
     style({ opacity: 0 }),
     animate("600ms ease", style({ opacity: 1 })),
   ]),
+]);
+/**
+ * @example <div *ngIf="showMe" @fadeEntryExit>
+ */
+export const slideInOut = trigger("slideInOut", [
+  state("in", style({ transform: 'translateY(-100%)' })),
+  state("out", style({ height: "0" })),
+  transition("in => out", [animate("400ms ease-in-out")]),
+  transition("out => in", [animate("200ms ease-in-out")]),
 ]);

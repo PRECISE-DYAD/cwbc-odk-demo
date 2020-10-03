@@ -17,6 +17,7 @@ import { InstallComponent } from "./pages/install/install.component";
 import { BrowserAnimationsModule } from "@angular/platform-browser/animations";
 // error handling
 import { createErrorHandler as createSentryErrorHandler } from "@sentry/angular";
+import { ODKComponentsModule } from "./components/odk/odk.components.module";
 
 @NgModule({
   declarations: [AppComponent, HomeComponent, InstallComponent],
@@ -28,6 +29,7 @@ import { createErrorHandler as createSentryErrorHandler } from "@sentry/angular"
     HttpClientModule,
     MobxAngularModule,
     CoreComponentsModule,
+    ODKComponentsModule,
   ],
   providers: [
     {

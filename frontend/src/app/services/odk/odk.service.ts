@@ -6,11 +6,12 @@ import { HttpClient } from "@angular/common/http";
 import { IODKQueryResult, IODkTableRowData } from "src/app/types/odk.types";
 import { NotificationService } from "../notification/notification.service";
 import { MatDialog } from "@angular/material/dialog";
+import { BehaviorSubject, Subject } from "rxjs";
 
 // When running on device the following methods are automatically added
 // to the window object. When running in development some mocking methods
 // are provided in sibling class files (created as needed)
-declare const window: Window & {
+type IODKWindow = Window & {
   odkData: OdkDataClass;
   odkCommon: OdkCommonClass;
   odkTables: OdkTablesClass;
@@ -24,24 +25,48 @@ declare const window: Window & {
 })
 export class OdkService {
   tables: string[];
+  ready$ = new BehaviorSubject(false);
+  private window: IODKWindow = window as any;
   constructor(
     http: HttpClient,
     private notifications: NotificationService,
     private dialog: MatDialog
   ) {
-    // when running on device use native odkData function (injected)
-    if (!window.odkData || !window.odkCommon) {
-      window.odkCommon = new OdkCommonClass();
-      window.odkData = new OdkDataClass(http);
-      window.odkTables = new OdkTablesClass(notifications, this.dialog);
+    // running on device odk will exist in native odk tables window.
+    // otherwise we will wait for it to be passed from the iframe component
+    if (this.window.odkData && this.window.odkCommon) {
+      console.log("running on device");
+      this.setServiceReady();
     }
+    // Alt implementation of local classes (deprected, but retaining for reference)
+    // if (!window.odkData || !window.odkCommon) {
+    //   window.odkCommon = new OdkCommonClass();
+    //   window.odkData = new OdkDataClass(http);
+    //   window.odkTables = new OdkTablesClass(notifications, this.dialog);
+    // }
+  }
+  /**
+   * For case where we are relying on iframe to access odk data, ensure the iframe is responding
+   * before using the service
+   */
+  private setServiceReady() {
+    this.ready$.next(true);
+    console.log("service is ready", this.window.odkData);
+  }
+  /**
+   * Used to pass the window object from the child iframe for use within our services
+   */
+  setWindow(window: IODKWindow) {
+    console.log("setting window", window);
+    this.window = window;
+    this.setServiceReady();
   }
   handleError(err: Error) {
     this.notifications.handleError(err);
   }
 
   addRowWithSurvey(tableId: string, formId: string, screenPath?, jsonMap?) {
-    return window.odkTables.addRowWithSurvey(
+    return this.window.odkTables.addRowWithSurvey(
       null,
       tableId,
       formId,
@@ -50,7 +75,7 @@ export class OdkService {
     );
   }
   editRowWithSurvey(tableId, rowId, formId) {
-    return window.odkTables.editRowWithSurvey(
+    return this.window.odkTables.editRowWithSurvey(
       null,
       tableId,
       rowId,
@@ -61,9 +86,9 @@ export class OdkService {
 
   addRow(tableId: string, columnNameValueMap, rowId: string) {
     return new Promise((resolve, reject) => {
-      const revision = window.odkData._getTableMetadataRevision(tableId);
+      const revision = this.window.odkData._getTableMetadataRevision(tableId);
       console.log("revision", revision);
-      const req = window.odkData.queueRequest(
+      const req = this.window.odkData.queueRequest(
         "addRow",
         (res) => resolve(res),
         (err) => {
@@ -71,7 +96,7 @@ export class OdkService {
           reject(err);
         }
       );
-      window.odkData
+      this.window.odkData
         .getOdkDataIf()
         .addRow(
           tableId,
@@ -103,7 +128,7 @@ export class OdkService {
     failureCallback = this.handleError
   ): Promise<(IODkTableRowData & T)[]> {
     return new Promise((resolve, reject) => {
-      window.odkData.query(
+      this.window.odkData.query(
         tableId,
         whereClause,
         sqlBindParams,
