@@ -1,6 +1,16 @@
-# Local Development
+# Designer Overrides
 
-## Cross-communication
+Where possible any updates to the core app-designer have been avoided, with scripts used to populate config and files dynamically on build.
+
+It is intended that the app can work with a clean install of app designer, and retain good compatibility with future updates.
+
+Known exceptions which may need to be migrated in the future are documented here.
+
+## Removing sample materials
+
+The default designer comes with lots of additional files and materials. These have been cleared out (manually, however there appears to be a `grunt empty` task to do similar)
+
+## Local Development Cross-communication
 
 When developing locally via `npm run start` two different apps run in parallel:
 

@@ -26,6 +26,15 @@ class OdkDataClass {
     console.error("queueRequest not implemented");
     return { _callbackId: null };
   }
+  getResponseJSON() {
+    console.error("queueRequest not implemented");
+  }
+  arbitraryQuery(...args) {
+    console.error("not implemented");
+  }
+  arbitrarySqlQueryLocalOnlyTables(...args) {
+    console.error("not implemented");
+  }
   /**
    * For mock implementation return any data as defined in the `forms/csv`
    * folder for the corresponding table (no sort/filter logic applied)
