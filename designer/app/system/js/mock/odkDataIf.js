@@ -1,4 +1,5 @@
-define(['mockImpl', 'mockUtils', 'mockSchema', 'mockDbif', 'jquery'],function(mockImpl, mockUtils,  mockSchema, mockDbif, $) {
+// CWBC changes - add cwbcCustomBindings to initialisation
+define(['mockImpl', 'mockUtils', 'mockSchema', 'mockDbif', 'jquery','cwbcCustomBindings'],function(mockImpl, mockUtils,  mockSchema, mockDbif, $) {
 /* global odkCommon */
 'use strict';
 verifyLoad('mockImpl',
@@ -476,13 +477,13 @@ var odkDataIf = {
                         // this can be any value...
                         metaDataRev = that.eventCount;
                         content.metadata.cachedMetadata.metaDataRev = metaDataRev;
-                        
+
                         // the tableDef.dataTableModel is fully expanded. Create the minimal
-                        // model by removing the nested elements from the list. Those are the 
+                        // model by removing the nested elements from the list. Those are the
                         // ones with an elementPath !== elementKey.
                         var dataTableModelAdjusted = {};
-                        var ddef; 
-                        
+                        var ddef;
+
                         for ( f in tableDef.dataTableModel ) {
                             if ( tableDef.dataTableModel.hasOwnProperty(f) ) {
                                 ddef = tableDef.dataTableModel[f];
@@ -493,7 +494,7 @@ var odkDataIf = {
                         }
                         content.metadata.cachedMetadata.dataTableModel = dataTableModelAdjusted;
                         // synthesize the choiceListMap and the choice-compressed keyValueStoreList
-                        // the later is the same as the tableDef.keyValueStoreList except that 
+                        // the later is the same as the tableDef.keyValueStoreList except that
                         // any displayChoicesList is collapsed into a property string and the value is moved
                         // into the choiceListMap, referenced by that property string.
                         var choiceNamesMap = {};
@@ -503,8 +504,8 @@ var odkDataIf = {
                         var kvsNew;
                         for ( i = 0 ; i < tableDef.keyValueStoreList.length ; ++i ) {
                             kvs = tableDef.keyValueStoreList[i];
-                            if ( kvs.partition === "Column" && 
-                                 kvs.key === "displayChoicesList" && 
+                            if ( kvs.partition === "Column" &&
+                                 kvs.key === "displayChoicesList" &&
                                  kvs.value !== null ) {
                                 fmatch = null;
                                 for ( f in choiceNamesMap ) {
@@ -572,7 +573,7 @@ var odkDataIf = {
 
         var sqlBindParams = (sqlBindParamsJSON === null || sqlBindParamsJSON === undefined) ?
             [] : JSON.parse(sqlBindParamsJSON);
-            
+
         var ctxt = that.newStartContext(_callbackId);
 
         that._getTableDef($.extend({}, ctxt, {
@@ -736,7 +737,7 @@ var odkDataIf = {
                             that._getMostRecentRow(ctxt, tableDef, rowId);
                         }
                     }), function(transaction) {
-                        // the mocked API will delete everything. 
+                        // the mocked API will delete everything.
                         // The device API may return a _sync_state = 'deleted' row.
                         var sqlCommand = "DELETE FROM " + tableId + " WHERE _id=?";
                         ctxt.sqlStatement = {
