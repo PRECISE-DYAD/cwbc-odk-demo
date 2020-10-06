@@ -23,6 +23,12 @@ export interface IODKQueryResult {
 export interface IODkTableRowData extends IODKTableRowMetaData {
   [field: string]: any;
 }
+export interface IODKTableDefQuery {
+  _last_data_etag: string;
+  _last_sync_time: -1;
+  _schema_etag: string;
+  _table_id: "profileSummary";
+}
 interface IODKTableRowMetaData {
   _default_access: string;
   _form_id: string;

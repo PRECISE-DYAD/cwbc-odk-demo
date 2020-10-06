@@ -4,8 +4,13 @@ import { OdkTableRowsComponent } from "./odkTableRows/odkTableRows";
 import { CommonModule } from "@angular/common";
 import { ODKFormPopup } from "./odkFormPopup/odkFormPopup";
 import { ODKDesignerIframeComponent } from "./odk.designerIframe";
+import { ODKRecordsPendingComponent } from "./odk.recordsPending";
 
-const customComponents = [OdkTableRowsComponent, ODKDesignerIframeComponent];
+const customComponents = [
+  OdkTableRowsComponent,
+  ODKDesignerIframeComponent,
+  ODKRecordsPendingComponent,
+];
 
 @NgModule({
   entryComponents: [ODKFormPopup],

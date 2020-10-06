@@ -1,13 +1,14 @@
-import { observable, action, computed } from "mobx-angular";
 import { Injectable } from "@angular/core";
-import { OdkService } from "../services/odk/odk.service";
-import { reaction } from "mobx";
-import { IODkTableRowData, ODK_META_EXAMPLE } from "../types/odk.types";
-import { uuidv4 } from "../utils/guid";
-import { IFormMeta, IFormMetaMappedField } from "../types/types";
-import { PRECISE_SCHEMA } from "../models/precise.models";
 import { Router, ActivatedRoute } from "@angular/router";
-import { IPreciseParticipantData } from "../models/participant-summary.model";
+import { observable, action, computed } from "mobx-angular";
+import { reaction } from "mobx";
+import { SurveySummary } from "../../../../survey-parser/src/surveySummary";
+import { OdkService } from "src/app/services/odk/odk.service";
+import { IODkTableRowData, ODK_META_EXAMPLE } from "src/app/types/odk.types";
+import { uuidv4 } from "src/app/utils/guid";
+import { IFormMeta, IFormMetaMappedField } from "src/app/types/types";
+import { PRECISE_SCHEMA } from "src/app/models/precise.models";
+import { IPreciseParticipantData } from "src/app/models/participant-summary.model";
 import { environment } from "src/environments/environment";
 
 /**
@@ -248,11 +249,6 @@ export class PreciseStore {
    * provide a lookup for modified table names
    */
   private _mapTableId(tableId: string) {
-    console.log(
-      "map table",
-      tableId,
-      environment.tableMapping[tableId] || tableId
-    );
     return environment.tableMapping[tableId] || tableId;
   }
   private _mapFormId(formId: string) {
@@ -311,14 +307,12 @@ export class PreciseStore {
   private _generateMappedFields(fields: IFormMetaMappedField[] = []) {
     const mapping = {};
     for (const field of fields) {
-      console.log("generating mapped field", field);
       const { table_id, field_name, mapped_field_name, value } = field;
       const fieldName = mapped_field_name || field_name;
       // do not ignore "" values, test against object properties
       if (field.hasOwnProperty("value")) {
         mapping[fieldName] = value;
       } else {
-        console.log("looking up", table_id);
         const { entries } = this.participantFormsHash[table_id];
         mapping[fieldName] = entries[0] ? entries[0][fieldName] : null;
       }

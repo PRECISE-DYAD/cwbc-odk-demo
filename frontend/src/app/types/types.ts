@@ -18,7 +18,7 @@ export interface IFormMetaMappedField {
   table_id: string;
   field_name: string;
   // used to assign a fixed value instead of lookup
-  value?: string;
+  value?: any;
   // optional rename
   mapped_field_name?: string;
 }

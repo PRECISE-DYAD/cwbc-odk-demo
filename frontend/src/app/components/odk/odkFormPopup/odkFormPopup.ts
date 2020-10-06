@@ -13,11 +13,11 @@ export interface IODKFormFormPopupData {
 export class ODKFormPopup {
   iframeUrl: SafeUrl;
   @ViewChild("iframe") iframeRef: ElementRef<HTMLIFrameElement>;
+
   constructor(
     public dialogRef: MatDialogRef<ODKFormPopup>,
     sanitizer: DomSanitizer,
-    @Inject(MAT_DIALOG_DATA) public data: IODKFormFormPopupData,
-    // as opens outside main root need to pass common store styles back
+    @Inject(MAT_DIALOG_DATA) public data: IODKFormFormPopupData // as opens outside main root need to pass common store styles back
   ) {
     this.iframeUrl = sanitizer.bypassSecurityTrustResourceUrl(data.iframeUrl);
   }
