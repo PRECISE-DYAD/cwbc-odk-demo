@@ -1,7 +1,7 @@
 import * as fs from "fs-extra";
 import * as path from "path";
 import * as child from "child_process";
-import { recFind, listFolders } from "./utils";
+import { recFind, listFolders, recFindByExt } from "./utils";
 
 const rootPath = process.cwd();
 const designerPath = path.join(rootPath, "designer");
@@ -44,9 +44,9 @@ function run() {
     fs.removeSync(tempFilePath);
   }
   ensureCopy("forms/app.properties", `${designerAssetsPath}/app.properties`);
-
   // copy back json and csv data in case frontend wants to access
   ensureCopy(`forms/csv`, `${frontendPath}/src/assets/odk/csv`, true);
+  copyFormdefsToFrontend();
 }
 run();
 
@@ -68,6 +68,25 @@ function populateSampleFiles() {
       fs.copyFileSync(source, destination);
     }
   }
+}
+/**
+ * Copy all form definition files to the frontend for use in processing
+ * during participant display
+ * Strips some data from formdata to reduce file sizes
+ */
+function copyFormdefsToFrontend() {
+  const srcDir = `${designerPath}/app/config/tables`;
+  const srcFiles = recFindByExt(srcDir, "json");
+  const targetDir = `${frontendPath}/src/assets/odk/formdefs`;
+  fs.ensureDirSync(targetDir);
+  fs.emptyDirSync(targetDir);
+  // parse each formdef json, remove non-required fields and write to frontend folder
+  srcFiles.forEach((f) => {
+    const json = fs.readJsonSync(f);
+    delete json.specification;
+    const formName = path.basename(path.dirname(f));
+    fs.writeJsonSync(`${targetDir}/${formName}.json`, json);
+  });
 }
 
 /**

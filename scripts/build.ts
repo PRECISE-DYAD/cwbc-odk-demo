@@ -22,7 +22,6 @@ async function main() {
   );
   const configuration =
     site === "default" ? "production" : `production,${site}`;
-  console.log("configuration", site);
   copyAppVersion();
   await fs.ensureDir(`${designerAssetsPath}/build`);
   await fs.emptyDir(`${designerAssetsPath}/build`);
@@ -33,15 +32,21 @@ async function main() {
     shell: true,
   });
   console.log("build complete, copying files");
-  // remove odk assets that are only used during development
-  await fs.emptyDir(`${frontendPath}/build/assets/odk`);
-  await fs.rmdir(`${frontendPath}/build/assets/odk`);
   await fs.copy(`${frontendPath}/build`, `${designerAssetsPath}/build`);
-
+  removeDevelopmentAssets()
   await rewriteIndexes();
   // rewrite app designer index to load build index instead
 }
 main().catch(handleError);
+
+/**
+ * During development assets are populated to stub in for odk database methods
+ * Remove them
+ */
+function removeDevelopmentAssets(){
+  fs.removeSync(`${designerAssetsPath}/build/assets/odk/csv`);
+  fs.removeSync(`${designerAssetsPath}/csv`);
+}
 
 async function rewriteIndexes() {
   // rewrite the default odk tables index to redirect to the app build folder

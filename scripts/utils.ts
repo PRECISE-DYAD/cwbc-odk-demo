@@ -4,6 +4,7 @@ import * as inquirer from "inquirer";
 
 /**
  * find files by a given extension recursively, returning full paths
+ * @param ext - file extension (without '.'), e.g. 'xlsx' or 'json'
  * */
 export function recFindByExt(
   base: string,
