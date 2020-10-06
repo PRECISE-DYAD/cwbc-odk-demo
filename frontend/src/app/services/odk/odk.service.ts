@@ -30,7 +30,6 @@ type IODKWindow = Window & {
 export class OdkService {
   tables: string[];
   ready$ = new BehaviorSubject(false);
-  lastSync = -1;
   private window: IODKWindow = window as any;
   constructor(
     http: HttpClient,
@@ -40,7 +39,6 @@ export class OdkService {
     // running on device odk will exist in native odk tables window.
     // otherwise we will wait for it to be passed from the iframe component
     if (this.window.odkData && this.window.odkCommon) {
-      console.log("running on device");
       this.setServiceReady();
     }
     // Alt implementation of local classes (deprected, but retaining for reference)
@@ -56,16 +54,32 @@ export class OdkService {
    */
   private setServiceReady() {
     this.ready$.next(true);
-    this.getLastSync();
   }
   async getLastSync() {
+    // const meta = await this.arbitrarySqlQueryLocalOnlyTables<IODKTableDefQuery>(
+    //   "_table_definitions",
+    //   "SELECT * from _table_definitions"
+    // );
+    // console.log("table meta", meta);
+    // const lastSync = meta.map((m) => m._last_sync_time).sort()[0];
+    // return lastSync;
+  }
+
+  async getRecordsToSync() {
     const meta = await this.arbitrarySqlQueryLocalOnlyTables<IODKTableDefQuery>(
       "_table_definitions",
       "SELECT * from _table_definitions"
     );
-    console.log("table meta", meta);
-    this.lastSync = meta.map((m) => m._last_sync_time).sort()[0];
+    const tableIds = meta.map((m) => m._table_id);
+    let totalToSync = 0;
+    for (const tableId of tableIds) {
+      const records = await this.query(tableId, "_sync_state != ?", ["synced"]);
+      totalToSync += records.length;
+    }
+    console.log("total to sync", totalToSync);
+    return totalToSync;
   }
+
   /**
    * Used to pass the window object from the child iframe for use within our services
    */

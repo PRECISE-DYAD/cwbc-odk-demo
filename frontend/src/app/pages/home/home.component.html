@@ -1,12 +1,12 @@
-<div *mobxAutorun style="display: contents;">
+<div *mobxAutorun style="display: contents">
   <a
     *ngFor="let project of store.projects"
     [routerLink]="['/', 'projects', project.id]"
   >
-    <mat-card style="height: 10em;">
+    <mat-card style="height: 10em">
       <img
         [src]="project.image"
-        style="width: 100%; height: 100%; object-fit: contain;"
+        style="width: 100%; height: 100%; object-fit: contain"
       />
     </mat-card>
   </a>
