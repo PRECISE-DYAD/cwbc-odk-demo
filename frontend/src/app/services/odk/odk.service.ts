@@ -22,6 +22,19 @@ type IODKWindow = Window & {
 };
 
 /**
+ * When developing locally some of the required metadata for launching forms isn't available
+ * as not triggering click events in designer. Track metadata used when launching forms instead
+ */
+interface IActiveArgs {
+  tableId?: string;
+  formId?: string;
+  screenPath?: string;
+  jsonMap?: string;
+  rowId?: string;
+  columnNameValueMap?: string;
+}
+
+/**
  * This service provides a wrap around common odk methods and custom odk interactions
  */
 @Injectable({
@@ -30,6 +43,7 @@ type IODKWindow = Window & {
 export class OdkService {
   tables: string[];
   ready$ = new BehaviorSubject(false);
+  activeArgs: IActiveArgs = {};
   private window: IODKWindow = window as any;
   constructor(
     http: HttpClient,
@@ -92,6 +106,7 @@ export class OdkService {
   }
 
   addRowWithSurvey(tableId: string, formId: string, screenPath?, jsonMap?) {
+    this.activeArgs = { tableId, formId, screenPath, jsonMap };
     return this.window.odkTables.addRowWithSurvey(
       null,
       tableId,
@@ -101,6 +116,7 @@ export class OdkService {
     );
   }
   editRowWithSurvey(tableId, rowId, formId) {
+    this.activeArgs = { tableId, formId, rowId };
     return this.window.odkTables.editRowWithSurvey(
       null,
       tableId,
@@ -111,6 +127,7 @@ export class OdkService {
   }
 
   addRow(tableId: string, columnNameValueMap, rowId: string) {
+    this.activeArgs = { tableId, columnNameValueMap, rowId };
     return new Promise((resolve, reject) => {
       const revision = this.window.odkData._getTableMetadataRevision(tableId);
       console.log("revision", revision);

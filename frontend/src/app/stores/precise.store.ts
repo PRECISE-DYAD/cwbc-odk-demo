@@ -10,6 +10,7 @@ import { IFormMeta, IFormMetaMappedField } from "src/app/types/types";
 import { PRECISE_SCHEMA } from "src/app/models/precise.models";
 import { IPreciseParticipantData } from "src/app/models/participant-summary.model";
 import { environment } from "src/environments/environment";
+import { takeWhile } from "rxjs/operators";
 
 /**
  * The PreciseStore manages persisted data and operations across the entire application,
@@ -18,8 +19,14 @@ import { environment } from "src/environments/environment";
 @Injectable()
 export class PreciseStore {
   constructor(private odk: OdkService) {
-    this.loadParticipants();
-    this.loadScreeningData();
+    // Ensure odk ready before querying - should always resolve immediately in app but not in dev mode
+    this.odk.ready$
+      .pipe(takeWhile((isReady) => !isReady))
+      .toPromise()
+      .then(() => {
+        this.loadParticipants();
+        this.loadScreeningData();
+      });
   }
   allParticipantsHash: IParticipantsHashmap;
   participantFormsHash;
@@ -236,9 +243,6 @@ export class PreciseStore {
       jsonMap.f2_guid = jsonMap.f2_guid || this.activeParticipant.f2_guid;
     }
     jsonMap = { ...jsonMap, ...this._generateMappedFields(mapFields) };
-
-    console.log("launching form", tableId, formId, editRowId, jsonMap);
-
     if (editRowId) {
       return this.odk.editRowWithSurvey(tableId, editRowId, formId);
     }
