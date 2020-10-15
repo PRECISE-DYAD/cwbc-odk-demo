@@ -1,15 +1,13 @@
 import { Injectable } from "@angular/core";
-import OdkDataClass from "./odkData";
-import OdkCommonClass from "./odkCommon";
-import OdkTablesClass from "./odkTables";
-import { HttpClient } from "@angular/common/http";
+import OdkDataClass from "./altMockImplementation/odkData";
+import OdkCommonClass from "./altMockImplementation/odkCommon";
+import OdkTablesClass from "./altMockImplementation/odkTables";
 import {
   IODKQueryResult,
   IODKTableDefQuery,
   IODkTableRowData,
 } from "src/app/types/odk.types";
 import { NotificationService } from "../notification/notification.service";
-import { MatDialog } from "@angular/material/dialog";
 import { BehaviorSubject } from "rxjs";
 
 // When running on device the following methods are automatically added
@@ -46,21 +44,13 @@ export class OdkService {
   activeArgs: IActiveArgs = {};
   private window: IODKWindow = window as any;
   constructor(
-    http: HttpClient,
     private notifications: NotificationService,
-    private dialog: MatDialog
   ) {
     // running on device odk will exist in native odk tables window.
     // otherwise we will wait for it to be passed from the iframe component
     if (this.window.odkData && this.window.odkCommon) {
       this.setServiceReady();
     }
-    // Alt implementation of local classes (deprected, but retaining for reference)
-    // if (!window.odkData || !window.odkCommon) {
-    //   window.odkCommon = new OdkCommonClass();
-    //   window.odkData = new OdkDataClass(http);
-    //   window.odkTables = new OdkTablesClass(notifications, this.dialog);
-    // }
   }
   /**
    * For case where we are relying on iframe to access odk data, ensure the iframe is responding
@@ -78,12 +68,15 @@ export class OdkService {
     // const lastSync = meta.map((m) => m._last_sync_time).sort()[0];
     // return lastSync;
   }
-
-  async getRecordsToSync() {
-    const meta = await this.arbitrarySqlQueryLocalOnlyTables<IODKTableDefQuery>(
+  async getTableMeta(): Promise<any[]> {
+    return await this.arbitrarySqlQueryLocalOnlyTables<IODKTableDefQuery>(
       "_table_definitions",
       "SELECT * from _table_definitions"
     );
+  }
+
+  async getRecordsToSync() {
+    const meta = await this.getTableMeta();
     const tableIds = meta.map((m) => m._table_id);
     let totalToSync = 0;
     for (const tableId of tableIds) {
