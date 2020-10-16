@@ -1,0 +1,18 @@
+<div class="page">
+  <div style="padding: 1em">
+    <h2>Database Tables</h2>
+    <table style="color: var(--color-black)">
+      <th>Table ID</th>
+      <th>Total Rows</th>
+      <tr *ngFor="let table of tableMeta">
+        <td>{{ table._table_id }}</td>
+        <td></td>
+      </tr>
+    </table>
+
+    <h2 style="margin-top: 2em">Local Tables</h2>
+    <button mat-stroked-button style="margin-top: 1em">
+      Import local CSVs
+    </button>
+  </div>
+</div>

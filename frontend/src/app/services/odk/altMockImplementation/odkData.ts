@@ -35,6 +35,9 @@ class OdkDataClass {
   arbitrarySqlQueryLocalOnlyTables(...args) {
     console.error("not implemented");
   }
+  getRows(tableId, rowId, successCallbackFn, failureCallbackFn) {
+    console.log("getting rows");
+  }
   /**
    * For mock implementation return any data as defined in the `forms/csv`
    * folder for the corresponding table (no sort/filter logic applied)

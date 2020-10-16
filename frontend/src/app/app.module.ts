@@ -18,9 +18,10 @@ import { BrowserAnimationsModule } from "@angular/platform-browser/animations";
 // error handling
 import { createErrorHandler as createSentryErrorHandler } from "@sentry/angular";
 import { ODKComponentsModule } from "./components/odk/odk.components.module";
+import { DeveloperToolsComponent } from './pages/developer-tools/developer-tools.component';
 
 @NgModule({
-  declarations: [AppComponent, HomeComponent, InstallComponent],
+  declarations: [AppComponent, HomeComponent, InstallComponent, DeveloperToolsComponent],
   imports: [
     BrowserModule,
     BrowserAnimationsModule,

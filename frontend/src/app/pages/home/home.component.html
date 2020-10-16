@@ -11,4 +11,18 @@
     </mat-card>
   </a>
 </div>
-<footer>v{{ APP_VERSION }}</footer>
+<footer>
+  <div style="flex: 1"></div>
+  <div>
+    <button
+      routerLink="developer-tools"
+      mat-raised-button
+      color="accent"
+      style="flex: 1"
+      *ngIf="enableDevTools"
+    >
+      Developer Tools
+    </button>
+  </div>
+  <div style="text-align: right; padding: 1em; flex: 1">v{{ APP_VERSION }}</div>
+</footer>

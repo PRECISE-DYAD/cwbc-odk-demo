@@ -20,6 +20,14 @@ const routes: Routes = [
       import("./pages/precise/precise.module").then((m) => m.PreciseModule),
     data: { animation: "onLeft" },
   },
+  {
+    path: "developer-tools",
+    loadChildren: () =>
+      import("./pages/developer-tools/developer-tools.module").then(
+        (m) => m.DeveloperToolsModule
+      ),
+    data: { animation: "onLeft" },
+  },
   // {
   //   path: "guides",
   //   redirectTo: "",

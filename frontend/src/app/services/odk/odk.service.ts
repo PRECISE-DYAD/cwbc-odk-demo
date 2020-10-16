@@ -43,9 +43,7 @@ export class OdkService {
   ready$ = new BehaviorSubject(false);
   activeArgs: IActiveArgs = {};
   private window: IODKWindow = window as any;
-  constructor(
-    private notifications: NotificationService,
-  ) {
+  constructor(private notifications: NotificationService) {
     // running on device odk will exist in native odk tables window.
     // otherwise we will wait for it to be passed from the iframe component
     if (this.window.odkData && this.window.odkCommon) {
@@ -59,20 +57,24 @@ export class OdkService {
   private setServiceReady() {
     this.ready$.next(true);
   }
-  async getLastSync() {
-    // const meta = await this.arbitrarySqlQueryLocalOnlyTables<IODKTableDefQuery>(
-    //   "_table_definitions",
-    //   "SELECT * from _table_definitions"
-    // );
-    // console.log("table meta", meta);
-    // const lastSync = meta.map((m) => m._last_sync_time).sort()[0];
-    // return lastSync;
-  }
-  async getTableMeta(): Promise<any[]> {
-    return await this.arbitrarySqlQueryLocalOnlyTables<IODKTableDefQuery>(
+  /**
+   * Run a query on _table_definitions table to retrieve basic metadata
+   */
+  async getTableMeta() {
+    const meta = await this.arbitrarySqlQueryLocalOnlyTables<IODKTableDefQuery>(
       "_table_definitions",
       "SELECT * from _table_definitions"
     );
+    return meta;
+  }
+  /**
+   * WiP - Retrieve the last time the device was sync'd with the server
+   * Note - current implementation seems missing (last_sync_time always -1)
+   */
+  async getLastSync() {
+    const meta = await this.getTableMeta();
+    const lastSync = meta.map((m) => m._last_sync_time).sort()[0];
+    return lastSync;
   }
 
   async getRecordsToSync() {

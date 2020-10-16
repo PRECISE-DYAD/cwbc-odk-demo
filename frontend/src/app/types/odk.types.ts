@@ -27,7 +27,7 @@ export interface IODKTableDefQuery {
   _last_data_etag: string;
   _last_sync_time: -1;
   _schema_etag: string;
-  _table_id: "profileSummary";
+  _table_id: string;
 }
 interface IODKTableRowMetaData {
   _default_access: string;

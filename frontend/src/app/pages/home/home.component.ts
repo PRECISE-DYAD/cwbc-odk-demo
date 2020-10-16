@@ -9,5 +9,6 @@ import { version } from "package.json";
 })
 export class HomeComponent {
   APP_VERSION = version;
+  enableDevTools = location.hostname === "localhost";
   constructor(public store: CommonStore) {}
 }
