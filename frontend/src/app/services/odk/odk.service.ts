@@ -100,6 +100,21 @@ export class OdkService {
     this.notifications.handleError(err);
   }
 
+  /**********************************************************************************************
+   *  Default Methods
+   *********************************************************************************************/
+
+  /**
+   * Take the path of a file relative to the app folder and return a url by
+   * which it can be accessed.
+   * @param relativePath the path of a file relative to the app folder, e.g. `config/assets/csv/tables.init`
+   * @return an absolute URI to the file
+   */
+
+  getFileAsUrl(relativePath: string) {
+    return this.window.odkCommon.getFileAsUrl(relativePath);
+  }
+
   addRowWithSurvey(tableId: string, formId: string, screenPath?, jsonMap?) {
     this.activeArgs = { tableId, formId, screenPath, jsonMap };
     return this.window.odkTables.addRowWithSurvey(
@@ -259,6 +274,10 @@ export class OdkService {
     });
   }
 }
+
+/********************************************************************************************
+ * Helper Functions
+ *********************************************************************************************/
 
 /**
  * When ODK query results are received row data is separate from corresponding row headings.

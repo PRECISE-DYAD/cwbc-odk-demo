@@ -17,7 +17,6 @@ export class BackButtonComponent {
   constructor(
     public location: Location,
     private router: Router,
-    private route: ActivatedRoute
   ) {}
   /**
    * As the back button sits outside main router and using hash routing, standard back/relative
@@ -30,7 +29,6 @@ export class BackButtonComponent {
       .slice(0, -1)
       .join("/")
       .replace("#", "");
-    console.log("backHash", backHash);
     this.router.navigateByUrl(backHash, { replaceUrl: true });
   }
 }
