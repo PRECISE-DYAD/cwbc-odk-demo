@@ -16,7 +16,7 @@ export const PRECISE_SUMMARY_FIELDS: IPreciseFieldSummary[] = [
   },
   {
     label: "Date of PRECISE Visit 1",
-    tableId: "Visit1",
+    tableId: "Visit1_v2",
     field: "f2_visit_date",
   },
   {
@@ -37,7 +37,7 @@ export const PRECISE_SUMMARY_FIELDS: IPreciseFieldSummary[] = [
   },
   {
     label: "Date of PRECISE Visit 2",
-    tableId: "Visit2",
+    tableId: "Visit2_v2",
     field: "f2_visit_date",
   },
   {
@@ -100,7 +100,7 @@ export const PRECISE_PROFILE_FIELDS: IPreciseFieldSummary[] = [
     grouping: "Profile",
   },
   {
-    tableId: "Visit1",
+    tableId: "Visit1_v2",
     field: "f2_woman_addr",
     label: "Address",
     grouping: "Profile",
@@ -112,7 +112,7 @@ export const PRECISE_PROFILE_FIELDS: IPreciseFieldSummary[] = [
     grouping: "Additional",
   },
   {
-    tableId: "Visit1",
+    tableId: "Visit1_v2",
     field: "f3_year_of_birth",
     label: "Year of Birth",
     grouping: "Additional",
@@ -122,7 +122,7 @@ switch (SITE) {
   case "gambia":
     PRECISE_PROFILE_FIELDS.push(
       {
-        tableId: "Visit1",
+        tableId: "Visit1_v2",
         field: "f2_gm_health_facility",
         label: "Health Facility",
         grouping: "Additional",
@@ -130,7 +130,7 @@ switch (SITE) {
     );
     PRECISE_PROFILE_FIELDS.push(
       {
-        tableId: "Visit1",
+        tableId: "Visit1_v2",
         field: "f3_ethnicity_gm",
         label: "Ethnicity",
         grouping: "Additional",
@@ -138,13 +138,13 @@ switch (SITE) {
     );
   case "kenya":
     PRECISE_PROFILE_FIELDS.push({
-      tableId: "Visit1",
+      tableId: "Visit1_v2",
       field: "f2_ke_health_facility",
       label: "Health Facility",
       grouping: "Additional",
     });
     PRECISE_PROFILE_FIELDS.push({
-      tableId: "Visit1",
+      tableId: "Visit1_v2",
       field: "f3_ethnicity_ke",
       label: "Ethnicity",
       grouping: "Additional",
@@ -186,10 +186,10 @@ export const PRECISE_BABY_SUMMARY_FIELDS: IPreciseFieldSummary[] = [
 function calculateVisit1ToToday(data: IPreciseParticipantData) {
   try {
     const d1 = new Date(new Date().toISOString().slice(0, 10)).getTime();
-    const d2 = _strToDate(data.Visit1.f2_visit_date).getTime();
+    const d2 = _strToDate(data.Visit1_v2.f2_visit_date).getTime();
     return ((d1 - d2) / (1000 * 60 * 60 * 24 * 7)).toFixed(1);
   } catch (error) {
-    console.warn("error in calculateVisit1ToToday", error);
+    console.warn("error in calculateVisit1_v2ToToday", error);
     return undefined;
   }
 }
@@ -204,34 +204,34 @@ function getEDD_GA(data: IPreciseParticipantData) {
     const dummyDate = new Date(dummyDateStr);
     const dummyDateCompare = new Date("1900-01-04");
     let ua1_date =
-      data.Visit1.f6a_ultrasound1_date &&
-      data.Visit1.f6a_ultrasound1_date != dummyDateStr
-        ? new Date(data.Visit1.f6a_ultrasound1_date)
+      data.Visit1_v2.f6a_ultrasound1_date &&
+      data.Visit1_v2.f6a_ultrasound1_date != dummyDateStr
+        ? new Date(data.Visit1_v2.f6a_ultrasound1_date)
         : dummyDate;
     let ua2_date =
-      data.Visit1.f6a_ultrasound2_date &&
-      data.Visit1.f6a_ultrasound2_date != dummyDateStr
-        ? new Date(data.Visit1.f6a_ultrasound2_date)
+      data.Visit1_v2.f6a_ultrasound2_date &&
+      data.Visit1_v2.f6a_ultrasound2_date != dummyDateStr
+        ? new Date(data.Visit1_v2.f6a_ultrasound2_date)
         : dummyDate;
     let ua3_date =
-      data.Visit1.f6a_ultrasound3_date &&
-      data.Visit1.f6a_ultrasound3_date != dummyDateStr
-        ? new Date(data.Visit1.f6a_ultrasound3_date)
+      data.Visit1_v2.f6a_ultrasound3_date &&
+      data.Visit1_v2.f6a_ultrasound3_date != dummyDateStr
+        ? new Date(data.Visit1_v2.f6a_ultrasound3_date)
         : dummyDate;
     let ua1_edd =
-      data.Visit1.f6a_ultrasound1_edd_date &&
-      data.Visit1.f6a_ultrasound1_edd_date != dummyDateStr
-        ? new Date(data.Visit1.f6a_ultrasound1_edd_date)
+      data.Visit1_v2.f6a_ultrasound1_edd_date &&
+      data.Visit1_v2.f6a_ultrasound1_edd_date != dummyDateStr
+        ? new Date(data.Visit1_v2.f6a_ultrasound1_edd_date)
         : dummyDate;
     let ua2_edd =
-      data.Visit1.f6a_ultrasound2_edd_date &&
-      data.Visit1.f6a_ultrasound2_edd_date != dummyDateStr
-        ? new Date(data.Visit1.f6a_ultrasound2_edd_date)
+      data.Visit1_v2.f6a_ultrasound2_edd_date &&
+      data.Visit1_v2.f6a_ultrasound2_edd_date != dummyDateStr
+        ? new Date(data.Visit1_v2.f6a_ultrasound2_edd_date)
         : dummyDate;
     let ua3_edd =
-      data.Visit1.f6a_ultrasound3_edd_date &&
-      data.Visit1.f6a_ultrasound3_edd_date != dummyDateStr
-        ? new Date(data.Visit1.f6a_ultrasound3_edd_date)
+      data.Visit1_v2.f6a_ultrasound3_edd_date &&
+      data.Visit1_v2.f6a_ultrasound3_edd_date != dummyDateStr
+        ? new Date(data.Visit1_v2.f6a_ultrasound3_edd_date)
         : dummyDate;
     //make an array object with ultrasound dates and edd
     let date_obj = [
@@ -275,20 +275,17 @@ function getEDD_GA(data: IPreciseParticipantData) {
 
     //compute ga and relevant vars
     let f6a_lmp =
-      data.Visit1.f6a_lmp && data.Visit1.f6a_lmp != dummyDateStr
-        ? new Date(data.Visit1.f6a_lmp)
+      data.Visit1_v2.f6a_lmp && data.Visit1_v2.f6a_lmp != dummyDateStr
+        ? new Date(data.Visit1_v2.f6a_lmp)
         : dummyDate;
     let f2_visit_date =
-      data.Visit1.f2_visit_date && data.Visit1.f2_visit_date != dummyDateStr
-        ? new Date(data.Visit1.f2_visit_date)
+      data.Visit1_v2.f2_visit_date && data.Visit1_v2.f2_visit_date != dummyDateStr
+        ? new Date(data.Visit1_v2.f2_visit_date)
         : dummyDate;
     let sfh =
-      data.Visit1.f6a_as_sfh && data.Visit1.f6a_as_sfh != "-99"
-        ? parseInt(data.Visit1.f6a_as_sfh)
+      data.Visit1_v2.f6a_as_sfh && data.Visit1_v2.f6a_as_sfh != "-99"
+        ? parseInt(data.Visit1_v2.f6a_as_sfh)
         : null;
-    if (SITE == "kenya") {
-      sfh = null;
-    }
 
     if (earliest_edd > dummyDateCompare) {
       //if edd not null, use it to get ga
@@ -362,8 +359,8 @@ function calculateGAatEvent(data: IPreciseParticipantData) {
           ? new Date(data.Birthbaby.f9_delivery_date)
           : dummyDate;
       let f2_visit_date =
-        data.Visit2.f2_visit_date && data.Visit2.f2_visit_date != dummyDateStr
-          ? new Date(data.Visit2.f2_visit_date)
+        data.Visit2_v2.f2_visit_date && data.Visit2_v2.f2_visit_date != dummyDateStr
+          ? new Date(data.Visit2_v2.f2_visit_date)
           : dummyDate;
       if (delivery_date > dummyDateCompare) {
         ga_delivery = (
@@ -390,8 +387,8 @@ function isTodayForVisit2(data: IPreciseParticipantData) {
   const today = new Date(new Date().toISOString().slice(0, 10));
   let result = " ";
   let visit2_date =
-    data.Visit2.f2_visit_date && data.Visit2.f2_visit_date != dummyDateStr
-      ? new Date(data.Visit2.f2_visit_date)
+    data.Visit2_v2.f2_visit_date && data.Visit2_v2.f2_visit_date != dummyDateStr
+      ? new Date(data.Visit2_v2.f2_visit_date)
       : null;
   try {
     const ga_today =
@@ -399,11 +396,11 @@ function isTodayForVisit2(data: IPreciseParticipantData) {
       calculateGAatEvent(data).ga_today != " "
         ? +calculateGAatEvent(data).ga_today
         : null;
-    const weeksAfterVisit1 = calculateVisit1ToToday(data)
+    const weeksAfterVisit1_v2 = calculateVisit1ToToday(data)
       ? Number(calculateVisit1ToToday(data))
       : null;
-    if (ga_today && weeksAfterVisit1) {
-      result = ga_today >= 28 && weeksAfterVisit1 >= 4 ? "Yes" : "No";
+    if (ga_today && weeksAfterVisit1_v2) {
+      result = ga_today >= 28 && weeksAfterVisit1_v2 >= 4 ? "Yes" : "No";
       if (visit2_date) {
         result = "Visit 2 entered. Check if not sure.";
       } else if (data.Birthbaby.f9_delivery_date) {
@@ -443,10 +440,10 @@ function _strToDateStr(str: string) {
  * will be an empty json object. E.G.
  * ```
  * data = {
- *  Visit1:{
+ *  Visit1_v2:{
  *    f2_some_field:'some_value'
  *  },
- *  Visit2:{
+ *  Visit2_v2:{
  *    f3_another_field: 'another_value'
  *  },
  *  Withdrawal:{},
@@ -468,7 +465,7 @@ export type IPreciseParticipantData = {
  * @param calc - String representing alculation required for value.
  * Can call JS functions, and/or access `data` object for parameters, e.g.
  * ```
- * calc: "Math.min(data.Visit1.f2_some_field, data.Visit2.f3_another_field)"
+ * calc: "Math.min(data.Visit1_v2.f2_some_field, data.Visit2_v2.f3_another_field)"
  * ```
  * @param grouping - (WiP) - group fields together (only used in profile table)
  * @param icon - (WiP) - optional icon to appear before text
