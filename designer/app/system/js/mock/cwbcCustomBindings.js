@@ -77,7 +77,6 @@ define(["mockImpl"], function (mockImpl) {
 
     // Method doesn't exist in mock implementation, but does for java so recreate
     window.odkData.getAllTableIds = (successCallbackFn, failureCallbackFn) => {
-        console.log("get all table ids");
         // use bind to bind variables to paremeters indicated with '?'
         const sql = {
             statement: "SELECT * from _table_definitions",
@@ -98,7 +97,7 @@ define(["mockImpl"], function (mockImpl) {
 
     // helper function to execut sql on sqlite db
     function executeSql(sql, successCallbackFn, failureCallbackFn) {
-        console.log("executing sql", sql);
+        // console.log("executing sql", sql);
         // all database operations are run with a context for callbacks
         // these don't share data and are more to retrieve responses elsewhere
         // currently bypassing to run success callbacks direct (and not use queue system)

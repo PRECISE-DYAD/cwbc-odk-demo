@@ -41,6 +41,7 @@ interface IActiveArgs {
 export class OdkService {
   tables: string[];
   ready$ = new BehaviorSubject(false);
+  surveyIsOpen$ = new BehaviorSubject(false);
   activeArgs: IActiveArgs = {};
   private window: IODKWindow = window as any;
   constructor(private notifications: NotificationService) {
@@ -97,6 +98,7 @@ export class OdkService {
     this.setServiceReady();
   }
   handleError(err: Error) {
+    console.error(err);
     this.notifications.handleError(err);
   }
 
@@ -117,6 +119,7 @@ export class OdkService {
 
   addRowWithSurvey(tableId: string, formId: string, screenPath?, jsonMap?) {
     this.activeArgs = { tableId, formId, screenPath, jsonMap };
+    this.surveyIsOpen$.next(true);
     return this.window.odkTables.addRowWithSurvey(
       null,
       tableId,
@@ -127,6 +130,7 @@ export class OdkService {
   }
   editRowWithSurvey(tableId, rowId, formId) {
     this.activeArgs = { tableId, formId, rowId };
+    this.surveyIsOpen$.next(true);
     return this.window.odkTables.editRowWithSurvey(
       null,
       tableId,
@@ -138,6 +142,7 @@ export class OdkService {
 
   addRow(tableId: string, columnNameValueMap, rowId: string) {
     this.activeArgs = { tableId, columnNameValueMap, rowId };
+    this.surveyIsOpen$.next(true);
     return new Promise((resolve, reject) => {
       const revision = this.window.odkData._getTableMetadataRevision(tableId);
       console.log("revision", revision);
@@ -160,6 +165,24 @@ export class OdkService {
         );
     });
   }
+  /**
+   * Delete a row from the database
+   * @param rowId - `_id` property of row
+   */
+  deleteRow(tableId: string, rowId: string) {
+    return new Promise((resolve, reject) => {
+      this.window.odkData.deleteRow(
+        tableId,
+        null,
+        rowId,
+        (res) => resolve(res),
+        (err) => {
+          this.handleError(err);
+          reject(err);
+        }
+      );
+    });
+  }
 
   /**
    * Use ODKData Query to return all rows for a specific table
@@ -178,7 +201,9 @@ export class OdkService {
     tableId: string,
     whereClause: string = null,
     sqlBindParams: string[] = null,
-    failureCallback = this.handleError
+    failureCallback = (err) => {
+      this.handleError(err);
+    }
   ): Promise<(IODkTableRowData & T)[]> {
     console.log("exec query", tableId, whereClause, sqlBindParams);
     return new Promise((resolve, reject) => {
@@ -219,7 +244,7 @@ export class OdkService {
     tableId: string,
     sqlCommand: string,
     sqlBindParams: string[] = [],
-    failureCallback = this.handleError
+    failureCallback = (err) => this.handleError(err)
   ): Promise<any> {
     console.log("exec query", tableId, sqlCommand, sqlBindParams);
     return new Promise((resolve, reject) => {

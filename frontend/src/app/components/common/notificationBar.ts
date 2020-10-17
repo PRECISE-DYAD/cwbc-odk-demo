@@ -55,7 +55,7 @@ import {
 export class NotificationBarComponent {
   constructor(
     public snackBarRef: MatSnackBarRef<NotificationBarComponent>,
-    @Inject(MAT_SNACK_BAR_DATA) public data: ISnackbarData
+    @Inject(MAT_SNACK_BAR_DATA) public data: ISnackbarData,
   ) {}
   dismiss() {
     this.snackBarRef.dismiss();

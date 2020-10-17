@@ -139,6 +139,7 @@ export class ODKDesignerIframeComponent {
       setTimeout(() => {
         this.show = false;
         this.iframeUri = null;
+        this.odkService.surveyIsOpen$.next(false);
       }, 50);
     });
   }

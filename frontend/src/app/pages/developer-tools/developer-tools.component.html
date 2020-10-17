@@ -1,21 +1,52 @@
 <div class="page">
   <div style="padding: 1em">
     <h2>Database Tables</h2>
+    <p>
+      Note, Only tables that have been opened in odk tables will appear here
+    </p>
     <table style="color: var(--color-black)">
       <th>Table ID</th>
       <th>Total Rows</th>
       <tr *ngFor="let table of tableMeta">
         <td>{{ table._table_id }}</td>
-        <td></td>
+        <td>{{ table.rows.length }}</td>
       </tr>
     </table>
 
-    <h2 style="margin-top: 2em">Local Tables</h2>
+    <h2 style="margin-top: 2em">Load CSVs</h2>
     <p>
-      Note, these are defined in the <code>tables.init</code> asset file
+      Note, This will only populate csvs defined in <code>tables.init</code>
     </p>
-    <button mat-stroked-button style="margin-top: 1em">
-      Import local CSVs
-    </button>
+    <table style="color: var(--color-black)">
+      <th>Table ID</th>
+      <th>CSV Path</th>
+      <th></th>
+      <tr *ngFor="let meta of tablesInitMeta; index as i">
+        <td>{{ meta.tableId }}</td>
+        <td>{{ meta.csvFilePath }}</td>
+        <td>
+          <!-- <button mat-stroked-button (click)="openInDesigner(meta)">
+            Open In Application Designer
+          </button> -->
+          <button
+            mat-stroked-button
+            (click)="empty(meta, i)"
+            [disabled]="meta.isImporting"
+          >
+            Empty
+          </button>
+          <button
+            mat-stroked-button
+            (click)="importCSV(meta, i)"
+            [disabled]="meta.isImporting"
+          >
+            <span *ngIf="!meta.isImporting">Import</span>
+            <span *ngIf="meta.isImporting"
+              >{{ meta.importProcessed }} / {{ meta.importTotal }}</span
+            >
+          </button>
+        </td>
+      </tr>
+    </table>
   </div>
 </div>

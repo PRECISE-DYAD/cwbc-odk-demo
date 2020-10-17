@@ -4,12 +4,20 @@ import Papa from "papaparse";
 
 // tslint:disable variable-name
 
-class OdkDataClass {
+abstract class OdkDataClass {
   _requestMap: any[] = [];
   _transactionId: 0;
   _callbackId: 0;
   _tableMetadataCache: {};
   constructor(private http: HttpClient) {}
+  abstract deleteRow(
+    tableId: string,
+    columnNameValueMap: any,
+    rowId: string,
+    successCallbackFn: (res) => void,
+    failureCallbackFn: (err) => void
+  ): void;
+
   getAllTableIds(successCallbackFn, failureCallbackFn) {
     console.error("getAllTableIds not implemented");
     return [];
@@ -38,6 +46,7 @@ class OdkDataClass {
   getRows(tableId, rowId, successCallbackFn, failureCallbackFn) {
     console.log("getting rows");
   }
+
   /**
    * For mock implementation return any data as defined in the `forms/csv`
    * folder for the corresponding table (no sort/filter logic applied)
