@@ -28,14 +28,20 @@ async function main() {
 
 async function exportTables(tables: IODK.ITableMeta[]) {
   const exportBase = `exports/${new Date().toISOString().substring(0, 10)}`;
+  fs.ensureDirSync(exportBase);
+  fs.emptyDirSync(exportBase);
   fs.ensureDirSync(`${exportBase}/csv`);
-  fs.ensureDirSync(`${exportBase}/json`);
+  fs.ensureDirSync(`${exportBase}/tables`);
   const summary = [];
   for (const table of tables) {
     const { schemaETag, tableId } = table;
+    // TODO - move table file exports to separate function and use manifest to fully populate
+    const tableAssetBase = `tables/${tableId}/forms/${tableId}`;
+    const buffer = await odkRest.getFile(`${tableAssetBase}/${tableId}.xlsx`);
+    fs.ensureDirSync(`${exportBase}/${tableAssetBase}`);
+    fs.writeFileSync(`${exportBase}/${tableAssetBase}/${tableId}.xlsx`, buffer);
     const { rows } = await odkRest.getRows(tableId, schemaETag);
     if (rows.length > 0) {
-      fs.writeJSONSync(`${exportBase}/json/${tableId}.json`, rows);
       const csvData = convertODKRowsToCSV(rows);
       writeCSV(`${exportBase}/csv/${tableId}.csv`, csvData);
     }

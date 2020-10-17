@@ -1,4 +1,4 @@
-import axios, { AxiosResponse, AxiosError } from "axios";
+import axios, { AxiosResponse, AxiosError, AxiosRequestConfig } from "axios";
 require("dotenv").config();
 
 /**
@@ -9,10 +9,10 @@ const username = process.env.ODK_USERNAME;
 const password = process.env.ODK_PASSWORD;
 const baseUrl = `${process.env.ODK_SERVER_URL}/odktables`;
 
-async function get<T = any>(endpoint: string) {
+async function get<T = any>(endpoint: string, config: AxiosRequestConfig = {}) {
   const url = `${baseUrl}/${endpoint}`;
   return axios
-    .get(url, { auth: { username, password } })
+    .get(url, { auth: { username, password }, ...config })
     .then((res) => handleRes<T>(res))
     .catch((err) => handleErr(err));
 }

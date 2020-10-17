@@ -45,8 +45,8 @@ function run() {
   }
   ensureCopy("forms/app.properties", `${designerAssetsPath}/app.properties`);
   // copy back json and csv data in case frontend wants to access
-  ensureCopy(`forms/csv`, `${frontendPath}/src/assets/odk/csv`, true);
-  copyFormdefsToFrontend();
+  // ensureCopy(`forms/csv`, `${frontendPath}/src/assets/odk/csv`, true);
+  // copyFormdefsToFrontend();
 }
 run();
 
@@ -73,6 +73,7 @@ function populateSampleFiles() {
  * Copy all form definition files to the frontend for use in processing
  * during participant display
  * Strips some data from formdata to reduce file sizes
+ * (2020-10-15 - Deprecated as can access direct, but retaining for reference)
  */
 function copyFormdefsToFrontend() {
   const srcDir = `${designerPath}/app/config/tables`;

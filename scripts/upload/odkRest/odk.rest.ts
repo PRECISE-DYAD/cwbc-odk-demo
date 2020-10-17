@@ -50,6 +50,11 @@ export class OdkRestService {
     return http.get<{ files: IODK.IManifestItem[] }>(path);
   }
 
+  getFile(filepath: string, odkClientVersion = 2) {
+    const path = `default/files/${odkClientVersion}/${filepath}?as_attachment=false`;
+    return http.get<Buffer>(path, { responseType: "arraybuffer" });
+  }
+
   getTableIdFileManifest(tableId: string, odkClientVersion = 2) {
     const path = `default/manifest/${odkClientVersion}/${tableId}`;
     return http.get<{ files: IODK.IManifestItem[] }>(path);
