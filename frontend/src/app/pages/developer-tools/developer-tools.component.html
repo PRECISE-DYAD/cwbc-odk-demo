@@ -1,52 +1,52 @@
 <div class="page">
   <div style="padding: 1em">
     <h2>Database Tables</h2>
-    <p>
-      Note, Only tables that have been opened in odk tables will appear here
-    </p>
+    <p>The following table information is present</p>
     <table style="color: var(--color-black)">
-      <th>Table ID</th>
-      <th>Total Rows</th>
-      <tr *ngFor="let table of tableMeta">
-        <td>{{ table._table_id }}</td>
-        <td>{{ table.rows.length }}</td>
-      </tr>
-    </table>
-
-    <h2 style="margin-top: 2em">Load CSVs</h2>
-    <p>
-      Note, This will only populate csvs defined in <code>tables.init</code>
-    </p>
-    <table style="color: var(--color-black)">
-      <th>Table ID</th>
-      <th>CSV Path</th>
-      <th></th>
-      <tr *ngFor="let meta of tablesInitMeta; index as i">
-        <td>{{ meta.tableId }}</td>
-        <td>{{ meta.csvFilePath }}</td>
-        <td>
-          <!-- <button mat-stroked-button (click)="openInDesigner(meta)">
-            Open In Application Designer
-          </button> -->
-          <button
-            mat-stroked-button
-            (click)="empty(meta, i)"
-            [disabled]="meta.isImporting"
-          >
-            Empty
+      <th style="width: 50px">Table ID</th>
+      <th style="width: 50px">Display Name</th>
+      <th>Local Rows</th>
+      <th>CSV Import</th>
+      <th>Designer</th>
+      <tr *ngFor="let table of tablesMeta; index as i">
+        <td>{{ table.tableId }}</td>
+        <td>{{ table.display.title.text }}</td>
+        <td style="text-align: center; width: 50px">
+          <div>{{ table.rows.length }}</div>
+          <button mat-icon-button (click)="empty(table, i)">
+            <mat-icon>delete</mat-icon>
           </button>
+        </td>
+        <td style="text-align: center; width: 50px">
+          <div *ngIf="table.csvFilePath">{{ table.csvRows.length }}</div>
+          <div *ngIf="!table.csvFilePath">No CSV</div>
           <button
-            mat-stroked-button
-            (click)="importCSV(meta, i)"
-            [disabled]="meta.isImporting"
+            *ngIf="table.csvFilePath"
+            mat-icon-button
+            (click)="importCSV(table, i)"
+            [disabled]="
+              table.isImporting || table.csvRows.length === table.rows.length
+            "
           >
-            <span *ngIf="!meta.isImporting">Import</span>
-            <span *ngIf="meta.isImporting"
-              >{{ meta.importProcessed }} / {{ meta.importTotal }}</span
+            <span *ngIf="table.isImporting">
+              {{ table.importProcessed }} / {{ table.csvRows.length }}
+            </span>
+            <mat-icon
+              *ngIf="
+                !table.isImporting && table.csvRows.length !== table.rows.length
+              "
+              >import_export</mat-icon
             >
+          </button>
+        </td>
+        <td style="width: 50px">
+          <button mat-stroked-button (click)="openInDesigner(table)">
+            Show
           </button>
         </td>
       </tr>
     </table>
+
+    <p>Note, CSVs will only populate if defined in <code>tables.init</code></p>
   </div>
 </div>

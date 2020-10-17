@@ -47,24 +47,98 @@ interface IODKTableRowMetaData {
   _conflict_type?: string;
 }
 
-export const ODK_META_EXAMPLE: IODKTableRowMetaData = {
-  _default_access: "FULL",
-  _form_id: "profileSummary",
-  _id: "uuid:d7d3c67a-2672-4b9c-a4a7-a8a26a4c3d42",
-  _locale: "en_GB",
-  _row_owner: "anonymous",
-  _savepoint_creator: "anonymous",
-  _savepoint_timestamp: "2020-04-07T20:46:14.902000000",
-  _savepoint_type: "COMPLETE",
-  _sync_state: "new_row",
-  _effective_access: "rwd",
-  // only from data export
-  _group_modify: "TRUE",
-  _group_privileged: "(...)",
-  _group_read_only: "TRUE",
-  _row_etag: "",
-  _conflict_type: null,
-};
+export interface IFormDef {
+  xlsx: IFormDefWorksheets;
+  specification: IFormDefSpecification;
+}
+
+// https://docs.odk-x.org/xlsx-converter-reference/#excel-worksheets
+interface IFormDefWorksheets {
+  // mandatory worksheets
+  survey: ISurveyWorksheetRow[];
+  settings: any;
+  // optional worksheets
+  properties?: any;
+  calculates?: any;
+  choices?: any;
+  model?: any;
+  queries?: any;
+  column_types?: any;
+  prompt_types?: any;
+  framework_translations?: any;
+  common_translations?: any;
+  table_specific_translations?: any;
+  // additional worksheets can be referenced by name
+  [userDefinedSection: string]: ISurveyWorksheetRow[];
+}
+
+export interface ISurveyWorksheetRow {
+  // populated metadata
+  _row_num: number;
+  // core inputs, compulsory on form but might be removed from formDef
+  type?: string;
+  name?: string;
+  display?: {
+    prompt?:
+      | string
+      | {
+          text?: string;
+          audio?: string;
+          image?: string;
+          video?: string;
+        };
+    title?: ITranslatableText;
+    constraint_message?: ITranslatableText;
+    hint?: ITranslatableText;
+  };
+  // additional inputs
+  branch_label?: string;
+  calculation?: string;
+  choice_filter?: string;
+  clause?: string;
+  comments?: string;
+  condition?: string;
+  constraint?: string;
+  default?: string;
+  hideInContents?: string;
+  inputAttributes?: {
+    [attribute: string]: string;
+  };
+  isSessionVariable?: string;
+  required?: string;
+  templatePath?: string;
+  value_list?: string;
+  // not included in docs but still exists
+  screen?: {
+    screen_type?: string;
+  };
+}
+type ISurveyRowKey = keyof ISurveyWorksheetRow;
+// translations can be provided by a reference or direct text
+type ITranslatableText = "string" | { text: string };
+
+interface IFormDefSpecification {
+  calculates: any;
+  choices: {
+    [choice_list_name: string]: IFormDefSpecificationChoice[];
+  };
+  column_types: any;
+  common_definitions: any;
+  dataTableModel: any;
+  framework_definitions: any;
+  model: any;
+  properties: any[];
+  queries: any;
+  section_names: string[];
+  sections: any;
+  settings: any;
+}
+export interface IFormDefSpecificationChoice {
+  choice_list_name: string;
+  data_value: string;
+  display: { title: { text: string } };
+  _row_num: number;
+}
 
 /************************************************************************
  *  Examples
@@ -152,4 +226,23 @@ const MOCK_ODK_TABLE_ROW_METADATA = {
   _group_read_only: "",
   _row_etag: "",
   "_row_owner ": "anonymous",
+};
+
+export const ODK_META_EXAMPLE: IODKTableRowMetaData = {
+  _default_access: "FULL",
+  _form_id: "profileSummary",
+  _id: "uuid:d7d3c67a-2672-4b9c-a4a7-a8a26a4c3d42",
+  _locale: "en_GB",
+  _row_owner: "anonymous",
+  _savepoint_creator: "anonymous",
+  _savepoint_timestamp: "2020-04-07T20:46:14.902000000",
+  _savepoint_type: "COMPLETE",
+  _sync_state: "new_row",
+  _effective_access: "rwd",
+  // only from data export
+  _group_modify: "TRUE",
+  _group_privileged: "(...)",
+  _group_read_only: "TRUE",
+  _row_etag: "",
+  _conflict_type: null,
 };

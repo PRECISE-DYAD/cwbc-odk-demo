@@ -3,7 +3,7 @@ import * as fs from "fs-extra";
 import rows from "../inputs/rows.json";
 import formDef from "../inputs/formDef.json";
 import { SurveySummary } from "./surveySummary";
-import { IFormDef } from "../types";
+import { IFormDef } from "../../frontend/src/app/types/odk.types";
 
 console.error = (...args) => console.log(chalk.bgRed.white(...args));
 console.info = (...args) => console.log(chalk.gray(...args));
