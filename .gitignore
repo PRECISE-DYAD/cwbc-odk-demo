@@ -28,6 +28,7 @@ scripts/logs/*.json
 
 *.env
 frontend/src/assets/odk
+frontend/src/environments/environment.ts
 
 # avoid use of yarn, prefer npm
 **/yarn.lock
