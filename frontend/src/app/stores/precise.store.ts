@@ -139,15 +139,16 @@ export class PreciseStore {
   @action setParticipantForms(collated: {
     [tableId: string]: IODkTableRowData[];
   }) {
-    this.participantForms = Object.values(PRECISE_SCHEMA).map((f) => ({
+    const participantForms = Object.values(PRECISE_SCHEMA).map((f) => ({
       ...f,
-      entries: collated[this._mapTableId(f.tableId)],
+      entries: collated[this._mapTableId(f.tableId)] || [],
     }));
+    this.participantForms = participantForms;
     this.participantFormsHash = this._arrToHashmap(
       this.participantForms,
       "formId"
     );
-    this.activeParticipantData = this._extractDataValues(this.participantForms);
+    this.activeParticipantData = this._extractDataValues(participantForms);
     this.participantDataLoaded = true;
   }
 

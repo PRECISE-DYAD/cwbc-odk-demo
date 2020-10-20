@@ -112,7 +112,10 @@ export class EnrollmentDialogComponent {
     // use timeout to give better impression of searching
     setTimeout(() => {
       this.screeningRecords = this.store.screeningData.filter(
-        (d) => d.f0_woman_precise_id === ptid || d.f1_woman_precise_id === ptid
+        (d) =>
+          d.f0_woman_precise_id === ptid ||
+          d.f1_woman_precise_id === ptid ||
+          d.f0_precise_id === ptid
       );
 
       const participantRecords = this.store.allParticipants.filter(
