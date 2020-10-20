@@ -140,6 +140,10 @@ export class ODKDesignerIframeComponent {
         this.show = false;
         this.iframeUri = null;
         this.odkService.surveyIsOpen$.next(false);
+        setTimeout(() => {
+          // Do a full page refresh as occurs in odk tables to prompt any init logic
+          location.reload();
+        }, 500);
       }, 50);
     });
   }

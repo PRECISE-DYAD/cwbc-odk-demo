@@ -1,12 +1,15 @@
 import chalk from "chalk";
 import * as fs from "fs-extra";
-import rows from "../inputs/rows.json";
-import formDef from "../inputs/formDef.json";
+
 import { SurveySummary } from "./surveySummary";
 import { IFormDef } from "../../frontend/src/app/types/odk.types";
 
-console.error = (...args) => console.log(chalk.bgRed.white(...args));
-console.info = (...args) => console.log(chalk.gray(...args));
+console.error = (...args: any) => console.log(chalk.bgRed.white(...args));
+console.info = (...args: any) => console.log(chalk.gray(...args));
+// import inputs
+
+const formDef: IFormDef = fs.readJSONSync("./inputs/formDef.json");
+const rows = fs.readJSONSync("./inputs/rows.json");
 
 function run() {
   const response = rows[0];

@@ -1,6 +1,7 @@
 import { Component } from "@angular/core";
 import { CommonStore } from "src/app/stores/common.store";
 import { version } from "package.json";
+import { environment } from "src/environments/environment";
 
 @Component({
   selector: "app-home",
@@ -9,6 +10,6 @@ import { version } from "package.json";
 })
 export class HomeComponent {
   APP_VERSION = version;
-  enableDevTools = location.hostname === "localhost";
+  enableDevTools = !environment.production;
   constructor(public store: CommonStore) {}
 }

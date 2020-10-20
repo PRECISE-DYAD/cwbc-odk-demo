@@ -205,7 +205,6 @@ export class OdkService {
       this.handleError(err);
     }
   ): Promise<(IODkTableRowData & T)[]> {
-    console.log("exec query", tableId, whereClause, sqlBindParams);
     return new Promise((resolve, reject) => {
       this.window.odkData.query(
         tableId,
@@ -246,7 +245,6 @@ export class OdkService {
     sqlBindParams: string[] = [],
     failureCallback = (err) => this.handleError(err)
   ): Promise<any> {
-    console.log("exec query", tableId, sqlCommand, sqlBindParams);
     return new Promise((resolve, reject) => {
       this.window.odkData.arbitraryQuery(
         tableId,
@@ -279,7 +277,6 @@ export class OdkService {
     sqlBindParams: string[] = [],
     failureCallback = this.handleError
   ): Promise<T[]> {
-    console.log("exec query", tableId, sqlCommand, sqlBindParams);
     return new Promise((resolve, reject) => {
       this.window.odkData.arbitrarySqlQueryLocalOnlyTables(
         tableId,

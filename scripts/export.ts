@@ -1,5 +1,6 @@
 import * as fs from "fs-extra";
 import * as path from "path";
+import * as chalk from "chalk";
 import { promptOptions } from "./utils";
 // TODO - refactor to have upload and export scripts and deps as siblings
 import { OdkRestService } from "./upload/odkRest/odk.rest";
@@ -16,8 +17,8 @@ async function main() {
   if (!ODK_SERVER_URL) {
     throw new Error("ODK_SERVER_URL not specified in .env, aborting export");
   }
+  console.log("Exporting tables from ", chalk.bgBlack.yellow(ODK_SERVER_URL));
   const tables = (await odkRest.getTables()).tables;
-  console.log("this will export the following tables");
   console.log(tables.map((t) => t.tableId));
   if (
     (await promptOptions(["no", "yes"], "Do you wish to proceed?")) === "yes"
