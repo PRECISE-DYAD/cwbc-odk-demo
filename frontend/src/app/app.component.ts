@@ -13,7 +13,7 @@ import { environment } from "src/environments/environment";
 })
 export class AppComponent {
   // during local dev mode use an iframe to communicate with odk app designer
-  enableODKDevIframe = environment.production;
+  enableODKDevIframe = !environment.production;
   getRouteAnimation(outlet: RouterOutlet) {
     return outlet?.activatedRouteData?.animation;
   }
