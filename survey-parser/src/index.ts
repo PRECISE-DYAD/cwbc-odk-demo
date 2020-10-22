@@ -8,8 +8,15 @@ console.error = (...args: any) => console.log(chalk.bgRed.white(...args));
 console.info = (...args: any) => console.log(chalk.gray(...args));
 // import inputs
 
-const formDef: IFormDef = fs.readJSONSync("./inputs/formDef.json");
-const rows = fs.readJSONSync("./inputs/rows.json");
+let formDef: IFormDef;
+let rows: any[];
+try {
+  formDef = fs.readJSONSync("./inputs/formDef.json");
+  rows = fs.readJSONSync("./inputs/rows.json");
+} catch (error) {
+  console.error("No formdef or rows file in input folder");
+  process.exit(1);
+}
 
 function run() {
   const response = rows[0];
