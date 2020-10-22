@@ -23,33 +23,45 @@ async function main() {
   if (
     (await promptOptions(["no", "yes"], "Do you wish to proceed?")) === "yes"
   ) {
-    await exportTables(tables);
+    const exportFolder = `exports/${new Date().toISOString().substring(0, 10)}`;
+    fs.ensureDirSync(exportFolder);
+    fs.emptyDirSync(exportFolder);
+    await exportFramework(exportFolder);
+    await exportTables(exportFolder, tables);
   }
 }
 
-async function exportTables(tables: IODK.ITableMeta[]) {
-  const exportBase = `exports/${new Date().toISOString().substring(0, 10)}`;
-  fs.ensureDirSync(exportBase);
-  fs.emptyDirSync(exportBase);
-  fs.ensureDirSync(`${exportBase}/csv`);
-  fs.ensureDirSync(`${exportBase}/tables`);
+async function exportFramework(exportFolder: string) {
+  fs.ensureDirSync(`${exportFolder}/framework`);
+  const serverFilePath = `assets/framework/forms/framework/framework.xlsx`;
+  const buffer = await odkRest.getFile(serverFilePath);
+  fs.writeFileSync(`${exportFolder}/framework/framework.xlsx`, buffer);
+}
+
+async function exportTables(exportFolder: string, tables: IODK.ITableMeta[]) {
+  fs.ensureDirSync(`${exportFolder}/csv`);
+  fs.ensureDirSync(`${exportFolder}/tables`);
+
   const summary = [];
   for (const table of tables) {
     const { schemaETag, tableId } = table;
     // TODO - move table file exports to separate function and use manifest to fully populate
     const tableAssetBase = `tables/${tableId}/forms/${tableId}`;
     const buffer = await odkRest.getFile(`${tableAssetBase}/${tableId}.xlsx`);
-    fs.ensureDirSync(`${exportBase}/${tableAssetBase}`);
-    fs.writeFileSync(`${exportBase}/${tableAssetBase}/${tableId}.xlsx`, buffer);
+    fs.ensureDirSync(`${exportFolder}/${tableAssetBase}`);
+    fs.writeFileSync(
+      `${exportFolder}/${tableAssetBase}/${tableId}.xlsx`,
+      buffer
+    );
     const { rows } = await odkRest.getRows(tableId, schemaETag);
     if (rows.length > 0) {
       const csvData = convertODKRowsToCSV(rows);
-      writeCSV(`${exportBase}/csv/${tableId}.csv`, csvData);
+      writeCSV(`${exportFolder}/csv/${tableId}.csv`, csvData);
     }
     summary.push({ tableId, "rows exported": rows.length });
   }
   console.table(summary);
-  console.log("exported to", path.join(process.cwd(), exportBase));
+  console.log("exported to", path.join(process.cwd(), exportFolder));
 }
 
 /**
