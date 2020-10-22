@@ -2,7 +2,6 @@ import { Injectable } from "@angular/core";
 import { Router, ActivatedRoute } from "@angular/router";
 import { observable, action, computed } from "mobx-angular";
 import { reaction } from "mobx";
-import { SurveySummary } from "../../../../survey-parser/src/surveySummary";
 import { OdkService } from "src/app/services/odk/odk.service";
 import { IODkTableRowData, ODK_META_EXAMPLE } from "src/app/types/odk.types";
 import { _arrToHashmap, _wait, uuidv4 } from "src/app/utils";
