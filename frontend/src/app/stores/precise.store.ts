@@ -139,7 +139,9 @@ export class PreciseStore {
       this.participantForms,
       "formId"
     );
-    this.activeParticipantData = this._extractDataValues(this.participantForms);
+    this.activeParticipantData = this._extractMappedDataValues(
+      this.participantForms
+    );
     this.participantDataLoaded = true;
   }
 
@@ -282,10 +284,12 @@ export class PreciseStore {
 
   /**
    *  Take the full list of forms and entries for the active participant and collate all values
-   *  into nested json for faster lookup
+   *  into nested json for faster lookup.
+   *  Additionally include a backwards map so that values can be accessed directly via table map names
+   *
    *  NOTE - in the case of multiple entries takes only the most recent
    */
-  private _extractDataValues(participantForms: IFormMetaWithEntries[]) {
+  private _extractMappedDataValues(participantForms: IFormMetaWithEntries[]) {
     const data = {};
     for (const form of participantForms) {
       const tableId = this._mapTableId(form.tableId);
@@ -299,6 +303,10 @@ export class PreciseStore {
         });
       }
     }
+    // assign mapping data
+    Object.entries(environment.tableMapping).forEach(([tableId, mappedId]) => {
+      data[tableId] = data[mappedId];
+    });
     return data;
   }
 
