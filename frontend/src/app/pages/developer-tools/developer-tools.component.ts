@@ -4,6 +4,7 @@ import { takeWhile } from "rxjs/operators";
 import { OdkService } from "src/app/services/odk/odk.service";
 import { IFormDef, IFormDefSpecificationChoice } from "src/app/types/odk.types";
 import { parseCSV } from "src/app/services/utils";
+import { _arrToHashmap } from "src/app/utils";
 
 @Component({
   selector: "app-developer-tools",
@@ -92,27 +93,43 @@ export class DeveloperToolsComponent implements OnInit {
   // ready for production use - there are too many issues with handling empty data and invalid data types
   async importCSV(meta: ITableMeta, metaIndex: number) {
     this.tablesMeta[metaIndex].isImporting = true;
-    const csvPath = this.odkService.getFileAsUrl(meta.csvFilePath);
-    const { tableId } = meta;
-    this.http
+    const { tableId, csvFilePath } = meta;
+    // TODO - handle checking data consistency before import (all columns defined)
+    const definitions = await this.getTableDefinitions(tableId);
+    const definitionsByKey = _arrToHashmap<ITableDefinitionRow>(
+      definitions,
+      "_element_key"
+    );
+    const csvPath = this.odkService.getFileAsUrl(csvFilePath);
+    const csvText = await this.http
       .get(csvPath, { responseType: "text" })
-      .subscribe(async (csvText) => {
-        const rows: any[] = await parseCSV(csvText, {
-          // TODO - should be a way to pass empty strings but for now just set as NULL
-          transform: (v) => (v ? v : "NULL"),
-        });
-        this.tablesMeta[metaIndex].importProcessed = 0;
-        for (const row of rows) {
-          try {
-            await this.odkService.addRow(tableId, row, row._id);
-            this.tablesMeta[metaIndex].importProcessed++;
-          } catch (error) {
-            await this.odkService.deleteRow(tableId, row._id).then(() => {});
-            break;
-          }
+      .toPromise();
+    const rows: any[] = await parseCSV(csvText, {
+      transform: (value, key) => {
+        // TODO - should be a way to pass empty strings but for now just set as NULL
+        if (value === "") {
+          return null;
         }
-        this.updateLocalTableRows();
-      });
+        // Optional - handle any specific data field mapping
+        // (all string values should be handled by odk function toDatabaseFromOdkDataInterfaceElementType)
+        const dataType = definitionsByKey[key]?._element_type;
+        switch (dataType) {
+          default:
+            return value;
+        }
+      },
+    });
+    this.tablesMeta[metaIndex].importProcessed = 0;
+    for (const row of rows) {
+      try {
+        await this.odkService.addRow(tableId, row, row._id);
+        this.tablesMeta[metaIndex].importProcessed++;
+      } catch (error) {
+        await this.odkService.deleteRow(tableId, row._id).then(() => {});
+        break;
+      }
+    }
+    this.updateLocalTableRows();
   }
   async empty(meta: ITableMeta, metaIndex: number) {
     const { tableId } = meta;
@@ -125,6 +142,18 @@ export class DeveloperToolsComponent implements OnInit {
     );
     this.tablesMeta[metaIndex].isImporting = false;
     this.updateLocalTableRows();
+  }
+  /**
+   * Return a json-parsed representation of a table's definitions.csv file
+   */
+  private async getTableDefinitions(tableId: string) {
+    const definitionsBase = `config/tables/${tableId}/definition.csv`;
+    const definitionsPath = this.odkService.getFileAsUrl(definitionsBase);
+    const definitionsText = await this.http
+      .get(definitionsPath, { responseType: "text" })
+      .toPromise();
+    const definitions = await parseCSV(definitionsText);
+    return definitions as ITableDefinitionRow[];
   }
 
   /**
@@ -192,4 +221,11 @@ interface ITableMeta {
   csvRows?: any[];
   isImporting?: boolean;
   importProcessed?: number;
+}
+
+interface ITableDefinitionRow {
+  _element_key: string;
+  _element_name: string;
+  _element_type: string;
+  _list_child_element_keys: string;
 }
