@@ -2,11 +2,9 @@ import watch from "node-watch";
 import * as path from "path";
 import * as fs from "fs-extra";
 import * as child from "child_process";
-import { recFindByExt } from "./utils";
 
 const rootPath = process.cwd();
 const designerPath = path.join(rootPath, "designer");
-const designerAssetsPath = path.join(designerPath, "app/config/assets");
 const formsPath = path.join(rootPath, "forms");
 /**
  * Automatically watch for changes to form xlsx files
@@ -28,52 +26,28 @@ function main() {
 main();
 
 /**
- * When an XLSX file is changed we want to process it to convert via
- * ODK designer (same as npm prepare method). As a caveat, there is
- * no exposed single file conversion method, so instead we will
- * temporarily move all other files to convert only the changed file,
- * and then move back
- *
- * TODO - borrows a lot from prepare.ts so could be streamlined
+ * When an XLSX file is changed run conversion scripts *
+ * TODO - compare md5 of changed and target files to check if conversion required
  */
-function processChangedFile(name: string) {
-  const updatedFileBasename = path.basename(name);
-  // copy basefiles
-  fs.copySync(
-    "forms/framework",
-    `${designerAssetsPath}/framework/forms/framework`
-  );
-  fs.copySync("forms/tables", `${designerPath}/app/config/tables`);
-  // temporary rename app directory files
-  const currentFiles = recFindByExt(
-    `${designerPath}/app/config/tables`,
-    "xlsx"
-  );
-  for (const filepath of currentFiles) {
-    const basename = path.basename(filepath);
-    if (basename !== updatedFileBasename) {
-      fs.moveSync(filepath, `${filepath}_tmp`, { overwrite: true });
-    }
+function processChangedFile(filepath: string) {
+  const filename = path.basename(filepath);
+  const relativePath = path.relative("forms", filepath);
+  let xlsxTargetPath: string;
+  let formDefTargetPath: string;
+  if (filename === "framework.xlsx") {
+    xlsxTargetPath =
+      "app/config/assets/framework/forms/framework/framework.xlsx";
+  } else {
+    xlsxTargetPath = `app/config/tables/${relativePath}`;
   }
-  // convert all tables (which will currently only be the updated)
-  child.spawnSync("npx grunt", ["xlsx-convert-all"], {
-    cwd: designerPath,
-    stdio: ["ignore", "inherit", "inherit"],
-    shell: true,
-  });
-  // covert back
-  const tmpFiles = recFindByExt(
-    `${designerPath}/app/config/tables`,
-    "xlsx_tmp"
-  );
-  for (const filepath of tmpFiles) {
-    const basename = path.basename(filepath);
-    if (basename === updatedFileBasename) {
-      fs.removeSync(filepath);
-    } else {
-      fs.moveSync(filepath, `${filepath.replace("_tmp", "")}`, {
-        overwrite: true,
-      });
+  formDefTargetPath = xlsxTargetPath.replace(filename, "formDef.json");
+  fs.copySync(filepath, `designer/${xlsxTargetPath}`);
+  child.spawnSync(
+    `npx grunt exec:macGenConvert:${xlsxTargetPath}:${formDefTargetPath}`,
+    {
+      cwd: designerPath,
+      stdio: ["ignore", "inherit", "inherit"],
+      shell: true,
     }
-  }
+  );
 }

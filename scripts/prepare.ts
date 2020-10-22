@@ -12,6 +12,8 @@ function run() {
   console.log("copying data...");
   populateSampleFiles();
   // copy framework and tables
+
+  // TODO - add method to delete folder that no longer exist, and only copy/process updated
   ensureCopy(
     "forms/framework",
     `${designerAssetsPath}/framework/forms/framework`

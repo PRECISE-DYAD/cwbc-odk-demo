@@ -27,6 +27,7 @@ scripts/logs/*.json
 ~$*
 
 *.env
+.env.*
 frontend/src/assets/odk
 frontend/src/environments/environment.ts
 
