@@ -229,9 +229,9 @@ export class PreciseStore {
    * NOTE - any additional fields listed in formMeta also populated
    */
   launchForm(form: IFormMeta, editRowId: string = null, jsonMap: any = {}) {
-    let { formId, tableId, mapFields } = form;
-    tableId = this._mapTableId(tableId);
-    formId = this._mapFormId(formId);
+    const { mapFields } = form;
+    const tableId = this._mapTableId(form.tableId);
+    const formId = this._mapFormId(form.formId);
     // pass active participant guid to form if not otherwise defined
     if (this.activeParticipant) {
       jsonMap.f2_guid = jsonMap.f2_guid || this.activeParticipant.f2_guid;
@@ -250,15 +250,9 @@ export class PreciseStore {
    * provide a lookup for modified table names
    */
   private _mapTableId(tableId: string) {
-    console.log(
-      "map table",
-      tableId,
-      environment.tableMapping[tableId] || tableId
-    );
     return environment.tableMapping[tableId] || tableId;
   }
   private _mapFormId(formId: string) {
-    console.log("map form", formId, environment.tableMapping[formId] || formId);
     return environment.formMapping[formId] || formId;
   }
 
@@ -303,7 +297,7 @@ export class PreciseStore {
         });
       }
     }
-    // assign mapping data
+    // assign mapping data, overriding legacy data if old table still exists
     Object.entries(environment.tableMapping).forEach(([tableId, mappedId]) => {
       data[tableId] = data[mappedId];
     });
