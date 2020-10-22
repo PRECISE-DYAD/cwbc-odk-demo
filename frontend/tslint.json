@@ -83,6 +83,7 @@
     "no-output-rename": true,
     "no-outputs-metadata-property": true,
     "template-banana-in-box": true,
+    "triple-equals": false,
     "typedef-whitespace": {
       "options": [
         {
