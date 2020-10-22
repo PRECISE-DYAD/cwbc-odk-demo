@@ -144,7 +144,9 @@ export class PreciseStore {
     }));
     this.participantForms = participantForms;
     this.participantFormsHash = _arrToHashmap(this.participantForms, "formId");
-    this.activeParticipantData = this._extractDataValues(participantForms);
+    this.activeParticipantData = this._extractMappedDataValues(
+      this.participantForms
+    );
     this.participantDataLoaded = true;
   }
 
@@ -232,9 +234,9 @@ export class PreciseStore {
    * NOTE - any additional fields listed in formMeta also populated
    */
   launchForm(form: IFormMeta, editRowId: string = null, jsonMap: any = {}) {
-    let { formId, tableId, mapFields } = form;
-    tableId = this._mapTableId(tableId);
-    formId = this._mapFormId(formId);
+    const { mapFields } = form;
+    const tableId = this._mapTableId(form.tableId);
+    const formId = this._mapFormId(form.formId);
     // pass active participant guid to form if not otherwise defined
     if (this.activeParticipant) {
       jsonMap.f2_guid = jsonMap.f2_guid || this.activeParticipant.f2_guid;
@@ -253,7 +255,6 @@ export class PreciseStore {
     return environment.tableMapping[tableId] || tableId;
   }
   private _mapFormId(formId: string) {
-    console.log("map form", formId, environment.tableMapping[formId] || formId);
     return environment.formMapping[formId] || formId;
   }
 
@@ -279,10 +280,12 @@ export class PreciseStore {
 
   /**
    *  Take the full list of forms and entries for the active participant and collate all values
-   *  into nested json for faster lookup
+   *  into nested json for faster lookup.
+   *  Additionally include a backwards map so that values can be accessed directly via table map names
+   *
    *  NOTE - in the case of multiple entries takes only the most recent
    */
-  private _extractDataValues(participantForms: IFormMetaWithEntries[]) {
+  private _extractMappedDataValues(participantForms: IFormMetaWithEntries[]) {
     const data = {};
     for (const form of participantForms) {
       const tableId = this._mapTableId(form.tableId);
@@ -296,25 +299,31 @@ export class PreciseStore {
         });
       }
     }
+    // assign mapping data, overriding legacy data if old table still exists
+    Object.entries(environment.tableMapping).forEach(([tableId, mappedId]) => {
+      data[tableId] = data[mappedId];
+    });
     return data;
   }
 
   /**
    * Lookup specific table-field values to pass when launching a form
-   * @param fields - Array of objects containing table_id, field_name and
+   * @param mapFields - Array of objects containing table_id, field_name and
    * optional mapped_field_name to retrieve and return
    * NOTE - in case of multiple table entries returns only first entry
    */
-  private _generateMappedFields(fields: IFormMetaMappedField[] = []) {
+  private _generateMappedFields(mapFields: IFormMetaMappedField[] = []) {
     const mapping = {};
-    for (const field of fields) {
-      const { table_id, field_name, mapped_field_name, value } = field;
+
+    for (const field of mapFields) {
+      const { field_name, mapped_field_name, value } = field;
+      const tableId = this._mapTableId(field.table_id);
       const fieldName = mapped_field_name || field_name;
       // do not ignore "" values, test against object properties
       if (field.hasOwnProperty("value")) {
         mapping[fieldName] = value;
       } else {
-        const { entries } = this.participantFormsHash[table_id];
+        const { entries } = this.participantFormsHash[tableId];
         mapping[fieldName] = entries[0] ? entries[0][fieldName] : null;
       }
     }
