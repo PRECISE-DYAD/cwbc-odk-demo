@@ -1,18 +1,19 @@
 import * as fs from "fs-extra";
 import * as path from "path";
 import * as chalk from "chalk";
-import { promptOptions } from "./utils";
+import { promptOptions, setEnv } from "./utils";
 // TODO - refactor to have upload and export scripts and deps as siblings
 import { OdkRestService } from "./upload/odkRest/odk.rest";
 import { IODKTypes as IODK } from "./upload/odkRest/odk.types";
 import { writeCSV } from "./upload/upload-utils";
-require("dotenv").config();
+
 const odkRest = new OdkRestService();
 
 /**
  * Export table data from the server to local exports folder
  */
 async function main() {
+  await setEnv();
   const { ODK_SERVER_URL } = process.env;
   if (!ODK_SERVER_URL) {
     throw new Error("ODK_SERVER_URL not specified in .env, aborting export");
@@ -23,7 +24,9 @@ async function main() {
   if (
     (await promptOptions(["no", "yes"], "Do you wish to proceed?")) === "yes"
   ) {
-    const exportFolder = `exports/${new Date().toISOString().substring(0, 10)}`;
+    const serverBase = ODK_SERVER_URL.replace(/(^\w+:|^)\/\//, "");
+    const timestamp = new Date().toISOString().substring(0, 10);
+    const exportFolder = `exports/${serverBase}/${timestamp}`;
     fs.ensureDirSync(exportFolder);
     fs.emptyDirSync(exportFolder);
     await exportFramework(exportFolder);
