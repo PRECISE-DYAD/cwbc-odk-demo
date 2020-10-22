@@ -38,12 +38,12 @@ export class DeveloperToolsComponent implements OnInit {
       rows: [],
     }));
     this.tablesMeta = tablesWithRows.map((t) => ({ ...t, rows: [] }));
-    this.updateLocalTableRows();
+    this.loadLocalTableRows();
   }
   /**
-   *
+   * Run a request to get the current metadata for all tables, including total row count
    */
-  async updateLocalTableRows() {
+  async loadLocalTableRows() {
     const getRowOperations = this.tablesMeta.map(async (table) => {
       let rows = [];
       try {
@@ -62,7 +62,7 @@ export class DeveloperToolsComponent implements OnInit {
     this.odkService.surveyIsOpen$
       .pipe(takeWhile((isOpen) => isOpen))
       .toPromise()
-      .then(() => this.updateLocalTableRows());
+      .then(() => this.loadLocalTableRows());
   }
   /**
    * Load csv files as defined in tables.init and populate raw json to table meta
@@ -129,8 +129,13 @@ export class DeveloperToolsComponent implements OnInit {
         break;
       }
     }
-    this.updateLocalTableRows();
+    this.loadLocalTableRows();
   }
+  /**
+   * Delete all rows in a table
+   * Note - this does not delete the table itself for cases like updated definitions
+   * For this the Purge method of ODK designer is required
+   */
   async empty(meta: ITableMeta, metaIndex: number) {
     const { tableId } = meta;
     this.tablesMeta[metaIndex].isImporting = true;
@@ -141,7 +146,7 @@ export class DeveloperToolsComponent implements OnInit {
       []
     );
     this.tablesMeta[metaIndex].isImporting = false;
-    this.updateLocalTableRows();
+    this.loadLocalTableRows();
   }
   /**
    * Return a json-parsed representation of a table's definitions.csv file
