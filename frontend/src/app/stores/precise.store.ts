@@ -5,7 +5,7 @@ import { reaction } from "mobx";
 import { SurveySummary } from "../../../../survey-parser/src/surveySummary";
 import { OdkService } from "src/app/services/odk/odk.service";
 import { IODkTableRowData, ODK_META_EXAMPLE } from "src/app/types/odk.types";
-import { uuidv4 } from "src/app/utils/guid";
+import { _arrToHashmap, _wait, uuidv4 } from "src/app/utils";
 import { IFormMeta, IFormMetaMappedField } from "src/app/types/types";
 import { PRECISE_SCHEMA } from "src/app/models/precise.models";
 import { IPreciseParticipantData } from "src/app/models/participant-summary.model";
@@ -72,7 +72,7 @@ export class PreciseStore {
     this.participantSummaries = Object.values(participantRows).map((p, i) =>
       this._generateParticipantSummary(p, i)
     );
-    this.allParticipantsHash = this._arrToHashmap(participantRows, "f2_guid");
+    this.allParticipantsHash = _arrToHashmap(participantRows, "f2_guid");
     this.listDataLoaded = true;
   }
 
@@ -100,7 +100,7 @@ export class PreciseStore {
       // HACK - possibly the data has not been written to the database yet if just created
       // so retry in a second
       if (!isRetry) {
-        await this._wait(1000);
+        await _wait(1000);
         await this.loadParticipants();
         return this.setActiveParticipantById(f2_guid, true);
       }
@@ -144,10 +144,7 @@ export class PreciseStore {
       entries: collated[this._mapTableId(f.tableId)] || [],
     }));
     this.participantForms = participantForms;
-    this.participantFormsHash = this._arrToHashmap(
-      this.participantForms,
-      "formId"
-    );
+    this.participantFormsHash = _arrToHashmap(this.participantForms, "formId");
     this.activeParticipantData = this._extractDataValues(participantForms);
     this.participantDataLoaded = true;
   }
@@ -334,22 +331,6 @@ export class PreciseStore {
       }
     });
     return stripped as T;
-  }
-  /**
-   * Convert an array to an object with keys corresponding to specific
-   * array field
-   * @param hashField - field within all array elements to use as hash key
-   */
-  private _arrToHashmap(arr: any[], hashKey: string) {
-    const hash = {};
-    arr.forEach((el) => {
-      hash[el[hashKey]] = el;
-    });
-    return hash as any;
-  }
-
-  private _wait(ms: number) {
-    return new Promise((resolve) => setTimeout(resolve, ms));
   }
 }
 
