@@ -1,15 +1,23 @@
 import axios, { AxiosResponse, AxiosError, AxiosRequestConfig } from "axios";
-require("dotenv").config();
 
 /**
  * Modified axios http methods to automate passing of auth and other header data
  * (could be replaced with interceptor/middleware)
  */
-const username = process.env.ODK_USERNAME;
-const password = process.env.ODK_PASSWORD;
-const baseUrl = `${process.env.ODK_SERVER_URL}/odktables`;
+
+function getEnv() {
+  const username = process.env.ODK_USERNAME;
+  const password = process.env.ODK_PASSWORD;
+  const baseUrl = `${process.env.ODK_SERVER_URL}/odktables`;
+  if (!username || !password || !baseUrl) {
+    console.error("username and password not set in .env");
+    process.exit(1);
+  }
+  return { username, password, baseUrl };
+}
 
 async function get<T = any>(endpoint: string, config: AxiosRequestConfig = {}) {
+  const { baseUrl, username, password } = getEnv();
   const url = `${baseUrl}/${endpoint}`;
   return axios
     .get(url, { auth: { username, password }, ...config })
@@ -18,6 +26,7 @@ async function get<T = any>(endpoint: string, config: AxiosRequestConfig = {}) {
 }
 
 async function post<T = any>(endpoint: string, data: any, headers = {}) {
+  const { baseUrl, username, password } = getEnv();
   const url = `${baseUrl}/${endpoint}`;
   return axios
     .post(url, data, {
@@ -34,6 +43,7 @@ async function post<T = any>(endpoint: string, data: any, headers = {}) {
     .catch((err) => handleErr(err));
 }
 async function put<T = any>(endpoint: string, data: any, headers = {}) {
+  const { baseUrl, username, password } = getEnv();
   const url = `${baseUrl}/${endpoint}`;
   return axios
     .put(url, data, {
@@ -46,6 +56,7 @@ async function put<T = any>(endpoint: string, data: any, headers = {}) {
     .catch((err) => handleErr(err));
 }
 async function del<T = any>(endpoint: string) {
+  const { baseUrl, username, password } = getEnv();
   const url = `${baseUrl}/${endpoint}`;
   return axios
     .delete(url, { auth: { username, password } })

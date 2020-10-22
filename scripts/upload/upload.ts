@@ -1,4 +1,3 @@
-require("dotenv").config();
 import {
   prepareTableUploadActions,
   processTableUploadActions,
@@ -14,13 +13,14 @@ import {
   processCSVRowUploadActions,
   ICSVRowUploadAction,
 } from "./upload-csv-rows";
-import { promptOptions } from "../utils";
+import { promptOptions, setEnv } from "../utils";
 
 /**
  * Upload scripts presents an interactive selection of upload options for file
  * and table resources
  */
 async function main() {
+  await setEnv();
   const { ODK_SERVER_URL } = process.env;
   if (!ODK_SERVER_URL) {
     throw new Error("ODK_SERVER_URL not specified in .env, aborting upload");
