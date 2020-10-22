@@ -312,22 +312,23 @@ export class PreciseStore {
 
   /**
    * Lookup specific table-field values to pass when launching a form
-   * @param fields - Array of objects containing table_id, field_name and
+   * @param mapFields - Array of objects containing table_id, field_name and
    * optional mapped_field_name to retrieve and return
    * NOTE - in case of multiple table entries returns only first entry
    */
-  private _generateMappedFields(fields: IFormMetaMappedField[] = []) {
+  private _generateMappedFields(mapFields: IFormMetaMappedField[] = []) {
     const mapping = {};
-    for (const field of fields) {
+    for (const field of mapFields) {
       console.log("generating mapped field", field);
-      const { table_id, field_name, mapped_field_name, value } = field;
+      const { field_name, mapped_field_name, value } = field;
+      const tableId = this._mapTableId(field.table_id);
       const fieldName = mapped_field_name || field_name;
       // do not ignore "" values, test against object properties
       if (field.hasOwnProperty("value")) {
         mapping[fieldName] = value;
       } else {
-        console.log("looking up", table_id);
-        const { entries } = this.participantFormsHash[table_id];
+        console.log("looking up", tableId);
+        const { entries } = this.participantFormsHash[tableId];
         mapping[fieldName] = entries[0] ? entries[0][fieldName] : null;
       }
     }
