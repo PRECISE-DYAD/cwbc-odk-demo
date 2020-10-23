@@ -1,7 +1,7 @@
 import { observable, action, computed } from "mobx-angular";
 import { Injectable } from "@angular/core";
 import { OdkService } from "../services/odk/odk.service";
-import { reaction } from "mobx";
+import { reaction, toJS } from "mobx";
 import { IODkTableRowData, ODK_META_EXAMPLE } from "../types/odk.types";
 import { uuidv4 } from "../utils/guid";
 import { IFormMeta, IFormMetaMappedField } from "../types/types";
@@ -141,24 +141,30 @@ export class PreciseStore {
   @action setParticipantForms(collated: {
     [tableId: string]: IODkTableRowData[];
   }) {
-    this.participantForms = Object.values(MAPPED_SCHEMA).map((f) => ({
+    const participantForms = Object.values(MAPPED_SCHEMA).map((f) => ({
       ...f,
       entries: collated[f.tableId] || [],
     }));
-    this.participantFormsHash = this._arrToHashmap(
-      this.participantForms,
+    const participantFormsHash = this._arrToHashmap(
+      participantForms,
       "tableId"
     );
     // addtionally assign pre-mapping data for direct access
     Object.entries(MAPPED_SCHEMA).forEach(
       ([key, value]) =>
-        (this.participantFormsHash[key] = this.participantFormsHash[
-          value.tableId
-        ])
+        (participantFormsHash[key] = {
+          ...participantFormsHash[value.tableId],
+          tableId: key,
+        })
     );
-    this.activeParticipantData = this._extractMappedDataValues(
-      this.participantForms
+    const activeParticipantData = this._extractMappedDataValues(
+      Object.values(participantFormsHash)
     ) as any;
+    console.log("participant data", activeParticipantData);
+    console.log("participant forms hash", participantFormsHash);
+    this.participantForms = participantForms;
+    this.participantFormsHash = participantFormsHash;
+    this.activeParticipantData = activeParticipantData;
     this.participantDataLoaded = true;
   }
 
@@ -298,10 +304,6 @@ export class PreciseStore {
         });
       }
     }
-    // assign mapping data, overriding legacy data if old table still exists
-    Object.entries(environment.tableMapping).forEach(([tableId, mappedId]) => {
-      data[tableId] = data[mappedId];
-    });
     return data;
   }
 
