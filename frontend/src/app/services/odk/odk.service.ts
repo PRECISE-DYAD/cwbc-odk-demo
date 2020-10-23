@@ -6,6 +6,7 @@ import { HttpClient } from "@angular/common/http";
 import { IODKQueryResult, IODkTableRowData } from "src/app/types/odk.types";
 import { NotificationService } from "../notification/notification.service";
 import { MatDialog } from "@angular/material/dialog";
+import { environment } from "src/environments/environment";
 
 // When running on device the following methods are automatically added
 // to the window object. When running in development some mocking methods
@@ -30,7 +31,8 @@ export class OdkService {
     private dialog: MatDialog
   ) {
     // when running on device use native odkData function (injected)
-    if (!window.odkData || !window.odkCommon) {
+    if (!environment.production) {
+      console.log("using development odk classes");
       window.odkCommon = new OdkCommonClass();
       window.odkData = new OdkDataClass(http);
       window.odkTables = new OdkTablesClass(notifications, this.dialog);
