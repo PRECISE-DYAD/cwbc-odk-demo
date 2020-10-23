@@ -134,6 +134,10 @@ function populateSampleFiles() {
   // additional files to check and create if not existing, {destination:source} mapping
   const otherFiles = {
     ".env": ".env.sample",
+    "forms/framework/customPromptTypes.js":
+      "forms/demo/framework/customPromptTypes.js",
+    "forms/framework/customScreenTypes.js":
+      "forms/demo/framework/customScreenTypes.js",
   };
   for (let [destination, source] of Object.entries(otherFiles)) {
     if (!fs.existsSync(destination)) {

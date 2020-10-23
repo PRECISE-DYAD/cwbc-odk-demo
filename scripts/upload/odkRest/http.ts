@@ -9,10 +9,6 @@ function getEnv() {
   const username = process.env.ODK_USERNAME;
   const password = process.env.ODK_PASSWORD;
   const baseUrl = `${process.env.ODK_SERVER_URL}/odktables`;
-  if (!username || !password || !baseUrl) {
-    console.error("username and password not set in .env");
-    process.exit(1);
-  }
   return { username, password, baseUrl };
 }
 
