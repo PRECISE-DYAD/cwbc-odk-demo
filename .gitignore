@@ -10,9 +10,9 @@ designer/app/config/assets/tables.init
 designer/app/config/assets/app.properties
 designer/app/output/csv/
 designer/app/output/db
-forms/framework
-forms/tables
-forms/csv
+forms/framework/
+forms/tables/
+forms/csv/
 forms/*.properties
 backups/
 exports/

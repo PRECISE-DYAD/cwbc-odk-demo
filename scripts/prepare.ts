@@ -119,16 +119,24 @@ async function processXlsxFile(filepath: string) {
  * Copy the files to their correct location unless other data already exists there.
  */
 function populateSampleFiles() {
-  // {destination:source} mapping
-  const sampleFiles = {
-    "forms/framework/framework.xlsx": "forms/framework/framework.sample.xlsx",
-    "forms/csv/tables.init": "forms/csv/tables.sample.init",
+  // populate content from demoFolder only if no other tables present
+  const tablesExist = fs.existsSync("forms/tables");
+  if (!tablesExist) {
+    console.log("populating demo");
+    const demoFiles = recFind("forms/demo");
+    for (let filepath of demoFiles) {
+      const relativePath = path.relative("forms/demo", filepath);
+      if (!fs.existsSync(`forms/${relativePath}`)) {
+        fs.copySync(filepath, `forms/${relativePath}`);
+      }
+    }
+  }
+  // additional files to check and create if not existing, {destination:source} mapping
+  const otherFiles = {
     ".env": ".env.sample",
-    "forms/app.properties": "forms/app.sample.properties",
   };
-  for (let [destination, source] of Object.entries(sampleFiles)) {
-    const exists = fs.existsSync(destination);
-    if (!exists) {
+  for (let [destination, source] of Object.entries(otherFiles)) {
+    if (!fs.existsSync(destination)) {
       fs.copyFileSync(source, destination);
     }
   }
