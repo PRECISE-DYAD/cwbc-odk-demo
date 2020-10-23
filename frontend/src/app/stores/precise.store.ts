@@ -39,7 +39,6 @@ export class PreciseStore {
   @observable screeningData: IParticipantScreening[];
   @observable activeParticipant: IParticipant;
   @observable activeParticipantData: IPreciseParticipantData;
-  @observable participantForms: IFormMetaWithEntries[];
   @observable listDataLoaded = false;
   @observable participantDataLoaded = false;
 
@@ -49,7 +48,6 @@ export class PreciseStore {
 
   @action clearActiveParticipant() {
     this.activeParticipant = undefined;
-    this.participantForms = undefined;
     this.participantFormsHash = undefined;
     this.participantDataLoaded = false;
     this.activeParticipantData = undefined;
@@ -115,23 +113,35 @@ export class PreciseStore {
    */
   async loadParticipantTableData(participant: IParticipant) {
     const { f2_guid } = participant;
-    const collated: {
-      [tableId in IPreciseTableId]: IODkTableRowData[];
-    } = {} as any;
-    const promises = Object.keys(MAPPED_SCHEMA).map(async (tableId) => {
-      try {
-        const particpantRows = await this.odk.query(
-          tableId,
-          "f2_guid = ?",
-          [f2_guid],
-          // skip odk error notifications and just handle below
-          (err) => null
-        );
-        collated[tableId] = particpantRows ? particpantRows : [];
-      } catch (error) {
-        // no data if f2_guid does not exist in the table so can just ignore
+    const collated: { [tableId: string]: IFormMetaWithEntries } = {};
+    const promises = Object.entries(MAPPED_SCHEMA).map(
+      async ([key, formMeta]) => {
+        try {
+          const { tableId } = formMeta;
+          // lookup the data for every table given by the mapped table id
+          const particpantRows = await this.odk.query(
+            tableId,
+            "f2_guid = ?",
+            [f2_guid],
+            // skip odk error notifications and just handle below
+            (err) => null
+          );
+          // attach metadata
+          collated[tableId] = {
+            ...formMeta,
+            entries: particpantRows || [],
+          };
+          // duplicate data to pre-mapped table id for use in lookups
+          collated[key] = {
+            ...formMeta,
+            tableId: key,
+            entries: particpantRows || [],
+          };
+        } catch (error) {
+          // no data if f2_guid does not exist in the table so can just ignore
+        }
       }
-    });
+    );
     await Promise.all(promises);
     this.setParticipantForms(collated);
   }
@@ -141,33 +151,18 @@ export class PreciseStore {
    * Additionally collate all participant data from forms into a single object, organised by table
    */
   @action setParticipantForms(collated: {
-    [tableId: string]: IODkTableRowData[];
+    [tableId: string]: IFormMetaWithEntries;
   }) {
-    const participantForms = Object.entries(collated).map(
-      ([tableId, entries]) => ({
-        ...MAPPED_SCHEMA[tableId],
-        entries,
-      })
-    );
+    console.log("collated responses", collated);
     const participantFormsHash = this._arrToHashmap(
-      participantForms,
+      Object.values(collated),
       "tableId"
     );
-    // addtionally assign pre-mapping data for direct access
-    Object.entries(MAPPED_SCHEMA).forEach(
-      ([key, value]) =>
-        (participantFormsHash[key] = {
-          ...participantFormsHash[value.tableId],
-          tableId: key,
-        })
-    );
+    console.log("participant forms hash", participantFormsHash);
     const activeParticipantData = this._extractMappedDataValues(
       Object.values(participantFormsHash)
     ) as any;
-    console.log("collated responses", collated);
     console.log("participant data", activeParticipantData);
-    console.log("participant forms hash", participantFormsHash);
-    this.participantForms = participantForms;
     this.participantFormsHash = participantFormsHash;
     this.activeParticipantData = activeParticipantData;
     this.participantDataLoaded = true;
@@ -252,8 +247,12 @@ export class PreciseStore {
    * NOTE - f2_guid automatically populated for all forms
    * NOTE - any additional fields listed in formMeta also populated
    */
-  launchForm(form: IFormMeta, editRowId: string = null, jsonMap: any = {}) {
-    const { mapFields, tableId, formId } = form;
+  launchForm(formMeta: IFormMeta, editRowId: string = null, jsonMap: any = {}) {
+    // if formMeta has not been correctly mapped (still defined by legacy id) repopulate
+    if (MAPPED_SCHEMA[formMeta.tableId]) {
+      formMeta = MAPPED_SCHEMA[formMeta.tableId];
+    }
+    const { mapFields, tableId, formId } = formMeta;
     // pass active participant guid to form if not otherwise defined
     if (this.activeParticipant) {
       jsonMap.f2_guid = jsonMap.f2_guid || this.activeParticipant.f2_guid;

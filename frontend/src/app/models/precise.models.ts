@@ -5,6 +5,7 @@
 
 import { IFormMetaWithEntries } from "../stores";
 import { environment } from "src/environments/environment";
+import { IFormMeta, IFormMetaMappedField } from "../types/types";
 const SITE = environment.SITE;
 
 /**
@@ -21,7 +22,7 @@ const SITE = environment.SITE;
  * ```
  * @remark - only supports a single subform for each table
  */
-const BirthBabyMapFields: IMapFields[] = [
+const BirthBabyMapFields: IFormMetaMappedField[] = [
   { table_id: "Visit1", field_name: "f6a_ultrasound1_date" },
   { table_id: "Visit1", field_name: "f6a_ultrasound2_date" },
   { table_id: "Visit1", field_name: "f6a_ultrasound3_date" },
@@ -44,7 +45,7 @@ if (SITE == "gambia") {
   });
 }
 
-const BirthMotherMapFields: IMapFields[] = [
+const BirthMotherMapFields: IFormMetaMappedField[] = [
   { table_id: "Visit1", field_name: "f6a_ultrasound1_date" },
   { table_id: "Visit1", field_name: "f6a_ultrasound2_date" },
   { table_id: "Visit1", field_name: "f6a_ultrasound3_date" },
@@ -72,7 +73,7 @@ if (SITE == "gambia") {
   });
 }
 
-const LabMapFields: IMapFields[] = [
+const LabMapFields: IFormMetaMappedField[] = [
   { table_id: "profileSummary", field_name: "f2a_cohort" },
   { table_id: "Visit1", field_name: "f6a_ultrasound1_date" },
   { table_id: "Visit1", field_name: "f6a_ultrasound2_date" },
@@ -93,7 +94,7 @@ if (SITE == "gambia") {
   });
 }
 
-const ToD_ANCMapFields: IMapFields[] = [
+const ToD_ANCMapFields: IFormMetaMappedField[] = [
   { table_id: "profileSummary", field_name: "f2a_cohort" },
   { table_id: "profileSummary", field_name: "f2a_participant_id" },
   { table_id: "Visit1", field_name: "f6a_ultrasound1_date" },
@@ -119,7 +120,7 @@ if (SITE == "gambia") {
   });
 }
 
-const Visit2MapFields: IMapFields[] = [
+const Visit2MapFields: IFormMetaMappedField[] = [
   { table_id: "Visit1", field_name: "f6a_ultrasound1_date" },
   { table_id: "Visit1", field_name: "f6a_ultrasound2_date" },
   { table_id: "Visit1", field_name: "f6a_ultrasound3_date" },
@@ -143,8 +144,27 @@ if (SITE == "gambia") {
     mapped_field_name: "visit1_f2_visit_date",
   });
 }
-
-export const PRECISE_SCHEMA = {
+/**
+ * A list of all Precise database tables, used to assist with type checking
+ * Note - each of these table ids can have an additional mapping as defined in the environment file,
+ * such as adding prefixes or suffixes to the core table name
+ */
+export const PRECISE_TABLE_IDS = [
+  "Birthbaby",
+  "Birthmother",
+  "profileSummary",
+  "profileSummaryRevisions",
+  "Lab",
+  "Postpartum_baby",
+  "Postpartum_mother",
+  "screening",
+  "TOD_ANC",
+  "Visit1",
+  "Visit2",
+  "Withdrawal",
+] as const;
+export type IPreciseTableId = typeof PRECISE_TABLE_IDS[number];
+export const PRECISE_SCHEMA: { [tableId in IPreciseTableId]: IFormMeta } = {
   Birthbaby: {
     title: "Birth Baby",
     formId: "Birthbaby",
@@ -252,7 +272,6 @@ export const PRECISE_SCHEMA = {
     ],
   },
 };
-export type IPreciseTableId = keyof typeof PRECISE_SCHEMA;
 /**
  * Subsection created for every new baby registered
  */
@@ -282,20 +301,12 @@ export const PRECISE_FORM_SECTIONS: IPreciseFormSection[] = [
  * Types
  * These are used to ensure constants defined above are consistently formatted
  ********************************************************************************/
-type IPreciseFormId = keyof typeof PRECISE_SCHEMA;
-
 export interface IPreciseFormSection {
   _id: string;
-  formIds: IPreciseFormId[];
+  formIds: IPreciseTableId[];
   label?: string;
 }
 
 export interface ISectionWithMeta extends IPreciseFormSection {
   forms: IFormMetaWithEntries[];
-}
-
-export interface IMapFields {
-  table_id: IPreciseTableId;
-  field_name: string;
-  mapped_field_name?: string;
 }
