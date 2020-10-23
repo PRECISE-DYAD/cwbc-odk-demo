@@ -39,7 +39,7 @@ export class PreciseProfileBabySectionComponent implements OnInit {
 
   ngOnInit() {
     // Refactor specific baby data to pass to summary-field component and override participant data
-    const summaryData = {};
+    const summaryData: any = {};
     this.section.forms.forEach((v) => {
       summaryData[v.tableId] = v.entries[0] || {};
     });

@@ -252,7 +252,7 @@ export const PRECISE_SCHEMA = {
     ],
   },
 };
-
+export type IPreciseTableId = keyof typeof PRECISE_SCHEMA;
 /**
  * Subsection created for every new baby registered
  */
@@ -295,7 +295,7 @@ export interface ISectionWithMeta extends IPreciseFormSection {
 }
 
 export interface IMapFields {
-  table_id: string;
+  table_id: IPreciseTableId;
   field_name: string;
   mapped_field_name?: string;
 }
