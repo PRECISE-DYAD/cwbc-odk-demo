@@ -26,28 +26,13 @@ function main() {
 main();
 
 /**
- * When an XLSX file is changed run conversion scripts *
- * TODO - compare md5 of changed and target files to check if conversion required
+ * When an XLSX file is changed run conversion scripts
+ * Note - prepare script already handles checking individual file change
+ * so just run across all files to make thing easier
  */
 function processChangedFile(filepath: string) {
-  const filename = path.basename(filepath);
-  const relativePath = path.relative("forms", filepath);
-  let xlsxTargetPath: string;
-  let formDefTargetPath: string;
-  if (filename === "framework.xlsx") {
-    xlsxTargetPath =
-      "app/config/assets/framework/forms/framework/framework.xlsx";
-  } else {
-    xlsxTargetPath = `app/config/tables/${relativePath}`;
-  }
-  formDefTargetPath = xlsxTargetPath.replace(filename, "formDef.json");
-  fs.copySync(filepath, `designer/${xlsxTargetPath}`);
-  child.spawnSync(
-    `npx grunt exec:macGenConvert:${xlsxTargetPath}:${formDefTargetPath}`,
-    {
-      cwd: designerPath,
-      stdio: ["ignore", "inherit", "inherit"],
-      shell: true,
-    }
-  );
+  child.spawnSync(`npm run prepare`, {
+    stdio: ["ignore", "inherit", "inherit"],
+    shell: true,
+  });
 }
