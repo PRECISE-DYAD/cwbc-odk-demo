@@ -24,8 +24,7 @@ import { IODkTableRowData } from "src/app/types/odk.types";
           {{
             entry._savepoint_timestamp
               | savepointTimestamp
-              | date: "dd MMM yyyy,
-          h:mm a"
+              | date: "dd MMM yyyy, h:mm a"
           }}
         </div>
       </div>

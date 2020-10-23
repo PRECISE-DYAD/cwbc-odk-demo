@@ -12,6 +12,18 @@ import { environment } from "src/environments/environment";
 import { takeWhile } from "rxjs/operators";
 
 /**
+ * Create a new object that contains all the mappings selectable from
+ * legacy names (e.g. MAPPED_SCHEMA.visit1.tableId = visit1_v2)
+ */
+const MAPPED_SCHEMA: typeof PRECISE_SCHEMA = {} as any;
+Object.entries(PRECISE_SCHEMA).forEach(([baseId, value]) => {
+  const tableId = environment.tableMapping[baseId] || baseId;
+  const formId = environment.formMapping[baseId] || baseId;
+  MAPPED_SCHEMA[baseId] = { ...value, tableId, formId };
+});
+console.log("MAPPED_SCHEMA", MAPPED_SCHEMA);
+
+/**
  * The PreciseStore manages persisted data and operations across the entire application,
  * such as home page, app theme and page titles
  */
@@ -34,7 +46,6 @@ export class PreciseStore {
   @observable screeningData: IParticipantScreening[];
   @observable activeParticipant: IParticipant;
   @observable activeParticipantData: IPreciseParticipantData;
-  @observable participantForms: IFormMetaWithEntries[];
   @observable listDataLoaded = false;
   @observable participantDataLoaded = false;
 
@@ -44,7 +55,6 @@ export class PreciseStore {
 
   @action clearActiveParticipant() {
     this.activeParticipant = undefined;
-    this.participantForms = undefined;
     this.participantFormsHash = undefined;
     this.participantDataLoaded = false;
     this.activeParticipantData = undefined;
@@ -55,14 +65,14 @@ export class PreciseStore {
    */
   async loadParticipants() {
     const rows = await this.odk.getTableRows<IParticipant>(
-      this._mapTableId(PRECISE_SCHEMA.profileSummary.tableId)
+      MAPPED_SCHEMA.profileSummary.tableId
     );
     this.setParticipantLists(rows);
   }
 
   @action async loadScreeningData() {
     const rows = await this.odk.getTableRows<IParticipantScreening>(
-      this._mapTableId(PRECISE_SCHEMA.screening.tableId)
+      MAPPED_SCHEMA.screening.tableId
     );
     this.screeningData = rows;
   }
@@ -110,23 +120,35 @@ export class PreciseStore {
    */
   async loadParticipantTableData(participant: IParticipant) {
     const { f2_guid } = participant;
-    const collated: { [tableId: string]: IODkTableRowData[] } = {};
-    const tables = Object.keys(PRECISE_SCHEMA);
-    const promises = tables.map(async (tableId) => {
-      tableId = this._mapTableId(tableId);
-      try {
-        const particpantRows = await this.odk.query(
-          tableId,
-          "f2_guid = ?",
-          [f2_guid],
-          // skip odk error notifications and just handle below
-          (err) => null
-        );
-        collated[tableId] = particpantRows ? particpantRows : [];
-      } catch (error) {
-        // no data if f2_guid does not exist in the table so can just ignore
+    const collated: { [tableId: string]: IFormMetaWithEntries } = {};
+    const promises = Object.entries(MAPPED_SCHEMA).map(
+      async ([key, formMeta]) => {
+        try {
+          const { tableId } = formMeta;
+          // lookup the data for every table given by the mapped table id
+          const particpantRows = await this.odk.query(
+            tableId,
+            "f2_guid = ?",
+            [f2_guid],
+            // skip odk error notifications and just handle below
+            (err) => null
+          );
+          // attach metadata
+          collated[tableId] = {
+            ...formMeta,
+            entries: particpantRows || [],
+          };
+          // duplicate data to pre-mapped table id for use in lookups
+          collated[key] = {
+            ...formMeta,
+            tableId: key,
+            entries: particpantRows || [],
+          };
+        } catch (error) {
+          // no data if f2_guid does not exist in the table so can just ignore
+        }
       }
-    });
+    );
     await Promise.all(promises);
     this.setParticipantForms(collated);
   }
@@ -136,17 +158,20 @@ export class PreciseStore {
    * Additionally collate all participant data from forms into a single object, organised by table
    */
   @action setParticipantForms(collated: {
-    [tableId: string]: IODkTableRowData[];
+    [tableId: string]: IFormMetaWithEntries;
   }) {
-    const participantForms = Object.values(PRECISE_SCHEMA).map((f) => ({
-      ...f,
-      entries: collated[this._mapTableId(f.tableId)] || [],
-    }));
-    this.participantForms = participantForms;
-    this.participantFormsHash = _arrToHashmap(this.participantForms, "formId");
-    this.activeParticipantData = this._extractMappedDataValues(
-      this.participantForms
+    console.log("collated responses", collated);
+    const participantFormsHash = _arrToHashmap(
+      Object.values(collated),
+      "tableId"
     );
+    console.log("participant forms hash", participantFormsHash);
+    const activeParticipantData = this._extractMappedDataValues(
+      Object.values(participantFormsHash)
+    ) as any;
+    console.log("participant data", activeParticipantData);
+    this.participantFormsHash = participantFormsHash;
+    this.activeParticipantData = activeParticipantData;
     this.participantDataLoaded = true;
   }
 
@@ -159,19 +184,17 @@ export class PreciseStore {
   enrolParticipant(router: Router, route: ActivatedRoute, ptid: string) {
     const f2_guid = uuidv4();
     router.navigate([f2_guid], { relativeTo: route });
-    return this.launchForm(PRECISE_SCHEMA.profileSummary, null, {
+    return this.launchForm(MAPPED_SCHEMA.profileSummary, null, {
       f2_guid,
       f2a_participant_id: ptid,
     });
   }
 
   screenNewParticipant(jsonMap = null) {
-    return this.launchForm(PRECISE_SCHEMA.screening, null, jsonMap);
+    return this.launchForm(MAPPED_SCHEMA.screening, null, jsonMap);
   }
   editScreening(screening: IParticipantScreening) {
-    let { tableId, formId } = PRECISE_SCHEMA.screening;
-    tableId = this._mapTableId(tableId);
-    formId = this._mapFormId(formId);
+    const { tableId, formId } = MAPPED_SCHEMA.screening;
     const rowId = screening._id;
     this.odk.editRowWithSurvey(tableId, rowId, formId);
   }
@@ -187,7 +210,7 @@ export class PreciseStore {
     const { f2_guid } = this.activeParticipant;
     const f2_guid_child = `${f2_guid}_${childIndex}`;
     return launchForm
-      ? this.launchForm(PRECISE_SCHEMA.Birthbaby, null, {
+      ? this.launchForm(MAPPED_SCHEMA.Birthbaby, null, {
           f2_guid_child,
         })
       : f2_guid_child;
@@ -198,14 +221,12 @@ export class PreciseStore {
   async editParticipant(participant: IParticipant) {
     // TODO - fix errors thrown when editing on local
     await this.backupParticipant(participant);
-    let { tableId, formId } = PRECISE_SCHEMA.profileSummary;
-    tableId = this._mapTableId(tableId);
-    formId = this._mapFormId(formId);
+    const { tableId, formId } = MAPPED_SCHEMA.profileSummary;
     const rowId = participant._id;
     this.odk.editRowWithSurvey(tableId, rowId, formId);
   }
   async withdrawParticipant() {
-    return this.launchForm(PRECISE_SCHEMA.Withdrawal);
+    return this.launchForm(MAPPED_SCHEMA.Withdrawal);
   }
 
   /**
@@ -233,10 +254,12 @@ export class PreciseStore {
    * NOTE - f2_guid automatically populated for all forms
    * NOTE - any additional fields listed in formMeta also populated
    */
-  launchForm(form: IFormMeta, editRowId: string = null, jsonMap: any = {}) {
-    const { mapFields } = form;
-    const tableId = this._mapTableId(form.tableId);
-    const formId = this._mapFormId(form.formId);
+  launchForm(formMeta: IFormMeta, editRowId: string = null, jsonMap: any = {}) {
+    // if formMeta has not been correctly mapped (still defined by legacy id) repopulate
+    if (MAPPED_SCHEMA[formMeta.tableId]) {
+      formMeta = MAPPED_SCHEMA[formMeta.tableId];
+    }
+    const { mapFields, tableId, formId } = formMeta;
     // pass active participant guid to form if not otherwise defined
     if (this.activeParticipant) {
       jsonMap.f2_guid = jsonMap.f2_guid || this.activeParticipant.f2_guid;
@@ -246,16 +269,6 @@ export class PreciseStore {
       return this.odk.editRowWithSurvey(tableId, editRowId, formId);
     }
     return this.odk.addRowWithSurvey(tableId, formId, editRowId, jsonMap);
-  }
-  /**
-   * To more easily allow for changing table names for different sites
-   * provide a lookup for modified table names
-   */
-  private _mapTableId(tableId: string) {
-    return environment.tableMapping[tableId] || tableId;
-  }
-  private _mapFormId(formId: string) {
-    return environment.formMapping[formId] || formId;
   }
 
   /**
@@ -288,7 +301,7 @@ export class PreciseStore {
   private _extractMappedDataValues(participantForms: IFormMetaWithEntries[]) {
     const data = {};
     for (const form of participantForms) {
-      const tableId = this._mapTableId(form.tableId);
+      const { tableId } = form;
       if (!data[tableId]) {
         data[tableId] = {};
       }
@@ -299,10 +312,6 @@ export class PreciseStore {
         });
       }
     }
-    // assign mapping data, overriding legacy data if old table still exists
-    Object.entries(environment.tableMapping).forEach(([tableId, mappedId]) => {
-      data[tableId] = data[mappedId];
-    });
     return data;
   }
 
@@ -317,13 +326,13 @@ export class PreciseStore {
 
     for (const field of mapFields) {
       const { field_name, mapped_field_name, value } = field;
-      const tableId = this._mapTableId(field.table_id);
+      const tableId = MAPPED_SCHEMA[field.table_id];
       const fieldName = mapped_field_name || field_name;
       // do not ignore "" values, test against object properties
       if (field.hasOwnProperty("value")) {
         mapping[fieldName] = value;
       } else {
-        const { entries } = this.participantFormsHash[tableId];
+        const entries = this.participantFormsHash[tableId]?.entries || [];
         mapping[fieldName] = entries[0] ? entries[0][fieldName] : null;
       }
     }

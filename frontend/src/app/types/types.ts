@@ -1,3 +1,5 @@
+import { IPreciseTableId } from "../models/precise.models";
+
 export interface IProjectMeta {
   image: string;
   name: string;
@@ -32,9 +34,9 @@ export interface IEnvironment {
   production: boolean;
   SENTRY_DSN: string;
   tableMapping: {
-    [tableId: string]: string;
+    [tableId in IPreciseTableId]?: string;
   };
   formMapping: {
-    [formId: string]: string;
+    [formId in IPreciseTableId]?: string;
   };
 }

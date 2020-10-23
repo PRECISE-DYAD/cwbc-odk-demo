@@ -26,7 +26,6 @@ import { Subscription } from "rxjs";
 export class PreciseProfileComponent implements OnDestroy, OnInit {
   participantRevisions: IFormMetaWithEntries["entries"] = [];
   profileConfirmed = false;
-  participantForms: IFormMetaWithEntries[];
   sections: { [sectionID: string]: ISectionWithMeta };
   babySections: ISectionWithMeta[] = [];
   expandedSections: any = {
@@ -55,7 +54,6 @@ export class PreciseProfileComponent implements OnDestroy, OnInit {
     if (this.store.participantDataLoaded) {
       this.setPageTitle(this.store.activeParticipant);
       // full data from all linked tables has loaded
-      this.participantForms = this.store.participantForms;
       this.participantRevisions = this.store.participantFormsHash.profileSummaryRevisions.entries;
       this.loadParticipantSections();
       this.loadParticipantBabySections();

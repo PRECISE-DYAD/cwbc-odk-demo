@@ -9,6 +9,7 @@ import {
 } from "src/app/types/odk.types";
 import { NotificationService } from "../notification/notification.service";
 import { BehaviorSubject } from "rxjs";
+import { environment } from "src/environments/environment";
 
 // When running on device the following methods are automatically added
 // to the window object. When running in development some mocking methods
@@ -47,7 +48,7 @@ export class OdkService {
   constructor(private notifications: NotificationService) {
     // running on device odk will exist in native odk tables window.
     // otherwise we will wait for it to be passed from the iframe component
-    if (this.window.odkData && this.window.odkCommon) {
+    if (environment.production) {
       this.setServiceReady();
     }
   }
