@@ -5,7 +5,7 @@ import { reaction, toJS } from "mobx";
 import { IODkTableRowData, ODK_META_EXAMPLE } from "../types/odk.types";
 import { uuidv4 } from "../utils/guid";
 import { IFormMeta, IFormMetaMappedField } from "../types/types";
-import { PRECISE_SCHEMA } from "../models/precise.models";
+import { PRECISE_SCHEMA, IPreciseTableId } from "../models/precise.models";
 import { Router, ActivatedRoute } from "@angular/router";
 import { IPreciseParticipantData } from "../models/participant-summary.model";
 import { environment } from "src/environments/environment";
@@ -115,7 +115,9 @@ export class PreciseStore {
    */
   async loadParticipantTableData(participant: IParticipant) {
     const { f2_guid } = participant;
-    const collated: { [tableId: string]: IODkTableRowData[] } = {};
+    const collated: {
+      [tableId in IPreciseTableId]: IODkTableRowData[];
+    } = {} as any;
     const promises = Object.keys(MAPPED_SCHEMA).map(async (tableId) => {
       try {
         const particpantRows = await this.odk.query(
@@ -141,10 +143,12 @@ export class PreciseStore {
   @action setParticipantForms(collated: {
     [tableId: string]: IODkTableRowData[];
   }) {
-    const participantForms = Object.values(MAPPED_SCHEMA).map((f) => ({
-      ...f,
-      entries: collated[f.tableId] || [],
-    }));
+    const participantForms = Object.entries(collated).map(
+      ([tableId, entries]) => ({
+        ...MAPPED_SCHEMA[tableId],
+        entries,
+      })
+    );
     const participantFormsHash = this._arrToHashmap(
       participantForms,
       "tableId"
@@ -160,6 +164,7 @@ export class PreciseStore {
     const activeParticipantData = this._extractMappedDataValues(
       Object.values(participantFormsHash)
     ) as any;
+    console.log("collated responses", collated);
     console.log("participant data", activeParticipantData);
     console.log("participant forms hash", participantFormsHash);
     this.participantForms = participantForms;
