@@ -40,7 +40,7 @@ export class PreciseStore {
       });
   }
   allParticipantsHash: IParticipantsHashmap;
-  participantFormsHash;
+  participantFormsHash: { [tableId: string]: IFormMetaWithEntries };
 
   @observable participantSummaries: IParticipantSummary[];
   @observable screeningData: IParticipantScreening[];
