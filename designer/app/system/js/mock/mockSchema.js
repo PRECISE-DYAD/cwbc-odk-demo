@@ -77,7 +77,10 @@ createTableStmt: function( dbTableName, dataTableModel, tableConstraint ) {
 					} else if ( f.type === "object" ) {
 						createTableCmd += "TEXT" + (f.isNotNullable ? " NOT NULL" : " NULL");
 					} else if ( f.type === "array" ) {
-						createTableCmd += "TEXT" + (f.isNotNullable ? " NOT NULL" : " NULL");
+            createTableCmd += "TEXT" + (f.isNotNullable ? " NOT NULL" : " NULL");
+            // CWBC Custom Code
+          } else if ( f.type === "date" ) {
+              createTableCmd += "TEXT" + (f.isNotNullable ? " NOT NULL" : " NULL");
 					} else {
 						throw new Error("unhandled type: " + f.type);
 					}

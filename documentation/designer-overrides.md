@@ -42,14 +42,16 @@ _designer/app/survey/js/main.js_
 **NOTE** - these changes are only included when running locally (devices import their own designer system folder and cannot be modified)
 
 ## Local Development - File Cors
+
 In addition to access database methods, extra steps have to be taken to directly access files from the designer survey as is done when running on device. A minimal implementation can be included in the top line of the `middlewares` configuration in [designer/gruntfile.js](/designer/Gruntfile.js)
+
 ```
 var useCors = function (req, res, next) {
     res.setHeader("Access-Control-Allow-Origin", "http://localhost:4200");
     next();
 };
 
-... 
+...
 
  middleware: function(connect) {
                         return [
@@ -57,3 +59,14 @@ var useCors = function (req, res, next) {
                             ...
                         ];
 ```
+
+## Local Development - Date types
+
+The local table doesn't have methods to import date columns (as string), so add to conversion mappings
+
+```
+else if ( f.type === "date" ) {
+            createTableCmd += "TEXT" + (f.isNotNullable ? " NOT NULL" : " NULL");
+```
+
+_designer/app/system/js/mock/mockSchema.js_ `createTableStmt`
