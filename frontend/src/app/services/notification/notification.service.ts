@@ -31,7 +31,6 @@ export class NotificationService {
   }
 
   handleError(err: Error, additionalText: string = "") {
-    console.error(err);
     let message =
       typeof err === "string"
         ? err

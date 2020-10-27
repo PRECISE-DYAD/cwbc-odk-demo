@@ -14,7 +14,11 @@
         <td>{{ table.display.title.text }}</td>
         <td style="text-align: center; width: 50px">
           <div>{{ table.rows.length }}</div>
-          <button mat-icon-button (click)="empty(table, i)">
+          <button
+            mat-icon-button
+            (click)="empty(table, i)"
+            [disabled]="isLoading"
+          >
             <mat-icon>delete</mat-icon>
           </button>
         </td>
@@ -26,7 +30,9 @@
             mat-icon-button
             (click)="importCSV(table, i)"
             [disabled]="
-              table.isImporting || table.csvRows.length === table.rows.length
+              table.isImporting ||
+              table.csvRows.length === table.rows.length ||
+              isLoading
             "
           >
             <span *ngIf="table.isImporting">

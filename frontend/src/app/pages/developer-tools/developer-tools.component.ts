@@ -13,6 +13,7 @@ import { _arrToHashmap } from "src/app/utils";
 })
 export class DeveloperToolsComponent implements OnInit {
   tablesMeta: ITableMeta[];
+  isLoading = false;
   constructor(private odkService: OdkService, private http: HttpClient) {}
 
   ngOnInit(): void {
@@ -44,14 +45,21 @@ export class DeveloperToolsComponent implements OnInit {
    * Run a request to get the current metadata for all tables, including total row count
    */
   async loadLocalTableRows() {
-    const getRowOperations = this.tablesMeta.map(async (table) => {
+    this.isLoading = true;
+    const getRowOperations = this.tablesMeta.map(async (meta) => {
       let rows = [];
+      const { tableId } = meta;
       try {
-        rows = await this.odkService.getTableRows(table.tableId);
+        // ensure exists before loading otherwise there will be unhandled errors
+        const formDefBase = `config/tables/${tableId}/forms/${tableId}/formDef.json`;
+        const formDefPath = this.odkService.getFileAsUrl(formDefBase);
+        const formDef = await this.http.get(formDefPath).toPromise();
+        rows = await this.odkService.getTableRows(tableId);
       } catch (err) {}
-      return { ...table, rows };
+      return { ...meta, rows };
     });
     this.tablesMeta = await Promise.all(getRowOperations);
+    this.isLoading = false;
   }
   /**
    *
@@ -80,7 +88,9 @@ export class DeveloperToolsComponent implements OnInit {
             // TODO - should be a way to pass empty strings but for now just set as NULL
             transform: (v) => (v ? v : "NULL"),
           });
-        } catch (error) {}
+        } catch (error) {
+          console.error("could not get csv rows", meta.tableId, error);
+        }
       }
 
       return { ...meta, csvRows };
@@ -166,10 +176,10 @@ export class DeveloperToolsComponent implements OnInit {
    * and display names
    */
   private async extractTableListFromFrameworkJson() {
-    const filepath = this.odkService.getFileAsUrl(
-      "config/assets/framework/forms/framework/formDef.json"
-    );
     try {
+      const filepath = this.odkService.getFileAsUrl(
+        "config/assets/framework/forms/framework/formDef.json"
+      );
       const formdef = await this.http.get<IFormDef>(filepath).toPromise();
       // generate a list of choices with their display names (table ids are included in choice list)
       const choicesHash: {
@@ -188,6 +198,7 @@ export class DeveloperToolsComponent implements OnInit {
         }));
       return tablesWithDisplayNames;
     } catch (error) {
+      console.log("could not retrieve formdef");
       // no formdef
       console.error(error);
       return [];

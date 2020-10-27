@@ -188,8 +188,8 @@ export class OdkService {
   /**
    * Use ODKData Query to return all rows for a specific table
    */
-  getTableRows<T>(tableId: string): Promise<(IODkTableRowData & T)[]> {
-    return this.query(tableId);
+  getTableRows<T>(tableId: string) {
+    return this.query<IODkTableRowData & T>(tableId);
   }
 
   /**
@@ -202,7 +202,7 @@ export class OdkService {
     tableId: string,
     whereClause: string = null,
     sqlBindParams: string[] = null,
-    failureCallback = (err) => {
+    failureCallback = (err: Error) => {
       this.handleError(err, `query: ${tableId} ${whereClause || ""}`);
     }
   ): Promise<(IODkTableRowData & T)[]> {
@@ -224,7 +224,7 @@ export class OdkService {
         },
         (err: Error) => {
           failureCallback(err);
-          reject(err);
+          resolve([]);
         }
       );
     });
