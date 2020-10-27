@@ -193,9 +193,8 @@ export class PreciseStore {
     return this.launchForm(MAPPED_SCHEMA.screening, null, jsonMap);
   }
   editScreening(screening: IParticipantScreening) {
-    const { tableId, formId } = MAPPED_SCHEMA.screening;
     const rowId = screening._id;
-    this.odk.editRowWithSurvey(tableId, rowId, formId);
+    this.launchForm(MAPPED_SCHEMA.screening, rowId);
   }
   /**
    * When recording a baby also want to populate a guid to link future
@@ -220,9 +219,8 @@ export class PreciseStore {
   async editParticipant(participant: IParticipant) {
     // TODO - fix errors thrown when editing on local
     await this.backupParticipant(participant);
-    const { tableId, formId } = MAPPED_SCHEMA.profileSummary;
     const rowId = participant._id;
-    this.odk.editRowWithSurvey(tableId, rowId, formId);
+    this.launchForm(MAPPED_SCHEMA.profileSummary, rowId);
   }
   async withdrawParticipant() {
     return this.launchForm(MAPPED_SCHEMA.Withdrawal);
@@ -264,10 +262,9 @@ export class PreciseStore {
       jsonMap.f2_guid = jsonMap.f2_guid || this.activeParticipant.f2_guid;
     }
     jsonMap = { ...jsonMap, ...this._generateMappedFields(mapFields) };
-
     console.log("launching form", tableId, formId, editRowId, jsonMap);
-
     if (editRowId) {
+      // TODO - manually update piped fields
       return this.odk.editRowWithSurvey(tableId, editRowId, formId);
     }
     return this.odk.addRowWithSurvey(tableId, formId, editRowId, jsonMap);
@@ -327,13 +324,14 @@ export class PreciseStore {
     const mapping = {};
     for (const field of mapFields) {
       const { field_name, mapped_field_name, value } = field;
-      const tableId = MAPPED_SCHEMA[field.table_id];
+      const tableMeta = MAPPED_SCHEMA[field.table_id];
+      const { tableId } = tableMeta;
       const fieldName = mapped_field_name || field_name;
       // do not ignore "" values, test against object properties
       if (field.hasOwnProperty("value")) {
         mapping[fieldName] = value;
       } else {
-        const entries = this.participantFormsHash[tableId]?.entries || [];
+        const entries = this.participantFormsHash[tableId].entries;
         mapping[fieldName] = entries[0] ? entries[0][fieldName] : null;
       }
     }
