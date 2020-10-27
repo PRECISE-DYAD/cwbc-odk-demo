@@ -116,30 +116,36 @@ export class PreciseStore {
     const collated: { [tableId: string]: IFormMetaWithEntries } = {};
     const promises = Object.entries(MAPPED_SCHEMA).map(
       async ([key, formMeta]) => {
+        const { tableId } = formMeta;
+        // lookup the data for every table given by the mapped table id
+        let participantRows: any;
         try {
-          const { tableId } = formMeta;
-          // lookup the data for every table given by the mapped table id
-          const particpantRows = await this.odk.query(
+          participantRows = await this.odk.query(
             tableId,
             "f2_guid = ?",
             [f2_guid],
             // skip odk error notifications and just handle below
             (err) => null
           );
-          // attach metadata
-          collated[tableId] = {
-            ...formMeta,
-            entries: particpantRows || [],
-          };
-          // duplicate data to pre-mapped table id for use in lookups
-          collated[key] = {
-            ...formMeta,
-            tableId: key,
-            entries: particpantRows || [],
-          };
         } catch (error) {
-          // no data if f2_guid does not exist in the table so can just ignore
+          // either table does not exist or no f2_guid field - likely issue but could be exceptions
+          console.error(
+            "could not query user records:",
+            formMeta.tableId,
+            f2_guid
+          );
         }
+        // attach metadata
+        collated[tableId] = {
+          ...formMeta,
+          entries: participantRows || [],
+        };
+        // duplicate data to pre-mapped table id for use in lookups
+        collated[key] = {
+          ...formMeta,
+          tableId: key,
+          entries: participantRows || [],
+        };
       }
     );
     await Promise.all(promises);
