@@ -37,7 +37,7 @@
         ></precise-profile-section>
       </mat-expansion-panel>
 
-      <ng-container *ngIf="profileConfirmed" [@fadeEntryExit]>
+      <div *ngIf="profileConfirmed" [@fadeEntryExit]>
         <!-- Summary Section -->
         <mat-expansion-panel class="no-padding" expanded>
           <mat-expansion-panel-header expandedHeight="48px">
@@ -76,18 +76,6 @@
           <precise-profile-baby-section
             [section]="babySection"
           ></precise-profile-baby-section>
-          <!-- Add baby section -->
-          <div
-            class="section-tile"
-            id="addBabySection"
-            (click)="addBabySection()"
-            *ngIf="
-              babySection.forms[0].entries[0] && babySections.length - 1 == i
-            "
-          >
-            <mat-icon>add</mat-icon>
-            <span>Add Baby</span>
-          </div>
         </mat-expansion-panel>
 
         <!-- TOD - ANC section -->
@@ -118,7 +106,7 @@
             [section]="sections.labSection"
           ></precise-profile-general-section>
         </mat-expansion-panel>
-      </ng-container>
+      </div>
     </mat-accordion>
 
     <!-- profile confirmation -->
