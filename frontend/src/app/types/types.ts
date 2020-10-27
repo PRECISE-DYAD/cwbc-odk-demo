@@ -17,7 +17,7 @@ export interface IFormMeta {
 }
 
 export interface IFormMetaMappedField {
-  table_id: string;
+  table_id: IPreciseTableId;
   field_name: string;
   // used to assign a fixed value instead of lookup
   value?: any;
