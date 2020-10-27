@@ -13,6 +13,7 @@ import { _arrToHashmap } from "src/app/utils";
 })
 export class DeveloperToolsComponent implements OnInit {
   tablesMeta: ITableMeta[];
+  missingTables: string[] = [];
   isLoading = false;
   constructor(private odkService: OdkService, private http: HttpClient) {}
 
@@ -39,6 +40,7 @@ export class DeveloperToolsComponent implements OnInit {
       rows: [],
     }));
     this.tablesMeta = tablesWithRows.map((t) => ({ ...t, rows: [] }));
+    await this.checkMissingTables(this.tablesMeta);
     this.loadLocalTableRows();
   }
   /**
@@ -152,11 +154,28 @@ export class DeveloperToolsComponent implements OnInit {
     await this.odkService.arbitraryQuery(
       tableId,
       // `drop table if exists ${tableId}`,
-      `delete from ${tableId};`,
+      `DELETE FROM ${tableId};`,
       []
     );
     this.tablesMeta[metaIndex].isImporting = false;
     this.loadLocalTableRows();
+  }
+
+  async deleteTable(tableId: string) {
+    // remove odk definition
+    await this.odkService.arbitraryQuery(
+      this.tablesMeta[0].tableId,
+      `DELETE FROM _table_definitions WHERE _table_id=?`,
+      [tableId]
+    );
+    await this.checkMissingTables(this.tablesMeta);
+    // drop main table (if created). Note - use other valid table for return
+    await this.odkService.arbitraryQuery(
+      this.tablesMeta[0].tableId,
+      `DROP TABLE ${tableId}`,
+      [],
+      (err) => console.error(err)
+    );
   }
   /**
    * Return a json-parsed representation of a table's definitions.csv file
@@ -169,6 +188,17 @@ export class DeveloperToolsComponent implements OnInit {
       .toPromise();
     const definitions = await parseCSV(definitionsText);
     return definitions as ITableDefinitionRow[];
+  }
+
+  private async checkMissingTables(frameworkTables: ITableMeta[]) {
+    const expectedTables = frameworkTables.map((t) => t.tableId);
+    const websqlTables = (await this.odkService.getTableMeta()).map(
+      (t) => t._table_id
+    );
+    const missing = websqlTables.filter(
+      (_table_id) => !expectedTables.includes(_table_id)
+    );
+    this.missingTables = missing;
   }
 
   /**

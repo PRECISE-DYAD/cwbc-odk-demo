@@ -61,6 +61,7 @@ export class OdkService {
   }
   /**
    * Run a query on _table_definitions table to retrieve basic metadata
+   * NOTE - will throw errors locally if tables in webSQL do not have local formdefs
    */
   async getTableMeta() {
     const meta = await this.arbitrarySqlQueryLocalOnlyTables<IODKTableDefQuery>(
