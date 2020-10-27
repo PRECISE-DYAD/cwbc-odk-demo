@@ -23,6 +23,7 @@ export const PRECISE_SUMMARY_FIELDS: IPreciseFieldSummary[] = [
   {
     label: "Gestational Age at Visit 1 (weeks)",
     calculation: (data) => getEDD_GA(data).ga_enrol,
+    summaryTableFieldname: "gaaAtVisit1",
   },
   {
     label: "Gestational Age at Today (weeks)",
@@ -60,7 +61,7 @@ export const PRECISE_SUMMARY_FIELDS: IPreciseFieldSummary[] = [
   },
   {
     label: "Number of Babies",
-    tableId: "Birthbaby",
+    tableId: "Birthmother",
     field: "f7_delivery_num_of_babies",
   },
   {
@@ -459,15 +460,18 @@ export type IPreciseParticipantData = {
  * @param label - Text that appears before the value on a form
  * @param tableId - If supplied with a field, will return specific value
  * @param field
- * @param calc - String representing alculation required for value.
- * Can call JS functions, and/or access `data` object for parameters, e.g.
+ * @param calculation - Function executed to calculate value (with access to participant data object)
+ * @param summaryTableFieldname - Additional mapping for populating standalone precise summary table
+ * @param hidden - TODO - Hide field from summary
  * ```
- * calc: "Math.min(data.Visit1.f2_some_field, data.Visit2.f3_another_field)"
+ * calculation: (data)=>Math.min(data.Visit1.f2_some_field, data.Visit2.f3_another_field)
  * ```
+ * @
  * @param grouping - (WiP) - group fields together (only used in profile table)
  * @param icon - (WiP) - optional icon to appear before text
  * @param transformation - (WiP) - additional transformation to be applied to
  * the final value, such as specific representation for a date (TBC)
+ *
  *
  */
 export interface IPreciseFieldSummary {
@@ -475,6 +479,9 @@ export interface IPreciseFieldSummary {
   tableId?: IPreciseTableId;
   field?: string;
   calculation?: (data: IPreciseParticipantData) => string;
+  summaryTableFieldname?: string;
+  // deprecated or not fully implemented
+  hidden?: boolean;
   grouping?: string;
   icon?: string;
   transformation?: string;
