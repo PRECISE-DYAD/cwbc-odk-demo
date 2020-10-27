@@ -137,18 +137,26 @@ export class ODKDesignerIframeComponent {
     });
   }
   closeIframe() {
-    this.ngZone.run(() => {
-      console.log("closing iframe");
+    if (this.animationState === "out") {
+      // hasn't closed correctly, retry toggle
+      this.showIframe();
       setTimeout(() => {
-        this.animationState = "out";
-        this.iframeUri = null;
-        this.odkService.surveyIsOpen$.next(false);
+        this.closeIframe();
+      }, 250);
+    } else {
+      this.ngZone.run(() => {
+        console.log("closing iframe");
         setTimeout(() => {
-          // Do a full page refresh as occurs in odk tables to prompt any init logic
-          location.reload();
-        }, 500);
-      }, 50);
-    });
+          this.animationState = "out";
+          this.iframeUri = null;
+          this.odkService.surveyIsOpen$.next(false);
+          setTimeout(() => {
+            // Do a full page refresh as occurs in odk tables to prompt any init logic
+            location.reload();
+          }, 500);
+        }, 50);
+      });
+    }
   }
 
   /**
