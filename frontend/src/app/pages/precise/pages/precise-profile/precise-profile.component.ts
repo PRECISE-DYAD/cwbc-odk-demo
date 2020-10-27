@@ -84,16 +84,19 @@ export class PreciseProfileComponent implements OnDestroy, OnInit {
     this.sections = sections;
   }
   private loadParticipantBabySections() {
-    // Add sections for each recorded birth (and by default 1)
-    let babyEntries = this.store.participantFormsHash.Birthbaby.entries;
-    if (babyEntries.length === 0) {
-      // by default ensure at least one placeholder baby section
-      const f2_guid_child = this.store.addParticipantBaby(false) as string;
-      babyEntries = [{ f2_guid_child }];
-    }
+    // Add sections for each recorded birth
+    const babyEntries = this.store.participantFormsHash.Birthbaby.entries;
     babyEntries.forEach((row) => {
       this.babySections.push(this._generateBabySection(row.f2_guid_child));
     });
+    // Add placeholders for additional children recorded
+    const numberOfBabies =
+      this.store.participantFormsHash.Birthmother.entries[0]
+        ?.f7_delivery_num_of_babies || 1;
+    // add at most 1 extra section to force filling in the correct order
+    if (babyEntries.length < numberOfBabies) {
+      this.addBabySection();
+    }
   }
 
   viewRevisions() {
@@ -132,9 +135,8 @@ export class PreciseProfileComponent implements OnDestroy, OnInit {
       );
       // add label from baby_id if available
       if (f.formId === "Birthbaby") {
-        section.label = entries[0]
-          ? entries[0].f9_baby_id
-          : f2_guid_child.split("_").pop();
+        section.label =
+          entries[0]?.f9_baby_id || f2_guid_child.split("_").pop();
       }
       // include fixed value to pass as f2_guid_child when opening forms
       f.mapFields.push({
