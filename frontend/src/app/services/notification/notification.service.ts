@@ -30,15 +30,15 @@ export class NotificationService {
     });
   }
 
-  handleError(err: Error) {
+  handleError(err: Error, additionalText: string = "") {
     console.error(err);
-    console.log("store events", this.storeEvents);
-    const message =
+    let message =
       typeof err === "string"
         ? err
         : err.message
         ? err.message
         : "Error Occured";
+    message = `${message}: ${additionalText}`;
     this.showMessage(message, { notificationType: "error", message });
   }
 }

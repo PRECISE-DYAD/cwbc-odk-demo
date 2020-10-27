@@ -98,9 +98,9 @@ export class OdkService {
     this.window = window;
     this.setServiceReady();
   }
-  handleError(err: Error) {
+  handleError(err: Error, additionalText: string = "") {
     console.error(err);
-    this.notifications.handleError(err);
+    this.notifications.handleError(err, additionalText);
   }
 
   /**********************************************************************************************
@@ -151,7 +151,7 @@ export class OdkService {
         "addRow",
         (res) => resolve(res),
         (err) => {
-          this.handleError(err);
+          this.handleError(err, `add row - tableId: ${tableId}`);
           reject(err);
         }
       );
@@ -178,7 +178,7 @@ export class OdkService {
         rowId,
         (res) => resolve(res),
         (err) => {
-          this.handleError(err);
+          this.handleError(err, `delete row - tableId: ${tableId}`);
           reject(err);
         }
       );
@@ -203,7 +203,7 @@ export class OdkService {
     whereClause: string = null,
     sqlBindParams: string[] = null,
     failureCallback = (err) => {
-      this.handleError(err);
+      this.handleError(err, `query: ${tableId} ${whereClause || ""}`);
     }
   ): Promise<(IODkTableRowData & T)[]> {
     return new Promise((resolve, reject) => {
@@ -244,7 +244,8 @@ export class OdkService {
     tableId: string,
     sqlCommand: string,
     sqlBindParams: string[] = [],
-    failureCallback = (err) => this.handleError(err)
+    failureCallback = (err) =>
+      this.handleError(err, `query tableId: ${tableId}`)
   ): Promise<any> {
     return new Promise((resolve, reject) => {
       this.window.odkData.arbitraryQuery(

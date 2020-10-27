@@ -169,23 +169,29 @@ export class DeveloperToolsComponent implements OnInit {
     const filepath = this.odkService.getFileAsUrl(
       "config/assets/framework/forms/framework/formDef.json"
     );
-    const formdef = await this.http.get<IFormDef>(filepath).toPromise();
-    // generate a list of choices with their display names (table ids are included in choice list)
-    const choicesHash: {
-      [data_value: string]: IFormDefSpecificationChoice;
-    } = {};
-    Object.values(formdef.specification.choices).forEach((choiceValues) => {
-      choiceValues.forEach((v) => (choicesHash[v.data_value] = v));
-    });
-    // assume tables are defined in formdef survey sheet
-    // extract list of all entries and me
-    const tablesWithDisplayNames = formdef.xlsx.survey
-      .filter((r) => r.hasOwnProperty("branch_label"))
-      .map((r) => ({
-        tableId: r.branch_label,
-        display: choicesHash[r.branch_label].display,
-      }));
-    return tablesWithDisplayNames;
+    try {
+      const formdef = await this.http.get<IFormDef>(filepath).toPromise();
+      // generate a list of choices with their display names (table ids are included in choice list)
+      const choicesHash: {
+        [data_value: string]: IFormDefSpecificationChoice;
+      } = {};
+      Object.values(formdef.specification.choices).forEach((choiceValues) => {
+        choiceValues.forEach((v) => (choicesHash[v.data_value] = v));
+      });
+      // assume tables are defined in formdef survey sheet
+      // extract list of all entries and me
+      const tablesWithDisplayNames = formdef.xlsx.survey
+        .filter((r) => r.hasOwnProperty("branch_label"))
+        .map((r) => ({
+          tableId: r.branch_label,
+          display: choicesHash[r.branch_label].display,
+        }));
+      return tablesWithDisplayNames;
+    } catch (error) {
+      // no formdef
+      console.error(error);
+      return [];
+    }
   }
   /**
    * Parse designer tables.init file and extract list of tables and filenames for preloading csv data
