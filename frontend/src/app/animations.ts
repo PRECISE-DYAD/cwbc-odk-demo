@@ -5,6 +5,7 @@ import {
   query,
   animate,
   state,
+  sequence,
 } from "@angular/animations";
 
 export const routeChange = trigger("routeAnimations", [
@@ -48,6 +49,9 @@ export const fadeEntryExit = trigger("fadeEntryExit", [
 export const slideInOut = trigger("slideInOut", [
   state("in", style({ transform: "translateY(-100%)" })),
   state("out", style({ transform: "translateY(0)" })),
-  transition("in => out", [animate("400ms ease-in-out")]),
+  transition(
+    "in => out",
+    sequence([animate("400ms ease-in-out"), style({ display: "none" })])
+  ),
   transition("out => in", [animate("200ms ease-in-out")]),
 ]);

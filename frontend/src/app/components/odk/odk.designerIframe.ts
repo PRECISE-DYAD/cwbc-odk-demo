@@ -13,7 +13,7 @@ import { OdkService } from "src/app/services/odk/odk.service";
   selector: "odk-designer-iframe",
   animations: [slideInOut],
   template: `
-    <div class="container" [@slideInOut]="show ? 'in' : 'out'">
+    <div class="container" [@slideInOut]="animationState">
       <mat-toolbar color="accent">
         <span>Form Preview</span>
         <span style="flex: 1;"></span>
@@ -38,6 +38,9 @@ import { OdkService } from "src/app/services/odk/odk.service";
   `,
   styles: [
     `
+      :host {
+        display: block;
+      }
       .container {
         position: absolute;
         top: 100%;
@@ -60,7 +63,7 @@ import { OdkService } from "src/app/services/odk/odk.service";
 export class ODKDesignerIframeComponent {
   iframeSrc: SafeUrl;
   iframeUri: string;
-  show = false;
+  animationState: "in" | "out" = "out";
   @ViewChild("iframe") iframeRef: ElementRef<HTMLIFrameElement>;
   @HostListener("window:message", ["$event"]) onPostMessage(event: any) {
     if (event.origin === "http://localhost:8000") {
@@ -129,7 +132,7 @@ export class ODKDesignerIframeComponent {
     this.ngZone.run(() => {
       console.log("showing iframe");
       setTimeout(() => {
-        this.show = true;
+        this.animationState = "in";
       }, 50);
     });
   }
@@ -137,7 +140,7 @@ export class ODKDesignerIframeComponent {
     this.ngZone.run(() => {
       console.log("closing iframe");
       setTimeout(() => {
-        this.show = false;
+        this.animationState = "out";
         this.iframeUri = null;
         this.odkService.surveyIsOpen$.next(false);
         setTimeout(() => {
