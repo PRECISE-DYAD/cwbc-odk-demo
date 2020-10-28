@@ -28,9 +28,7 @@ export class NotificationService {
     });
   }
 
-  handleError(err: Error) {
-    console.error(err);
-    console.log("store events", this.storeEvents);
+  handleError(err: Error | string, additionalText: string = "") {
     const message =
       typeof err === "string"
         ? err
