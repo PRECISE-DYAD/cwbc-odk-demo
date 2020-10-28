@@ -88,7 +88,6 @@ export class PreciseProfileComponent implements OnDestroy, OnInit {
     const expectedEntries = new Array(numberOfBabies)
       .fill(0)
       .map((_, childIndex) => `${f2_guid}_${childIndex + 1}`);
-    console.log("expectedEntries", expectedEntries);
     expectedEntries.forEach((f2_guid_child) => {
       const section = this._generateBabySection(f2_guid_child);
       this.babySections.push(section);
