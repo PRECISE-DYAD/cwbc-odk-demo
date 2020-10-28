@@ -130,6 +130,11 @@ export class OdkService {
       jsonMap
     );
   }
+  /**
+   * Launch ODK survey with a row for editing
+   * @see NOTE -this does not accept piped data. If wanting to pipe data this must
+   * be written to the table before opening (e.g. via precise store launch edit method)
+   */
   editRowWithSurvey(tableId, rowId, formId) {
     this.activeArgs = { tableId, formId, rowId };
     this.surveyIsOpen$.next(true);

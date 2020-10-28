@@ -166,19 +166,17 @@ export class PreciseStore {
   @action setParticipantForms(collated: {
     [tableId: string]: IFormMetaWithEntries;
   }) {
-    console.log("collated responses", collated);
     const participantFormsHash = _arrToHashmap(
       Object.values(collated),
       "tableId"
     );
-    console.log("participant forms hash", participantFormsHash);
     const activeParticipantData = this._extractMappedDataValues(
       Object.values(participantFormsHash)
     ) as any;
-    console.log("participant data", activeParticipantData);
     this.participantFormsHash = participantFormsHash;
     this.activeParticipantData = activeParticipantData;
     this.participantDataLoaded = true;
+    console.log("participant forms", participantFormsHash);
   }
 
   /**
@@ -203,23 +201,7 @@ export class PreciseStore {
     const rowId = screening._id;
     this.launchForm(MAPPED_SCHEMA.screening, rowId);
   }
-  /**
-   * When recording a baby also want to populate a guid to link future
-   * forms with a specific baby (e.g. in case of twins)
-   * This is the same as the mother guid with additional _${childIndex}
-   * NOTE1 - child index count from 1 for more human-readable export
-   * NOTE2 - optional 'launch' form to allow just generation of ID
-   */
-  addParticipantBaby(launchForm = true) {
-    const childIndex = this.participantFormsHash.Birthbaby.entries.length + 1;
-    const { f2_guid } = this.activeParticipant;
-    const f2_guid_child = `${f2_guid}_${childIndex}`;
-    return launchForm
-      ? this.launchForm(MAPPED_SCHEMA.Birthbaby, null, {
-          f2_guid_child,
-        })
-      : f2_guid_child;
-  }
+
   /**
    * When editing a participant also create a revision entry
    */
@@ -259,16 +241,15 @@ export class PreciseStore {
    * NOTE - any additional fields listed in formMeta also populated
    */
   launchForm(formMeta: IFormMeta, editRowId: string = null, jsonMap: any = {}) {
-    // if formMeta has not been correctly mapped (still defined by legacy id) repopulate
-    if (MAPPED_SCHEMA[formMeta.tableId]) {
-      formMeta = MAPPED_SCHEMA[formMeta.tableId];
-    }
-    const { mapFields, tableId, formId } = formMeta;
-    // pass active participant guid to form if not otherwise defined
+    let { tableId, formId } = formMeta;
+    // ensure table and form ids have been properly mapped
+    // note - avoid full lookup in case modified mapped fields have been pass (e.g. baby section forms)
+    tableId = environment.tableMapping[tableId] || tableId;
+    formId = environment.formMapping[formId] || formId;
     if (this.activeParticipant) {
       jsonMap.f2_guid = jsonMap.f2_guid || this.activeParticipant.f2_guid;
     }
-    jsonMap = { ...jsonMap, ...this._generateMappedFields(mapFields) };
+    jsonMap = { ...jsonMap, ...this._generateMappedFields(formMeta.mapFields) };
     console.log("launching form", tableId, formId, editRowId, jsonMap);
     if (editRowId) {
       // TODO - manually update piped fields
@@ -332,13 +313,13 @@ export class PreciseStore {
 
     for (const field of mapFields) {
       const { field_name, mapped_field_name, value } = field;
-      const tableMeta = MAPPED_SCHEMA[field.table_id];
-      const { tableId } = tableMeta;
       const fieldName = mapped_field_name || field_name;
-      // do not ignore "" values, test against object properties
+      // If value hardcoded (even if ""),simply reutrn
       if (field.hasOwnProperty("value")) {
         mapping[fieldName] = value;
       } else {
+        const tableMeta = MAPPED_SCHEMA[field.table_id];
+        const { tableId } = tableMeta;
         const entries = this.participantFormsHash[tableId].entries;
         mapping[fieldName] = entries[0] ? entries[0][fieldName] : null;
       }

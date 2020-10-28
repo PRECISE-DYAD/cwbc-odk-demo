@@ -65,12 +65,11 @@ import { IODkTableRowData } from "src/app/types/odk.types";
 })
 export class PreciseFormSummaryComponent {
   @Input() form: IFormMetaWithEntries;
-  @Input() jsonMap: any;
   // Add sections for groups of forms, populating with data form stroe
   constructor(public store: PreciseStore) {}
 
   openForm(form: IFormMetaWithEntries, entry?: IODkTableRowData) {
     const editRowId = entry ? entry._id : null;
-    this.store.launchForm(form, editRowId, this.jsonMap);
+    this.store.launchForm(form, editRowId);
   }
 }
