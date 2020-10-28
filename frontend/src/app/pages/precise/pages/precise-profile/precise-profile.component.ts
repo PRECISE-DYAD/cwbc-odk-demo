@@ -11,10 +11,8 @@ import * as Animations from "src/app/animations";
 import {
   ISectionWithMeta,
   PRECISE_FORM_SECTIONS,
-  IPreciseFormSection,
   PRECISE_BABY_FORM_SECTION,
 } from "src/app/models/precise.models";
-import { toJS } from "mobx";
 import { Subscription } from "rxjs";
 
 @Component({
@@ -59,13 +57,7 @@ export class PreciseProfileComponent implements OnDestroy, OnInit {
       this.loadParticipantBabySections();
     }
   }
-  /**
-   * Add additional baby section when triggered by user pressing button
-   */
-  addBabySection() {
-    const f2_guid_child = this.store.addParticipantBaby(false) as string;
-    this.babySections.push(this._generateBabySection(f2_guid_child));
-  }
+
   private setPageTitle(activeParticipant: IParticipant) {
     const { f2a_full_name, f2a_participant_id } = activeParticipant;
     this.commonStore.setPageTitle(`${f2a_participant_id} ${f2a_full_name}`);
@@ -83,20 +75,24 @@ export class PreciseProfileComponent implements OnDestroy, OnInit {
     });
     this.sections = sections;
   }
+  /**
+   * Create a baby section entry with any baby forms
+   */
   private loadParticipantBabySections() {
-    // Add sections for each recorded birth
-    const babyEntries = this.store.participantFormsHash.Birthbaby.entries;
-    babyEntries.forEach((row) => {
-      this.babySections.push(this._generateBabySection(row.f2_guid_child));
-    });
     // Add placeholders for additional children recorded
     const numberOfBabies =
       this.store.participantFormsHash.Birthmother.entries[0]
         ?.f7_delivery_num_of_babies || 1;
-    // add at most 1 extra section to force filling in the correct order
-    if (babyEntries.length < numberOfBabies) {
-      this.addBabySection();
-    }
+    // add any additional sections if more babies specified
+    const { f2_guid } = this.store.activeParticipant;
+    const expectedEntries = new Array(numberOfBabies)
+      .fill(0)
+      .map((_, childIndex) => `${f2_guid}_${childIndex + 1}`);
+    console.log("expectedEntries", expectedEntries);
+    expectedEntries.forEach((f2_guid_child) => {
+      const section = this._generateBabySection(f2_guid_child);
+      this.babySections.push(section);
+    });
   }
 
   viewRevisions() {
@@ -115,38 +111,40 @@ export class PreciseProfileComponent implements OnDestroy, OnInit {
    * Given a formId return full form meta with entries
    */
   getFormWithEntries(formId: string): IFormMetaWithEntries {
-    return toJS(this.store.participantFormsHash[formId]);
+    return this.store.participantFormsHash[formId];
   }
 
   /**
-   * Dynamically populate baby forms
+   * Dynamically populate baby forms, filtering all form entries to only include specific
+   * child guid and add field mapping to pass child guid to all forms
    */
   private _generateBabySection(f2_guid_child: string) {
-    const section: IPreciseFormSection = {
-      ...PRECISE_BABY_FORM_SECTION,
-    };
-    let forms = section.formIds.map((formId) =>
-      this.getFormWithEntries(formId as string)
-    );
-    forms = forms.map((f, i) => {
-      // take all form entries and assign only those with matching baby guid
-      const entries = f.entries.filter(
+    const babyForms = PRECISE_BABY_FORM_SECTION.formIds.map((formId) => {
+      const formWithAllEntries = this.getFormWithEntries(formId as string);
+      // filter all form entries to only include those with matching child guid
+      const childEntries = formWithAllEntries.entries.filter(
         (row) => row.f2_guid_child === f2_guid_child
       );
-      // add label from baby_id if available
-      if (f.formId === "Birthbaby") {
-        section.label =
-          entries[0]?.f9_baby_id || f2_guid_child.split("_").pop();
-      }
-      // include fixed value to pass as f2_guid_child when opening forms
-      f.mapFields.push({
-        field_name: "f2_guid_child",
-        value: f2_guid_child,
-        table_id: null,
-      });
-      return { ...f, entries };
+      // add additional map field for piping child guid
+      const mapFields = [
+        ...formWithAllEntries.mapFields,
+        {
+          field_name: "f2_guid_child",
+          value: f2_guid_child,
+          table_id: null,
+        },
+      ];
+      return { ...formWithAllEntries, entries: childEntries, mapFields };
     });
-    return { ...section, forms };
+    // populate label from Birthbaby entry (if available)
+    const { entries } = babyForms.find((f) => f.formId === "Birthbaby");
+    const label = entries[0]?.f9_baby_id || f2_guid_child.split("_").pop();
+    const section: ISectionWithMeta = {
+      ...PRECISE_BABY_FORM_SECTION,
+      label,
+      forms: babyForms,
+    };
+    return section;
   }
 
   /**
