@@ -1,4 +1,4 @@
-import { Component, Input, OnInit, ɵConsole } from "@angular/core";
+import { Component, Input, OnInit } from "@angular/core";
 import { ISectionWithMeta } from "src/app/models/precise.models";
 import {
   PRECISE_BABY_SUMMARY_FIELDS,
@@ -28,6 +28,13 @@ import {
           </td>
         </tr>
       </table>
+      <div style="padding:1em; display:flex; align-items:center">
+        <mat-icon>help_outline</mat-icon>
+        <span style="margin-left:5px"
+          >To record additional births specify the total number of babies born
+          in the <strong>Birth Mother</strong> form</span
+        >
+      </div>
     </section>
   `,
   styleUrls: ["../precise-profile.component.scss"],
