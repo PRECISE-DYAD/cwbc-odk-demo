@@ -28,6 +28,7 @@ import { OdkService } from "src/app/services/odk/odk.service";
         </button>
       </mat-toolbar>
       <iframe
+        *ngIf="iframeSrc"
         [src]="iframeSrc"
         #iframe
         name="screen"
@@ -43,8 +44,8 @@ import { OdkService } from "src/app/services/odk/odk.service";
       }
       .container {
         position: absolute;
-        top: 100%;
         left: 0;
+        bottom: -100vh;
         height: 100vh;
         width: 100%;
       }
