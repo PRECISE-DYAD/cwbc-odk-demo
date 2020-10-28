@@ -99,10 +99,6 @@ export class OdkService {
     this.window = window;
     this.setServiceReady();
   }
-  handleError(err: Error, additionalText: string = "") {
-    console.error(err);
-    this.notifications.handleError(err, additionalText);
-  }
 
   /**********************************************************************************************
    *  Default Methods
@@ -117,6 +113,55 @@ export class OdkService {
 
   getFileAsUrl(relativePath: string) {
     return this.window.odkCommon.getFileAsUrl(relativePath);
+  }
+  /**
+   * Manually update a row in the database
+   * Performs a lookup for the rowID, and if exists first checks values, and then updates if different
+   * @param jsonMap key:value pairs to update in the row
+   */
+  async updateRow(tableId: string, rowId: string, jsonMap: any = {}) {
+    const existingData = await this.query(tableId, "_id = ?", [rowId]);
+    // There should be exactly 1 row matched by the query, However for now allow more than 1
+    // (local web sql sometimes creates temporary duplicates). Possibly should reconsider in future
+    if (existingData[0]) {
+      const row = existingData[0];
+      const updates: { key: string; newValue: string; oldValue: string }[] = [];
+      Object.entries<any>(jsonMap).forEach(async ([key, newValue]) => {
+        if (!row.hasOwnProperty(key)) {
+          return this.handleError(
+            `Cannot update [${key}] on table [${tableId}] - column does not exist`
+          );
+        } else if (row[key] !== newValue) {
+          updates.push({ key, newValue, oldValue: row[key] });
+        }
+      });
+      if (updates.length > 0) {
+        const colKeys = updates.map((u) => `${u.key} = ?`).join(" ,");
+        const colVals = updates.map((u) => u.newValue);
+        const sql = `UPDATE ${tableId} SET ${colKeys} WHERE _id = ?;`;
+        colVals.push(rowId);
+        console.log("sql", sql, colVals);
+        await this.arbitraryQuery(tableId, sql, colVals);
+      } else {
+        console.log("piped data up-to-date");
+      }
+    } else {
+      console.log("Error: expected 1 Record to update, found", existingData);
+      this.handleError(`failed to update row: ${tableId} :${rowId}`);
+    }
+  }
+
+  /**
+   * Used to pass the window object from the child iframe for use within our services
+   * TODO - merge with cc-updates-2 code
+   */
+  // setWindow(window: IODKWindow) {
+  //   this.window = window;
+  //   this.setServiceReady();
+  // }
+  handleError(err: Error | string, additionalText: string = "") {
+    console.error(err);
+    this.notifications.handleError(err, additionalText);
   }
 
   addRowWithSurvey(tableId: string, formId: string, screenPath?, jsonMap?) {

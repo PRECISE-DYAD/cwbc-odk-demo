@@ -30,7 +30,7 @@ export class NotificationService {
     });
   }
 
-  handleError(err: Error, additionalText: string = "") {
+  handleError(err: Error | string, additionalText: string = "") {
     let message =
       typeof err === "string"
         ? err

@@ -234,13 +234,20 @@ export class PreciseStore {
   }
 
   /**
-   *
+   * Launch a form in ODK survey, optionally providing an existing rowId to
+   * open an existing form (otherwise creates a new entry).
+   * Additionally pipe any key-value data pairs to the form, and automatically
+   * update piped data when re-opening in edit mode
    * @param editRowId - row to load into survey for editing
    * @param jsonMap - fields to prepopulate
    * NOTE - f2_guid automatically populated for all forms
    * NOTE - any additional fields listed in formMeta also populated
    */
-  launchForm(formMeta: IFormMeta, editRowId: string = null, jsonMap: any = {}) {
+  async launchForm(
+    formMeta: IFormMeta,
+    editRowId: string = null,
+    jsonMap: any = {}
+  ) {
     let { tableId, formId } = formMeta;
     // ensure table and form ids have been properly mapped
     // note - avoid full lookup in case modified mapped fields have been pass (e.g. baby section forms)
@@ -252,7 +259,8 @@ export class PreciseStore {
     jsonMap = { ...jsonMap, ...this._generateMappedFields(formMeta.mapFields) };
     console.log("launching form", tableId, formId, editRowId, jsonMap);
     if (editRowId) {
-      // TODO - manually update piped fields
+      // manually update piped fields in case of changes
+      await this.odk.updateRow(tableId, editRowId, jsonMap);
       return this.odk.editRowWithSurvey(tableId, editRowId, formId);
     }
     return this.odk.addRowWithSurvey(tableId, formId, editRowId, jsonMap);

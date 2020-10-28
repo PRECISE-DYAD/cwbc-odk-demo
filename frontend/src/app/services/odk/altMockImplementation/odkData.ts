@@ -37,16 +37,16 @@ abstract class OdkDataClass {
   getResponseJSON() {
     console.error("queueRequest not implemented");
   }
-  arbitraryQuery(...args) {
-    console.error("not implemented");
-  }
   arbitrarySqlQueryLocalOnlyTables(...args) {
     console.error("not implemented");
   }
   getRows(tableId, rowId, successCallbackFn, failureCallbackFn) {
     console.log("getting rows");
   }
-
+  arbitraryQuery(...args) {
+    console.error("arbitraryQuery not implemented");
+    return [];
+  }
   /**
    * For mock implementation return any data as defined in the `forms/csv`
    * folder for the corresponding table (no sort/filter logic applied)
