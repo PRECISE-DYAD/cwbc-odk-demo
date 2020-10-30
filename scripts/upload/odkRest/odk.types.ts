@@ -1,4 +1,5 @@
 export namespace IODKTypes {
+  // CC NOTE - this file should be ideally be kept in sync with cwbc project
   export interface ITableMeta {
     aclUri: string;
     dataETag: string;
@@ -13,6 +14,7 @@ export namespace IODKTypes {
   }
   export interface ITableSchema {
     orderedColumns: ISchemaColumn[];
+    schemaETag?: string;
     tableId: string;
   }
   // Schema columns are used when defining database data structures
@@ -65,12 +67,9 @@ export namespace IODKTypes {
     formId: string;
     locale: string;
     savepointType: Savepoint;
-    savepointTimestamp: string;
+    savepointTimestamp: ISOString;
     savepointCreator: string;
-    orderedColumns: {
-      column: string;
-      value: string;
-    }[];
+    orderedColumns: IResTableColumn[];
     id: string;
     filterScope: {
       defaultAccess: AccessLevel;
@@ -80,25 +79,31 @@ export namespace IODKTypes {
       groupPrivileged: BoolString;
     };
   }
+  export interface IResTableRow extends IUploadTableRow {
+    createUser: string;
+    dataETagAtModification: string;
+    lastUpdateUser: string;
+    selfUri: string;
+  }
 
   export type ITableMetaColumnKey = keyof ITableRow;
 
-  interface IUserPriviledge {
+  export interface IUserPriviledge {
     defaultGroup: Priviledge;
     full_name: string;
     roles: Priviledge[];
     user_id: string;
   }
 
-  type BoolString = "TRUE" | "FALSE";
+  export type BoolString = "TRUE" | "FALSE";
 
   // just a reminder type that dates are stored in the format
-  type ISOString = string;
+  export type ISOString = string;
 
   // TODO - lists not exhaustive
-  type AccessLevel = "FULL";
-  type Savepoint = "COMPLETE";
-  type Priviledge =
+  export type AccessLevel = "FULL";
+  export type Savepoint = "COMPLETE";
+  export type Priviledge =
     | "ROLE_SITE_ACCESS_ADMIN"
     | "AUTH_LDAP"
     | "ROLE_ADMINISTER_TABLES"
@@ -128,33 +133,12 @@ export namespace IODKTypes {
     rows: IResTableRow[];
     tableUri: string;
   }
-  export interface IResTableRow {
-    createUser: string;
-    dataETagAtModification: string;
-    deleted: false;
-    filterScope: {
-      defaultAccess: AccessLevel;
-      rowOwner: string;
-      groupReadOnly: BoolString;
-      groupModify: BoolString;
-      groupPrivileged: BoolString;
-    };
-    formId: string;
-    id: string;
-    lastUpdateUser: string;
-    locale: string;
-    orderedColumns: IResTableColumn[];
-    rowETag: string;
-    savepointCreator: string;
-    savepointTimestamp: ISOString;
-    savepointType: Savepoint;
-    selfUri: string;
-  }
-  interface IResTableColumn {
+
+  export interface IResTableColumn {
     column: string;
     value: any;
   }
-  interface IResAlterRows {
+  export interface IResAlterRows {
     dataETag: string;
     rows: ITableRowAltered[];
     tableUri: string;

@@ -1,32 +1,36 @@
 import axios, { AxiosResponse, AxiosError, AxiosRequestConfig } from "axios";
 
 /**
- * Modified axios http methods to automate passing of auth and other header data
- * (could be replaced with interceptor/middleware)
+ * Use interceptor to append correct url prefix and auth headers
  */
+axios.interceptors.request.use(
+  (config) => {
+    config.url = `${process.env.ODK_SERVER_URL}/odktables/${config.url}`;
+    const username = process.env.ODK_USERNAME;
+    const password = process.env.ODK_PASSWORD;
+    const token = Buffer.from(`${username}:${password}`).toString("base64");
+    const Authorization = `basic ${token}`;
+    config.headers = { ...config.headers, Authorization };
+    return config;
+  },
+  (error) => {
+    return Promise.reject(error);
+  }
+);
 
-function getEnv() {
-  const username = process.env.ODK_USERNAME;
-  const password = process.env.ODK_PASSWORD;
-  const baseUrl = `${process.env.ODK_SERVER_URL}/odktables`;
-  return { username, password, baseUrl };
-}
-
+/**
+ * Base rest methods using axios
+ */
 async function get<T = any>(endpoint: string, config: AxiosRequestConfig = {}) {
-  const { baseUrl, username, password } = getEnv();
-  const url = `${baseUrl}/${endpoint}`;
   return axios
-    .get(url, { auth: { username, password }, ...config })
+    .get(endpoint, { ...config })
     .then((res) => handleRes<T>(res))
     .catch((err) => handleErr(err));
 }
 
 async function post<T = any>(endpoint: string, data: any, headers = {}) {
-  const { baseUrl, username, password } = getEnv();
-  const url = `${baseUrl}/${endpoint}`;
   return axios
-    .post(url, data, {
-      auth: { username, password },
+    .post(endpoint, data, {
       headers: {
         ...headers,
         "X-OpenDataKit-Version": "2.0",
@@ -39,11 +43,8 @@ async function post<T = any>(endpoint: string, data: any, headers = {}) {
     .catch((err) => handleErr(err));
 }
 async function put<T = any>(endpoint: string, data: any, headers = {}) {
-  const { baseUrl, username, password } = getEnv();
-  const url = `${baseUrl}/${endpoint}`;
   return axios
-    .put(url, data, {
-      auth: { username, password },
+    .put(endpoint, data, {
       headers: { ...headers, "X-OpenDataKit-Version": "2.0" },
       // set max limits for posting size
       maxContentLength: 100000000,
@@ -52,10 +53,8 @@ async function put<T = any>(endpoint: string, data: any, headers = {}) {
     .catch((err) => handleErr(err));
 }
 async function del<T = any>(endpoint: string) {
-  const { baseUrl, username, password } = getEnv();
-  const url = `${baseUrl}/${endpoint}`;
   return axios
-    .delete(url, { auth: { username, password } })
+    .delete(endpoint)
     .then((res) => handleRes<T>(res))
     .catch((err) => handleErr(err));
 }
