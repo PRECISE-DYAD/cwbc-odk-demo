@@ -126,7 +126,7 @@ function writeTablesInit(exportFolder: string, tableIds: string[]) {
   fs.createFileSync(tablesInitPath);
   fs.appendFileSync(tablesInitPath, `table_keys=${tableIds.join(",")}`);
   for (let tableId of tableIds) {
-    const line = `\r\n${tableIds}.filename=config/assets/csv/${tableIds}.csv`;
+    const line = `\r\n${tableId}.filename=config/assets/csv/${tableId}.csv`;
     fs.appendFileSync(tablesInitPath, line);
   }
 }
