@@ -11,12 +11,13 @@ import { IODkTableRowData } from "src/app/types/odk.types";
   template: `
     <div *ngFor="let entry of form.entries">
       <button mat-button (click)="openForm(form, entry)">
-        <mat-icon *ngIf="entry._savepoint_type === 'COMPLETE'">
-          check_box</mat-icon
-        >
-        <mat-icon *ngIf="entry._savepoint_type === 'INCOMPLETE'"
-          >indeterminate_check_box</mat-icon
-        >
+        <ng-container [ngSwitch]="entry._savepoint_type">
+          <mat-icon *ngSwitchCase="'COMPLETE'"> check_box</mat-icon>
+          <mat-icon *ngSwitchCase="'INCOMPLETE'"
+            >indeterminate_check_box</mat-icon
+          >
+          <mat-icon *ngSwitchDefault> check_box_outline_blank</mat-icon>
+        </ng-container>
         {{ form.title }}
       </button>
       <div class="form-completion-date">
