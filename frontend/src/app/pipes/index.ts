@@ -7,4 +7,4 @@ import { SavepointTimestampPipe } from "./savepointTimestampPipe";
   exports: [BoolIconPipe, SavepointTimestampPipe],
   declarations: [BoolIconPipe, SavepointTimestampPipe],
 })
-export class PrecisePipesModule {}
+export class SharedPipesModule {}

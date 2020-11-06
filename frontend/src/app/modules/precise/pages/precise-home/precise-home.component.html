@@ -2,13 +2,26 @@
   <button
     mat-raised-button
     [routerLink]="['screening']"
+    class="precise-button"
     style="margin-top: 3em"
   >
     <mat-icon style="margin-right: 5px" svgIcon="screen"></mat-icon
     ><span> PRECISE - Screening </span>
   </button>
-  <button mat-raised-button [routerLink]="['participants']">
+  <button
+    mat-raised-button
+    [routerLink]="['participants']"
+    class="precise-button"
+  >
     <mat-icon style="margin-right: 5px">list</mat-icon
     ><span> PRECISE - Enrolment </span>
+  </button>
+  <button
+    mat-raised-button
+    [routerLink]="['/projects/dyad/participants']"
+    class="dyad-button"
+  >
+    <mat-icon style="margin-right: 5px">list</mat-icon
+    ><span> DYAD - Enrolment </span>
   </button>
 </div>

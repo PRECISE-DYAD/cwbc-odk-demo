@@ -5,10 +5,10 @@ import { CoreComponentsModule } from "src/app/components";
 import { CommonModule } from "@angular/common";
 import { RouterModule } from "@angular/router";
 import { PreciseFormSummaryComponent } from "./preciseFormSummary";
-import { PrecisePipesModule } from "../pipes";
 import { PreciseFieldSummaryComponent } from "./preciseFieldSummary";
 import { MobxAngularModule } from "mobx-angular";
 import { EnrollmentDialogComponent } from "./enrollmentDialog";
+import { SharedPipesModule } from "src/app/pipes";
 
 const PreciseComponents = [
   PreciseFormSummaryComponent,
@@ -21,7 +21,7 @@ const PreciseComponents = [
     CoreComponentsModule,
     CommonModule,
     RouterModule,
-    PrecisePipesModule,
+    SharedPipesModule,
     MobxAngularModule,
     FormsModule,
   ],

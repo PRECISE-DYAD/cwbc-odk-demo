@@ -15,9 +15,9 @@ import { PreciseProfileGeneralSectionComponent } from "./pages/precise-profile/s
 import { PreciseScreeningComponent } from "./pages/precise-screening/precise-screening.component";
 import { PreciseProfileSectionComponent } from "./pages/precise-profile/sections/profile-section/profile-section";
 import { PreciseProfileConfirmationComponent } from "./pages/precise-profile/sections/profile-confirmation";
-import { PrecisePipesModule } from "./pipes";
 import { PreciseProfileSummarySectionComponent } from "./pages/precise-profile/sections/summary-section";
 import { PreciseProfileBabySectionComponent } from "./pages/precise-profile/sections/baby-section";
+import { SharedPipesModule } from "src/app/pipes";
 
 const routes: Routes = [
   {
@@ -61,7 +61,7 @@ const routes: Routes = [
     RouterModule.forChild(routes),
     PreciseComponentsModule,
     MobxAngularModule,
-    PrecisePipesModule,
+    SharedPipesModule,
   ],
   exports: [PreciseComponentsModule],
   providers: [
