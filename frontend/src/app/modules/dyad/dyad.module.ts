@@ -9,7 +9,7 @@ import { OdkService } from "src/app/services/odk/odk.service";
 import { SharedPipesModule } from "src/app/pipes";
 import { DyadParticipantsComponent, DyadProfileComponent } from "./pages";
 import { DyadComponentsModule } from "./components";
-import { DyadStore } from "./stores/dyad.store";
+import { DyadStore } from "./dyad.store";
 
 const routes: Routes = [
   {
@@ -32,7 +32,7 @@ const routes: Routes = [
 ];
 
 @NgModule({
-  declarations: [],
+  declarations: [DyadParticipantsComponent, DyadProfileComponent],
   imports: [
     CoreComponentsModule,
     CommonModule,

@@ -1,4 +1,5 @@
 import { Component } from "@angular/core";
+import { DyadStore } from "src/app/modules/dyad/dyad.store";
 
 @Component({
   selector: "app-dyad-participants",
@@ -6,5 +7,5 @@ import { Component } from "@angular/core";
   styleUrls: ["./dyad-participants.component.scss"],
 })
 export class DyadParticipantsComponent {
-  constructor() {}
+  constructor(public store: DyadStore) {}
 }
