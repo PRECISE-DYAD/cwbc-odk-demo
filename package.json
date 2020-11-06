@@ -4,10 +4,10 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "build": "npm run prepare && ts-node scripts/build.ts",
+    "build": "ts-node scripts/build.ts",
     "postinstall": "node scripts/postinstall.js",
     "prepare": "ts-node scripts/prepare.ts",
-    "start": "npm run prepare && ts-node scripts/start.ts --watch",
+    "start": "ts-node scripts/start.ts --watch",
     "deploy": "ts-node scripts/deploy.ts",
     "upload": "ts-node scripts/upload/upload.ts",
     "export": "ts-node scripts/export.ts"

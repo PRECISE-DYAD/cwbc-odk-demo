@@ -1,7 +1,7 @@
 import * as path from "path";
 import * as fs from "fs-extra";
-import { promptOptions } from "./utils";
-const { spawn } = require("child_process");
+import { promptOptions, runPrepare } from "./utils";
+import { spawn } from "child_process";
 const BIN_PATH = path.join(process.cwd(), "node_modules/.bin");
 
 /**
@@ -11,10 +11,28 @@ const BIN_PATH = path.join(process.cwd(), "node_modules/.bin");
  * @argument --watch: include watch for live form changes
  */
 async function main() {
+  const selectedScript: string = await promptOptions(
+    [
+      "Start - start a local development server",
+      "Build - create a production build for upload or deployment to device",
+      "Deploy - deploy to a local device",
+      "Upload - upload to odkx-sync",
+      "Export - download data from an odkx-sync server for local use",
+    ],
+    "Which script do you want to start?"
+  );
+  const script = selectedScript.split(" - ")[0].toLowerCase();
+  if (script !== "start") {
+    return spawn("npm", ["run", script], {
+      stdio: ["inherit", "inherit", "inherit"],
+      shell: true,
+    });
+  }
   const site = await promptOptions(
     ["kenya", "gambia"],
     "Which configuration do you wish to use?"
   );
+  runPrepare();
   const shouldWatch = process.argv.includes("--watch");
   if (shouldWatch) {
     watchFormChanges();
@@ -32,6 +50,7 @@ async function main() {
       startFrontend(site);
   }
 }
+
 function startDesigner() {
   spawn("npx grunt", {
     cwd: "./designer",

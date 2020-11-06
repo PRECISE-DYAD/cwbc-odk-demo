@@ -91,4 +91,4 @@ export class OdkRestService {
     return http.del(`${this.appId}/files/${odkClientVersion}/${filePath}`);
   }
 }
-export default OdkRestApi;
+export default OdkRestService;

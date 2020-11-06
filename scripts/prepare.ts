@@ -3,6 +3,7 @@ import * as path from "path";
 import * as child from "child_process";
 import * as md5File from "md5-file";
 import { recFind, listFolders, recFindByExt } from "./utils";
+import * as chalk from "chalk";
 
 const rootPath = process.cwd();
 const designerPath = path.join(rootPath, "designer");
@@ -14,7 +15,7 @@ const frontendPath = path.join(rootPath, "frontend");
  *
  */
 async function run() {
-  console.log("copying data...");
+  console.log(chalk.blue("Preparing forms..."));
   populateSampleFiles();
   await generateFormdefFiles();
   removeUnusedTables();
@@ -30,6 +31,7 @@ async function run() {
     }
   );
   ensureCopy("forms/app.properties", `${designerAssetsPath}/app.properties`);
+  console.log(chalk.green("Prepare complete"));
 }
 run();
 

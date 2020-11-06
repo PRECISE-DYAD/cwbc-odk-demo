@@ -2,6 +2,7 @@ import * as fs from "fs-extra";
 import * as path from "path";
 import * as inquirer from "inquirer";
 import * as dotenv from "dotenv";
+import { spawnSync } from "child_process";
 
 /**
  * Read any files containing a .env in the filename and
@@ -22,6 +23,15 @@ export async function setEnv() {
   );
   Object.keys(selectedEnv).forEach((k) => {
     process.env[k] = selectedEnv[k];
+  });
+}
+/**
+ * Execute the `npm run prepare` script
+ */
+export function runPrepare() {
+  spawnSync("npm run prepare", {
+    stdio: ["ignore", "inherit", "inherit"],
+    shell: true,
   });
 }
 

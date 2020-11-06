@@ -9,6 +9,7 @@ import { IODKTypes as IODK } from "./upload/odkRest/odk.types";
 import { writeCSV } from "./upload/upload-utils";
 
 const odkRest = new OdkRestService();
+odkRest.appId = "default";
 
 /**
  * Export table data from the server to local exports folder

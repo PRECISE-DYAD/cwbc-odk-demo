@@ -89,7 +89,7 @@ function handleErr<T = any>(err: AxiosError): T {
     console.log("err", Object.keys(err));
   }
 
-  throw new Error("request failed, see logs for details");
+  throw new Error("request failed, see above logs for more details");
 }
 
 export default { get, post, del, put };
