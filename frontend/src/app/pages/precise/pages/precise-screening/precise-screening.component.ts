@@ -70,7 +70,8 @@ export class PreciseScreeningComponent implements OnInit {
     // note, _savepoint_timestamp also used but hardcoded
     return {
       "Screen Date": v._savepoint_timestamp,
-      "Precise ID": v.f0_woman_precise_id || v.f1_woman_precise_id || "",
+      "Precise ID":
+        v.f0_precise_id || v.f0_woman_precise_id || v.f1_woman_precise_id || "",
       Eligibility: {
         "Consent Received": v.f0_consent_status || v.f1_consent_status || "",
         "Final Cohort": v.f0_cohort_consented || v.f1_cohort_consented || "",

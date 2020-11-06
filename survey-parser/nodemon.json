@@ -1,0 +1,7 @@
+{
+  "watch": ["./src/*", "./inputs/*"],
+  
+  "ignore": [],
+  "exec": "ts-node src/index.ts",
+  "ext": "js,ts,json,csv,xlsx"
+}

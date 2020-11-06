@@ -1,7 +1,8 @@
-import { promptOptions } from "./utils";
+import { promptOptions, runPrepare } from "./utils";
 import * as fs from "fs-extra";
 import * as path from "path";
 import * as child from "child_process";
+import * as chalk from "chalk";
 
 const rootPath = process.cwd();
 const designerPath = path.join(rootPath, "designer");
@@ -20,27 +21,39 @@ async function main() {
     ["kenya", "gambia", "staging"],
     "Which site environment should be used?"
   );
+  runPrepare();
   const configuration = `production,${site}`;
   console.log("configuration", site);
   copyAppVersion();
   await fs.ensureDir(`${designerAssetsPath}/build`);
   await fs.emptyDir(`${designerAssetsPath}/build`);
+  console.log(
+    chalk.blue(
+      "Generating production build (this could take a couple minutes)..."
+    )
+  );
   // Angular - build basehref used
   child.spawnSync(`npm run build:odk -- --configuration=${configuration}`, {
     cwd: frontendPath,
-    stdio: ["inherit", "inherit", "pipe"],
+    stdio: ["inherit", "inherit", "inherit"],
     shell: true,
   });
-  console.log("build complete, copying files");
-  // remove odk assets that are only used during development
-  await fs.emptyDir(`${frontendPath}/build/assets/odk`);
-  await fs.rmdir(`${frontendPath}/build/assets/odk`);
   await fs.copy(`${frontendPath}/build`, `${designerAssetsPath}/build`);
-
+  removeDevelopmentAssets();
   await rewriteIndexes();
   // rewrite app designer index to load build index instead
+  console.log(chalk.green("build complete"));
 }
 main().catch(handleError);
+
+/**
+ * During development assets are populated to stub in for odk database methods
+ * Remove them
+ */
+function removeDevelopmentAssets() {
+  fs.removeSync(`${designerAssetsPath}/build/assets/odk/csv`);
+  fs.removeSync(`${designerAssetsPath}/csv`);
+}
 
 async function rewriteIndexes() {
   // rewrite the default odk tables index to redirect to the app build folder

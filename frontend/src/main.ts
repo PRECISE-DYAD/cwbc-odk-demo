@@ -7,9 +7,9 @@ import { init as sentryInit } from "@sentry/angular";
 
 if (environment.production) {
   enableProdMode();
-}
-if (environment.SENTRY_DSN) {
-  sentryInit({ dsn: environment.SENTRY_DSN });
+  if (environment.SENTRY_DSN) {
+    sentryInit({ dsn: environment.SENTRY_DSN });
+  }
 }
 
 platformBrowserDynamic()

@@ -1,7 +1,10 @@
 footer {
+  display: flex;
   position: fixed;
   bottom: 0;
-  right: 0;
   color: var(--color-light);
   padding: 5px;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
 }

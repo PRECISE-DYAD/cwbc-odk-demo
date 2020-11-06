@@ -1,0 +1,66 @@
+<div class="page">
+  <div style="padding: 1em">
+    <h2>Database Tables</h2>
+    <p>The following table information is present</p>
+    <p>Note, CSVs will only populate if defined in <code>tables.init</code></p>
+    <div
+      *ngFor="let tableId of missingTables"
+      class="table-warning"
+      (click)="deleteTable(tableId)"
+    >
+      <p>Warning, table exists in database but not in framework</p>
+      <button mat-button><mat-icon>delete</mat-icon> {{ tableId }}</button>
+    </div>
+
+    <table style="color: var(--color-black)">
+      <th style="width: 50px">Table ID</th>
+      <th style="width: 50px">Display Name</th>
+      <th>Local Rows</th>
+      <th>CSV Import</th>
+      <th>Designer</th>
+      <tr *ngFor="let table of tablesMeta; index as i">
+        <td>{{ table.tableId }}</td>
+        <td>{{ table.display.title.text }}</td>
+        <td style="text-align: center; width: 50px">
+          <div>{{ table.rows.length }}</div>
+          <button
+            mat-icon-button
+            (click)="empty(table, i)"
+            [disabled]="isLoading"
+          >
+            <mat-icon>delete</mat-icon>
+          </button>
+        </td>
+        <td style="text-align: center; width: 50px">
+          <div *ngIf="table.csvFilePath">{{ table.csvRows.length }}</div>
+          <div *ngIf="!table.csvFilePath">No CSV</div>
+          <button
+            *ngIf="table.csvFilePath"
+            mat-icon-button
+            (click)="importCSV(table, i)"
+            [disabled]="
+              table.isImporting ||
+              table.csvRows.length === table.rows.length ||
+              isLoading
+            "
+          >
+            <span *ngIf="table.isImporting">
+              {{ table.importProcessed }} / {{ table.csvRows.length }}
+            </span>
+            <mat-icon
+              *ngIf="
+                !table.isImporting && table.csvRows.length !== table.rows.length
+              "
+              >import_export</mat-icon
+            >
+          </button>
+        </td>
+        <td style="width: 50px">
+          <button mat-stroked-button (click)="openInDesigner(table)">
+            Show
+          </button>
+        </td>
+      </tr>
+    </table>
+  </div>
+</div>

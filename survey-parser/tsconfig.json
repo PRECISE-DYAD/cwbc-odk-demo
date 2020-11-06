@@ -1,0 +1,13 @@
+{
+  "compilerOptions": {
+    "target": "es2015",
+    "module": "commonjs",
+    "lib": ["ESNext", "dom"],
+    "noEmit": true,
+    "moduleResolution": "node",
+    // Global type definitions.
+    "typeRoots": ["./node_modules/@types"],
+    "resolveJsonModule": true,
+    "esModuleInterop": true
+  }
+}

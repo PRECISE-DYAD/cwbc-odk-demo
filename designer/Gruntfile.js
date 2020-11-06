@@ -16,7 +16,15 @@ var mountDirectory = function(connect, dir) {
         icons: true
     });
 };
-
+/**
+ * CWBC Custom Implementation - included in server middleware
+ * allow file request cross domain. Note - when running on device this
+ * is not required so is purely for development purposes
+ */
+var useCors = function (req, res, next) {
+    res.setHeader("Access-Control-Allow-Origin", "http://localhost:4200");
+    next();
+};
 var postHandler = function(req, res, next) {
     if (req.method === "POST") {
         //debugger;
@@ -214,6 +222,7 @@ module.exports = function(grunt) {
                 options: {
                     middleware: function(connect) {
                         return [
+                            useCors,
                             postHandler,
                             lrSnippet,
                             mountFolder(connect, baseDirForServer),

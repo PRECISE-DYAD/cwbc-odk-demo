@@ -4,12 +4,20 @@ import Papa from "papaparse";
 
 // tslint:disable variable-name
 
-class OdkDataClass {
+abstract class OdkDataClass {
   _requestMap: any[] = [];
   _transactionId: 0;
   _callbackId: 0;
   _tableMetadataCache: {};
   constructor(private http: HttpClient) {}
+  abstract deleteRow(
+    tableId: string,
+    columnNameValueMap: any,
+    rowId: string,
+    successCallbackFn: (res) => void,
+    failureCallbackFn: (err) => void
+  ): void;
+
   getAllTableIds(successCallbackFn, failureCallbackFn) {
     console.error("getAllTableIds not implemented");
     return [];
@@ -25,6 +33,15 @@ class OdkDataClass {
   queueRequest(requestType: string, successCallbackFn, failureCallbackFn) {
     console.error("queueRequest not implemented");
     return { _callbackId: null };
+  }
+  getResponseJSON() {
+    console.error("queueRequest not implemented");
+  }
+  arbitrarySqlQueryLocalOnlyTables(...args) {
+    console.error("not implemented");
+  }
+  getRows(tableId, rowId, successCallbackFn, failureCallbackFn) {
+    console.log("getting rows");
   }
   arbitraryQuery(...args) {
     console.error("arbitraryQuery not implemented");

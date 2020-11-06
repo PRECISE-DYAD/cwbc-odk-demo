@@ -9,6 +9,7 @@ import {
 } from "./upload-files";
 import { IODKTypes as IODK } from "./odkRest/odk.types";
 import { generateUUID } from "./odkRest/odk.utils";
+import * as chalk from "chalk";
 
 const odkRest = new OdkRestService();
 
@@ -81,6 +82,11 @@ export async function processTableUploadActions(actions: ITableUploadAction[]) {
          * Recommend simply breaking and prompting user to manually
          * export data, delete table, recreate table and migrate data
          */
+        console.log(
+          chalk.red(
+            `[${tableId}]: local schema is different than server, please manually migrate data and delete this table before proceeding`
+          )
+        );
         throw new Error("schema changes are not currently supported");
         break;
     }

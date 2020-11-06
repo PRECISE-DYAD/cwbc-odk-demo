@@ -1,21 +1,37 @@
 import { Injectable } from "@angular/core";
-import OdkDataClass from "./odkData";
-import OdkCommonClass from "./odkCommon";
-import OdkTablesClass from "./odkTables";
-import { HttpClient } from "@angular/common/http";
-import { IODKQueryResult, IODkTableRowData } from "src/app/types/odk.types";
+import OdkDataClass from "./altMockImplementation/odkData";
+import OdkCommonClass from "./altMockImplementation/odkCommon";
+import OdkTablesClass from "./altMockImplementation/odkTables";
+import {
+  IODKQueryResult,
+  IODKTableDefQuery,
+  IODkTableRowData,
+} from "src/app/types/odk.types";
 import { NotificationService } from "../notification/notification.service";
-import { MatDialog } from "@angular/material/dialog";
+import { BehaviorSubject } from "rxjs";
 import { environment } from "src/environments/environment";
 
 // When running on device the following methods are automatically added
 // to the window object. When running in development some mocking methods
 // are provided in sibling class files (created as needed)
-declare const window: Window & {
+type IODKWindow = Window & {
   odkData: OdkDataClass;
   odkCommon: OdkCommonClass;
   odkTables: OdkTablesClass;
 };
+
+/**
+ * When developing locally some of the required metadata for launching forms isn't available
+ * as not triggering click events in designer. Track metadata used when launching forms instead
+ */
+interface IActiveArgs {
+  tableId?: string;
+  formId?: string;
+  screenPath?: string;
+  jsonMap?: string;
+  rowId?: string;
+  columnNameValueMap?: string;
+}
 
 /**
  * This service provides a wrap around common odk methods and custom odk interactions
@@ -25,18 +41,78 @@ declare const window: Window & {
 })
 export class OdkService {
   tables: string[];
-  constructor(
-    http: HttpClient,
-    private notifications: NotificationService,
-    private dialog: MatDialog
-  ) {
-    // when running on device use native odkData function (injected)
-    if (!environment.production) {
-      console.log("using development odk classes");
-      window.odkCommon = new OdkCommonClass();
-      window.odkData = new OdkDataClass(http);
-      window.odkTables = new OdkTablesClass(notifications, this.dialog);
+  ready$ = new BehaviorSubject(false);
+  surveyIsOpen$ = new BehaviorSubject(false);
+  activeArgs: IActiveArgs = {};
+  private window: IODKWindow = window as any;
+  constructor(private notifications: NotificationService) {
+    // running on device odk will exist in native odk tables window.
+    // otherwise we will wait for it to be passed from the iframe component
+    if (environment.production) {
+      this.setServiceReady();
     }
+  }
+  /**
+   * For case where we are relying on iframe to access odk data, ensure the iframe is responding
+   * before using the service
+   */
+  private setServiceReady() {
+    this.ready$.next(true);
+  }
+  /**
+   * Run a query on _table_definitions table to retrieve basic metadata
+   * NOTE - will throw errors locally if tables in webSQL do not have local formdefs
+   */
+  async getTableMeta() {
+    const meta = await this.arbitrarySqlQueryLocalOnlyTables<IODKTableDefQuery>(
+      "_table_definitions",
+      "SELECT * from _table_definitions"
+    );
+    return meta;
+  }
+  /**
+   * WiP - Retrieve the last time the device was sync'd with the server
+   * Note - current implementation seems missing (last_sync_time always -1)
+   */
+  async getLastSync() {
+    const meta = await this.getTableMeta();
+    const lastSync = meta.map((m) => m._last_sync_time).sort()[0];
+    return lastSync;
+  }
+
+  async getRecordsToSync() {
+    const meta = await this.getTableMeta();
+    const tableIds = meta.map((m) => m._table_id);
+    let totalToSync = 0;
+    for (const tableId of tableIds) {
+      const records = await this.query(tableId, "_sync_state != ?", ["synced"]);
+      totalToSync += records.length;
+    }
+    console.log("total to sync", totalToSync);
+    return totalToSync;
+  }
+
+  /**
+   * Used to pass the window object from the child iframe for use within our services
+   */
+  setWindow(window: IODKWindow) {
+    this.window = window;
+    this.setServiceReady();
+  }
+
+  /**********************************************************************************************
+   *  Default Methods
+   *********************************************************************************************/
+
+  /**
+   * Take the path of a file relative to the app folder and return a url by
+   * which it can be accessed.
+   * @param relativePath the path of a file relative to the app folder, e.g. `config/assets/csv/tables.init`
+   * @return an absolute URI to the file
+   */
+
+  getFileAsUrl(relativePath: string) {
+    return this.window.odkCommon.getFileAsUrl(relativePath);
   }
   /**
    * Manually update a row in the database
@@ -89,7 +165,9 @@ export class OdkService {
   }
 
   addRowWithSurvey(tableId: string, formId: string, screenPath?, jsonMap?) {
-    return window.odkTables.addRowWithSurvey(
+    this.activeArgs = { tableId, formId, screenPath, jsonMap };
+    this.surveyIsOpen$.next(true);
+    return this.window.odkTables.addRowWithSurvey(
       null,
       tableId,
       formId,
@@ -103,7 +181,9 @@ export class OdkService {
    * be written to the table before opening (e.g. via precise store launch edit method)
    */
   editRowWithSurvey(tableId, rowId, formId) {
-    return window.odkTables.editRowWithSurvey(
+    this.activeArgs = { tableId, formId, rowId };
+    this.surveyIsOpen$.next(true);
+    return this.window.odkTables.editRowWithSurvey(
       null,
       tableId,
       rowId,
@@ -113,18 +193,20 @@ export class OdkService {
   }
 
   addRow(tableId: string, columnNameValueMap, rowId: string) {
+    this.activeArgs = { tableId, columnNameValueMap, rowId };
+    this.surveyIsOpen$.next(true);
     return new Promise((resolve, reject) => {
-      const revision = window.odkData._getTableMetadataRevision(tableId);
+      const revision = this.window.odkData._getTableMetadataRevision(tableId);
       console.log("revision", revision);
-      const req = window.odkData.queueRequest(
+      const req = this.window.odkData.queueRequest(
         "addRow",
         (res) => resolve(res),
         (err) => {
-          this.handleError(err);
+          this.handleError(err, `add row - tableId: ${tableId}`);
           reject(err);
         }
       );
-      window.odkData
+      this.window.odkData
         .getOdkDataIf()
         .addRow(
           tableId,
@@ -135,16 +217,34 @@ export class OdkService {
         );
     });
   }
+  /**
+   * Delete a row from the database
+   * @param rowId - `_id` property of row
+   */
+  deleteRow(tableId: string, rowId: string) {
+    return new Promise((resolve, reject) => {
+      this.window.odkData.deleteRow(
+        tableId,
+        null,
+        rowId,
+        (res) => resolve(res),
+        (err) => {
+          this.handleError(err, `delete row - tableId: ${tableId}`);
+          reject(err);
+        }
+      );
+    });
+  }
 
   /**
    * Use ODKData Query to return all rows for a specific table
    */
-  getTableRows<T>(tableId: string): Promise<(IODkTableRowData & T)[]> {
-    return this.query(tableId);
+  getTableRows<T>(tableId: string) {
+    return this.query<IODkTableRowData & T>(tableId);
   }
 
   /**
-   * Execute direct queries on database
+   * Execute query to retrieve rows from a data table
    * @param whereClause - sql logical comparison
    * @param sqlBindParams - variables to replace in whereclause
    * @example query('someTable','_id = ?',[123])
@@ -153,10 +253,12 @@ export class OdkService {
     tableId: string,
     whereClause: string = null,
     sqlBindParams: string[] = null,
-    failureCallback = this.handleError
+    failureCallback = (err: Error) => {
+      this.handleError(err, `query: ${tableId} ${whereClause || ""}`);
+    }
   ): Promise<(IODkTableRowData & T)[]> {
     return new Promise((resolve, reject) => {
-      window.odkData.query(
+      this.window.odkData.query(
         tableId,
         whereClause,
         sqlBindParams,
@@ -173,7 +275,7 @@ export class OdkService {
         },
         (err: Error) => {
           failureCallback(err);
-          reject(err);
+          resolve([]);
         }
       );
     });
@@ -197,7 +299,7 @@ export class OdkService {
       this.handleError(err, `query tableId: ${tableId}`)
   ): Promise<any> {
     return new Promise((resolve, reject) => {
-      window.odkData.arbitraryQuery(
+      this.window.odkData.arbitraryQuery(
         tableId,
         sqlCommand,
         sqlBindParams,
@@ -213,7 +315,44 @@ export class OdkService {
       );
     });
   }
+
+  /**
+   * Execute a query on ANY tables (odk or local)
+   * @param sqlCommand - Full SQL command (as can be operated on any table), e.g.
+   * ```
+   * SELECT * from _table_definitions
+   * ```
+   * @param sqlBindParams - array of values to replace '?' in sql statements
+   */
+  arbitrarySqlQueryLocalOnlyTables<T>(
+    tableId: string,
+    sqlCommand: string,
+    sqlBindParams: string[] = [],
+    failureCallback = this.handleError
+  ): Promise<T[]> {
+    return new Promise((resolve, reject) => {
+      this.window.odkData.arbitrarySqlQueryLocalOnlyTables(
+        tableId,
+        sqlCommand,
+        sqlBindParams,
+        null,
+        null,
+        (res: IODKQueryResult) => {
+          const resultsJson = queryResultToJsonArray<T>(res);
+          resolve(resultsJson);
+        },
+        (err: Error) => {
+          failureCallback(err);
+          reject(err);
+        }
+      );
+    });
+  }
 }
+
+/********************************************************************************************
+ * Helper Functions
+ *********************************************************************************************/
 
 /**
  * When ODK query results are received row data is separate from corresponding row headings.

@@ -1,6 +1,7 @@
-const inquirer = require("inquirer");
 import * as path from "path";
-const { spawn } = require("child_process");
+import * as fs from "fs-extra";
+import { promptOptions, runPrepare } from "./utils";
+import { spawn } from "child_process";
 const BIN_PATH = path.join(process.cwd(), "node_modules/.bin");
 
 /**
@@ -9,7 +10,29 @@ const BIN_PATH = path.join(process.cwd(), "node_modules/.bin");
  * @example npm run start designer
  * @argument --watch: include watch for live form changes
  */
-function main() {
+async function main() {
+  const selectedScript: string = await promptOptions(
+    [
+      "Start - start a local development server",
+      "Build - create a production build for upload or deployment to device",
+      "Deploy - deploy to a local device",
+      "Upload - upload to odkx-sync",
+      "Export - download data from an odkx-sync server for local use",
+    ],
+    "Which script do you want to start?"
+  );
+  const script = selectedScript.split(" - ")[0].toLowerCase();
+  if (script !== "start") {
+    return spawn("npm", ["run", script], {
+      stdio: ["inherit", "inherit", "inherit"],
+      shell: true,
+    });
+  }
+  const site = await promptOptions(
+    ["kenya", "gambia"],
+    "Which configuration do you wish to use?"
+  );
+  runPrepare();
   const shouldWatch = process.argv.includes("--watch");
   if (shouldWatch) {
     watchFormChanges();
@@ -20,13 +43,14 @@ function main() {
     case "designer":
       return startDesigner();
     case "frontend":
-      return startFrontend();
+      return startFrontend(site);
     default:
       // start both processes
       startDesigner();
-      startFrontend();
+      startFrontend(site);
   }
 }
+
 function startDesigner() {
   spawn("npx grunt", {
     cwd: "./designer",
@@ -34,12 +58,29 @@ function startDesigner() {
     shell: true,
   });
 }
-function startFrontend() {
+async function startFrontend(site: "kenya" | "gambia") {
+  setFrontendEnvironment(site);
   spawn("npm", ["run", "start"], {
     cwd: "./frontend",
     stdio: ["ignore", "inherit", "inherit"],
     shell: true,
   });
+}
+/**
+ * Copy site-specific environment file to angular default environment, disabling production mode
+ * for local development
+ */
+function setFrontendEnvironment(site: "kenya" | "gambia") {
+  const envFolder = "frontend/src/environments";
+  const envContent = fs.readFileSync(`${envFolder}/environment.${site}.ts`, {
+    encoding: "utf8",
+  });
+  // update prod environment
+  const envUpdated = envContent.replace(
+    "production: true",
+    "production: false"
+  );
+  fs.writeFileSync(`${envFolder}/environment.ts`, envUpdated);
 }
 function watchFormChanges() {
   return spawn(`${BIN_PATH}/ts-node`, ["scripts/watch.ts"], {

@@ -1,14 +1,15 @@
-import { observable, action, computed } from "mobx-angular";
 import { Injectable } from "@angular/core";
-import { OdkService } from "../services/odk/odk.service";
-import { reaction, toJS } from "mobx";
-import { IODkTableRowData, ODK_META_EXAMPLE } from "../types/odk.types";
-import { uuidv4 } from "../utils/guid";
-import { IFormMeta, IFormMetaMappedField } from "../types/types";
-import { PRECISE_SCHEMA, IPreciseTableId } from "../models/precise.models";
 import { Router, ActivatedRoute } from "@angular/router";
-import { IPreciseParticipantData } from "../models/participant-summary.model";
+import { observable, action, computed } from "mobx-angular";
+import { reaction } from "mobx";
+import { OdkService } from "src/app/services/odk/odk.service";
+import { IODkTableRowData, ODK_META_EXAMPLE } from "src/app/types/odk.types";
+import { _arrToHashmap, _wait, uuidv4 } from "src/app/utils";
+import { IFormMeta, IFormMetaMappedField } from "src/app/types/types";
+import { PRECISE_SCHEMA } from "src/app/models/precise.models";
+import { IPreciseParticipantData } from "src/app/models/participant-summary.model";
 import { environment } from "src/environments/environment";
+import { takeWhile } from "rxjs/operators";
 
 /**
  * Create a new object that contains all the mappings selectable from
@@ -29,11 +30,17 @@ console.log("MAPPED_SCHEMA", MAPPED_SCHEMA);
 @Injectable()
 export class PreciseStore {
   constructor(private odk: OdkService) {
-    this.loadParticipants();
-    this.loadScreeningData();
+    // Ensure odk ready before querying - should always resolve immediately in app but not in dev mode
+    this.odk.ready$
+      .pipe(takeWhile((isReady) => !isReady))
+      .toPromise()
+      .then(() => {
+        this.loadParticipants();
+        this.loadScreeningData();
+      });
   }
   allParticipantsHash: IParticipantsHashmap;
-  participantFormsHash;
+  participantFormsHash: { [tableId: string]: IFormMetaWithEntries };
 
   @observable participantSummaries: IParticipantSummary[];
   @observable screeningData: IParticipantScreening[];
@@ -74,7 +81,7 @@ export class PreciseStore {
     this.participantSummaries = Object.values(participantRows).map((p, i) =>
       this._generateParticipantSummary(p, i)
     );
-    this.allParticipantsHash = this._arrToHashmap(participantRows, "f2_guid");
+    this.allParticipantsHash = _arrToHashmap(participantRows, "f2_guid");
     this.listDataLoaded = true;
   }
 
@@ -102,7 +109,7 @@ export class PreciseStore {
       // HACK - possibly the data has not been written to the database yet if just created
       // so retry in a second
       if (!isRetry) {
-        await this._wait(1000);
+        await _wait(1000);
         await this.loadParticipants();
         return this.setActiveParticipantById(f2_guid, true);
       }
@@ -159,7 +166,7 @@ export class PreciseStore {
   @action setParticipantForms(collated: {
     [tableId: string]: IFormMetaWithEntries;
   }) {
-    const participantFormsHash = this._arrToHashmap(
+    const participantFormsHash = _arrToHashmap(
       Object.values(collated),
       "tableId"
     );
@@ -311,6 +318,7 @@ export class PreciseStore {
    */
   private _generateMappedFields(mapFields: IFormMetaMappedField[] = []) {
     const mapping = {};
+
     for (const field of mapFields) {
       const { field_name, mapped_field_name, value } = field;
       const fieldName = mapped_field_name || field_name;
@@ -336,22 +344,6 @@ export class PreciseStore {
       }
     });
     return stripped as T;
-  }
-  /**
-   * Convert an array to an object with keys corresponding to specific
-   * array field
-   * @param hashField - field within all array elements to use as hash key
-   */
-  private _arrToHashmap(arr: any[], hashKey: string) {
-    const hash = {};
-    arr.forEach((el) => {
-      hash[el[hashKey]] = el;
-    });
-    return hash as any;
-  }
-
-  private _wait(ms: number) {
-    return new Promise((resolve) => setTimeout(resolve, ms));
   }
 }
 

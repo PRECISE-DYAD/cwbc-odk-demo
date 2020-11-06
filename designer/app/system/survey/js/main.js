@@ -59,7 +59,8 @@ requirejs.config({
         mockSchema: 'js/mock/mockSchema',
         odkDataIf: 'js/mock/odkDataIf',
         hammer : 'libs/hammer.min',
-        jqueryHammer : 'libs/jquery.hammer'
+        jqueryHammer : 'libs/jquery.hammer',
+        cwbcCustomBindings:'js/mock/cwbcCustomBindings',
     },
     shim: {
         'bootstrap': {

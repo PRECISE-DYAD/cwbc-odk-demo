@@ -6,12 +6,18 @@ import http from "./http";
  * NOTE - should be kept in sync odkxm project
  */
 export class OdkRestService {
-  constructor(private appId = "default") {}
+  public appId = "";
+  constructor() {}
 
   /********************************************************
    * Implementation of specific ODK Rest Functions
    * https://docs.odk-x.org/odk-2-sync-protocol/
    *********************************************************/
+  getAppNames() {
+    const path = "";
+    return http.get<string[]>(path);
+  }
+
   getPriviledgesInfo() {
     const path = `${this.appId}/privilegesInfo`;
     return http.get<IODK.IResUserPriviledge>(path);
@@ -24,9 +30,9 @@ export class OdkRestService {
     const path = `${this.appId}/tables/${tableId}/ref/${schemaETag}`;
     return http.get<IODK.IResSchema>(path);
   }
-  getRows(tableId: string, schemaETag: string) {
+  getRows(tableId: string, schemaETag: string, params = {}) {
     const path = `${this.appId}/tables/${tableId}/ref/${schemaETag}/rows`;
-    return http.get<IODK.IResTableRows>(path);
+    return http.get<IODK.IResTableRows>(path, { params });
   }
 
   createTable(schema: IODK.ITableSchema) {
@@ -37,7 +43,7 @@ export class OdkRestService {
 
   alterRows(tableId: string, schemaETag: string, rows: IODK.IUploadRowList) {
     const path = `${this.appId}/tables/${tableId}/ref/${schemaETag}/rows`;
-    return http.put(path, rows);
+    return http.put<IODK.IResAlterRows>(path, rows);
   }
 
   deleteTable(tableId: string, schemaETag: string) {
@@ -48,6 +54,11 @@ export class OdkRestService {
   getAppLevelFileManifest(odkClientVersion = 2) {
     const path = `default/manifest/${odkClientVersion}`;
     return http.get<{ files: IODK.IManifestItem[] }>(path);
+  }
+
+  getFile(filepath: string, odkClientVersion = 2) {
+    const path = `default/files/${odkClientVersion}/${filepath}?as_attachment=false`;
+    return http.get<Buffer>(path, { responseType: "arraybuffer" });
   }
 
   getTableIdFileManifest(tableId: string, odkClientVersion = 2) {
@@ -80,3 +91,4 @@ export class OdkRestService {
     return http.del(`${this.appId}/files/${odkClientVersion}/${filePath}`);
   }
 }
+export default OdkRestService;

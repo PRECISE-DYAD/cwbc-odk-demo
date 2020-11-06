@@ -2,10 +2,7 @@
   "extends": "tslint:recommended",
   "rules": {
     "align": {
-      "options": [
-        "parameters",
-        "statements"
-      ]
+      "options": ["parameters", "statements"]
     },
     "array-type": false,
     "variable-name": false,
@@ -19,17 +16,10 @@
     "contextual-lifecycle": true,
     "directive-class-suffix": true,
     "eofline": true,
-    "directive-selector": [
-      true,
-      "attribute",
-      "app",
-      "camelCase"
-    ],
+    "directive-selector": [true, "attribute", "app", "camelCase"],
     "import-spacing": true,
     "indent": {
-      "options": [
-        "spaces"
-      ]
+      "options": ["spaces"]
     },
     "import-blacklist": [true, "rxjs/Rx"],
     "interface-name": false,
@@ -66,10 +56,9 @@
     "no-inputs-metadata-property": true,
     "no-output-native": true,
     "no-output-on-prefix": true,
+    "prefer-const": { "severity": "warning" },
     "semicolon": {
-      "options": [
-        "always"
-      ]
+      "options": ["always"]
     },
     "space-before-function-paren": {
       "options": {
