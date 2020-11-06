@@ -1,6 +1,6 @@
 import { NgModule } from "@angular/core";
 import { FormsModule } from "@angular/forms";
-import { CoreComponentsModule } from "src/app/components";
+import { SharedComponentsModule } from "src/app/modules/shared/components";
 import { CommonModule } from "@angular/common";
 import { RouterModule } from "@angular/router";
 import { MobxAngularModule } from "mobx-angular";
@@ -9,7 +9,7 @@ const DyadComponents = [];
 @NgModule({
   declarations: DyadComponents,
   imports: [
-    CoreComponentsModule,
+    SharedComponentsModule,
     CommonModule,
     RouterModule,
     MobxAngularModule,

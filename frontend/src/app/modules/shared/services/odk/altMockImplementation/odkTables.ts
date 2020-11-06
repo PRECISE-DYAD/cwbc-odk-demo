@@ -3,7 +3,7 @@ import { MatDialog } from "@angular/material/dialog";
 // import {
 //   ODKFormPopup,
 //   IODKFormFormPopupData,
-// } from "src/app/components/odk/odkFormPopup/odkFormPopup";
+// } from "src/app/modules/shared/components/odk/odkFormPopup/odkFormPopup";
 
 class OdkTables {
   constructor(

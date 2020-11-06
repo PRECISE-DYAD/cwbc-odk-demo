@@ -1,4 +1,4 @@
-import { IEnvironment } from "src/app/types/types";
+import { IEnvironment } from "src/app/modules/shared/types";
 
 export const environment: IEnvironment = {
   SITE: "gambia",

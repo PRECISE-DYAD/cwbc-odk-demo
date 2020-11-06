@@ -1,4 +1,4 @@
-import { IEnvironment } from "src/app/types/types";
+import { IEnvironment } from "src/app/modules/shared/types";
 
 /**
  * This is the default production build that is used via `npm run build` if

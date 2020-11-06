@@ -1,5 +1,5 @@
 import { Component, OnInit } from "@angular/core";
-import { PreciseStore } from "src/app/stores";
+import { PreciseStore } from "src/app/modules/precise/stores";
 
 @Component({
   selector: "app-precise-home",

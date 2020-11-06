@@ -1,11 +1,8 @@
-import { Component, OnInit } from "@angular/core";
+import { Component } from "@angular/core";
 import { MatDialogRef } from "@angular/material/dialog";
-import {
-  PreciseStore,
-  IParticipantScreening,
-  IParticipant,
-} from "src/app/stores";
+import { PreciseStore } from "src/app/modules/precise/stores";
 import { environment } from "src/environments/environment";
+import { IParticipant, IParticipantScreening } from "../types";
 
 @Component({
   selector: "app-enrollment-dialog",

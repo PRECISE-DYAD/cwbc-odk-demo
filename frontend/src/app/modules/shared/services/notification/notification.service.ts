@@ -3,7 +3,7 @@ import { MatSnackBar } from "@angular/material/snack-bar";
 import {
   NotificationBarComponent,
   ISnackbarData,
-} from "src/app/components/common/notificationBar";
+} from "src/app/modules/shared/components/common/notificationBar";
 import { spy } from "mobx";
 
 @Injectable({

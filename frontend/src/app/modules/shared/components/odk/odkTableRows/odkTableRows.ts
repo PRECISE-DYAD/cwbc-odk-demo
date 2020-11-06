@@ -10,8 +10,8 @@ import {
 import { MatSort } from "@angular/material/sort";
 import { MatPaginator } from "@angular/material/paginator";
 import { MatTableDataSource } from "@angular/material/table";
-import { IODkTableRowData } from "src/app/types/odk.types";
-import { OdkService } from "src/app/services/odk/odk.service";
+import { IODkTableRowData } from "src/app/modules/shared/types/odk.types";
+import { OdkService } from "src/app/modules/shared/services/odk/odk.service";
 
 /**
  * Looks up a given odk table by id and returns a html table of values

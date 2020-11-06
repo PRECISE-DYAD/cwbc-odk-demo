@@ -6,8 +6,8 @@ import {
   NgZone,
 } from "@angular/core";
 import { DomSanitizer, SafeUrl } from "@angular/platform-browser";
-import { slideInOut } from "src/app/animations";
-import { OdkService } from "src/app/services/odk/odk.service";
+import { slideInOut } from "src/app/modules/shared/animations";
+import { OdkService } from "src/app/modules/shared/services/odk/odk.service";
 
 @Component({
   selector: "odk-designer-iframe",

@@ -1,5 +1,5 @@
 import { Component, Input } from "@angular/core";
-import { ISectionWithMeta } from "src/app/models/precise.models";
+import { ISectionWithMeta } from "src/app/modules/precise/models";
 
 @Component({
   selector: "precise-profile-general-section",

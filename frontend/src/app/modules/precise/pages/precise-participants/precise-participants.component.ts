@@ -1,11 +1,13 @@
 import { Component, OnInit, ViewChild } from "@angular/core";
 import { ActivatedRoute, Router } from "@angular/router";
 import { MatPaginator } from "@angular/material/paginator";
-import { PreciseStore, IParticipantSummary, CommonStore } from "src/app/stores";
+import { PreciseStore } from "src/app/modules/precise/stores";
 import { MatTableDataSource } from "@angular/material/table";
 import { MatSort } from "@angular/material/sort";
 import { MatDialog } from "@angular/material/dialog";
 import { EnrollmentDialogComponent } from "../../components/enrollmentDialog";
+import { CommonStore } from "src/app/modules/shared/stores";
+import { IParticipantSummary } from "../../types";
 
 @Component({
   selector: "app-precise-participants",

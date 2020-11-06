@@ -1,7 +1,7 @@
 <div *mobxReaction="participantUpdated.bind(this)" class="primary page">
   <div
     style="padding: 1em; flex: 1"
-    *ngIf="store.listDataLoaded && store.participantDataLoaded"
+    *ngIf="store.listDataLoaded && store.participantDataLoaded && sections"
   >
     <div id="participantMenu">
       <button mat-icon-button [matMenuTriggerFor]="menu">

@@ -1,10 +1,10 @@
 import { Component, Input } from "@angular/core";
-import { IParticipant } from "src/app/stores";
-import * as Animations from "src/app/animations";
+import { IParticipant } from "src/app/modules/precise/types";
+import * as Animations from "src/app/modules/shared/animations";
 import {
   IPreciseFieldSummary,
   PRECISE_PROFILE_FIELDS,
-} from "src/app/models/participant-summary.model";
+} from "src/app/modules/precise/models/participant-summary.model";
 
 @Component({
   selector: "precise-profile-section",

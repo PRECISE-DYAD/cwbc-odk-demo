@@ -1,5 +1,5 @@
 import { NgModule } from "@angular/core";
-import { CoreComponentsModule } from "src/app/components";
+import { SharedComponentsModule } from "src/app/modules/shared/components";
 import { Routes, RouterModule } from "@angular/router";
 import { CommonModule } from "@angular/common";
 import { MobxAngularModule } from "mobx-angular";
@@ -16,7 +16,7 @@ const routes: Routes = [
 @NgModule({
   declarations: [],
   imports: [
-    CoreComponentsModule,
+    SharedComponentsModule,
     CommonModule,
     RouterModule.forChild(routes),
     MobxAngularModule,

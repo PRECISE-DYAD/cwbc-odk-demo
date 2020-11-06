@@ -1,4 +1,5 @@
-import { IPreciseTableId } from "../models/precise.models";
+import { IPreciseTableId } from "src/app/modules/precise/models";
+import { IODkTableRowData } from "./odk.types";
 
 export interface IProjectMeta {
   image: string;
@@ -14,6 +15,10 @@ export interface IFormMeta {
   // participant can fill multiple entries of same form
   allowRepeats?: boolean;
   mapFields?: IFormMetaMappedField[];
+}
+// Participant forms contain full form meta with specific participant entries
+export interface IFormMetaWithEntries extends IFormMeta {
+  entries: IODkTableRowData[];
 }
 
 export interface IFormMetaMappedField {

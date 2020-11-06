@@ -1,5 +1,5 @@
 import { Component, OnDestroy, OnInit } from "@angular/core";
-import * as Animations from "src/app/animations";
+import * as Animations from "src/app/modules/shared/animations";
 
 @Component({
   selector: "app-dyad-profile",

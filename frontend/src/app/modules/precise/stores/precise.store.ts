@@ -2,12 +2,23 @@ import { Injectable } from "@angular/core";
 import { Router, ActivatedRoute } from "@angular/router";
 import { observable, action, computed } from "mobx-angular";
 import { reaction } from "mobx";
-import { OdkService } from "src/app/services/odk/odk.service";
-import { IODkTableRowData, ODK_META_EXAMPLE } from "src/app/types/odk.types";
-import { _arrToHashmap, _wait, uuidv4 } from "src/app/utils";
-import { IFormMeta, IFormMetaMappedField } from "src/app/types/types";
-import { PRECISE_SCHEMA } from "src/app/models/precise.models";
-import { IPreciseParticipantData } from "src/app/models/participant-summary.model";
+import { OdkService } from "src/app/modules/shared/services";
+import {
+  IODkTableRowData,
+  ODK_META_EXAMPLE,
+  IFormMetaWithEntries,
+} from "src/app/modules/shared/types";
+import {
+  IParticipant,
+  IParticipantScreening,
+  IParticipantSummary,
+  IParticipantsHashmap,
+  PARTICIPANT_SUMMARY_FIELDS,
+} from "../types";
+import { _arrToHashmap, _wait, uuidv4 } from "src/app/modules/shared/utils";
+import { IFormMeta, IFormMetaMappedField } from "src/app/modules/shared/types";
+import { PRECISE_SCHEMA } from "src/app/modules/precise/models";
+import { IPreciseParticipantData } from "src/app/modules/precise/models";
 import { environment } from "src/environments/environment";
 import { takeWhile } from "rxjs/operators";
 
@@ -30,6 +41,7 @@ console.log("MAPPED_SCHEMA", MAPPED_SCHEMA);
 @Injectable()
 export class PreciseStore {
   constructor(private odk: OdkService) {
+    console.log("hello precise store");
     // Ensure odk ready before querying - should always resolve immediately in app but not in dev mode
     this.odk.ready$
       .pipe(takeWhile((isReady) => !isReady))

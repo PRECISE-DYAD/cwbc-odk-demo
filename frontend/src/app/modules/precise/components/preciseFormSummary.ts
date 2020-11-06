@@ -1,6 +1,7 @@
 import { Component, Input } from "@angular/core";
-import { PreciseStore, IFormMetaWithEntries } from "src/app/stores";
-import { IODkTableRowData } from "src/app/types/odk.types";
+import { PreciseStore } from "src/app/modules/precise/stores";
+import { IODkTableRowData } from "src/app/modules/shared/types/odk.types";
+import { IFormMetaWithEntries } from "src/app/modules/shared/types";
 
 /**
  * Display a summary of a form's title alongside basic entry data, including whether it has been

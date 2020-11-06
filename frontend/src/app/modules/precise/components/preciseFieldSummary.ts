@@ -2,8 +2,8 @@ import { Component, Input, ViewEncapsulation } from "@angular/core";
 import {
   IPreciseFieldSummary,
   IPreciseParticipantData,
-} from "src/app/models/participant-summary.model";
-import { PreciseStore } from "src/app/stores";
+} from "src/app/modules/precise/models/participant-summary.model";
+import { PreciseStore } from "src/app/modules/precise/stores";
 
 @Component({
   selector: "precise-field-summary",

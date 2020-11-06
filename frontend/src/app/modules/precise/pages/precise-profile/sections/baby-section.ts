@@ -1,9 +1,9 @@
 import { Component, Input, OnInit } from "@angular/core";
-import { ISectionWithMeta } from "src/app/models/precise.models";
+import { ISectionWithMeta } from "src/app/modules/precise/models";
 import {
   PRECISE_BABY_SUMMARY_FIELDS,
   IPreciseParticipantData,
-} from "src/app/models/participant-summary.model";
+} from "src/app/modules/precise/models/participant-summary.model";
 
 @Component({
   selector: "precise-profile-baby-section",

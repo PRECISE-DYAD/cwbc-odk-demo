@@ -6,7 +6,7 @@ import {
   IODKQueryResult,
   IODKTableDefQuery,
   IODkTableRowData,
-} from "src/app/types/odk.types";
+} from "src/app/modules/shared/types/odk.types";
 import { NotificationService } from "../notification/notification.service";
 import { BehaviorSubject } from "rxjs";
 import { environment } from "src/environments/environment";

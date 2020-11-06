@@ -1,10 +1,13 @@
 import { HttpClient } from "@angular/common/http";
 import { Component, OnInit } from "@angular/core";
 import { takeWhile } from "rxjs/operators";
-import { OdkService } from "src/app/services/odk/odk.service";
-import { IFormDef, IFormDefSpecificationChoice } from "src/app/types/odk.types";
-import { parseCSV } from "src/app/services/utils";
-import { _arrToHashmap } from "src/app/utils";
+import { OdkService } from "src/app/modules/shared/services/odk/odk.service";
+import {
+  IFormDef,
+  IFormDefSpecificationChoice,
+} from "src/app/modules/shared/types/odk.types";
+import { parseCSV } from "src/app/modules/shared/services/utils";
+import { _arrToHashmap } from "src/app/modules/shared/utils";
 
 @Component({
   selector: "app-developer-tools",

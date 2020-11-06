@@ -2,7 +2,7 @@ import chalk from "chalk";
 import * as fs from "fs-extra";
 
 import { SurveySummary } from "./surveySummary";
-import { IFormDef } from "../../frontend/src/app/types/odk.types";
+import { IFormDef } from "../../frontend/src/app/modules/shared/types/odk.types";
 
 console.error = (...args: any) => console.log(chalk.bgRed.white(...args));
 console.info = (...args: any) => console.log(chalk.gray(...args));

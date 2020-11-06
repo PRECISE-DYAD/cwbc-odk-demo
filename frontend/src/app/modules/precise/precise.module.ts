@@ -1,13 +1,13 @@
 import { NgModule } from "@angular/core";
 
-import { CoreComponentsModule } from "src/app/components";
+import { SharedComponentsModule } from "src/app/modules/shared/components";
 import { Routes, RouterModule } from "@angular/router";
 import { CommonModule } from "@angular/common";
 import { PreciseComponentsModule } from "./components";
 import { MobxAngularModule } from "mobx-angular";
-import { PreciseStore } from "src/app/stores";
-import remotedev from "mobx-remotedev";
-import { OdkService } from "src/app/services/odk/odk.service";
+import { PreciseStore } from "./stores";
+import remotedev from "mobx-remotedev/lib/dev";
+import { OdkService } from "src/app/modules/shared/services/odk/odk.service";
 import { PreciseParticipantsComponent } from "./pages/precise-participants/precise-participants.component";
 import { PreciseHomeComponent } from "./pages/precise-home/precise-home.component";
 import { PreciseProfileComponent } from "./pages/precise-profile/precise-profile.component";
@@ -17,7 +17,7 @@ import { PreciseProfileSectionComponent } from "./pages/precise-profile/sections
 import { PreciseProfileConfirmationComponent } from "./pages/precise-profile/sections/profile-confirmation";
 import { PreciseProfileSummarySectionComponent } from "./pages/precise-profile/sections/summary-section";
 import { PreciseProfileBabySectionComponent } from "./pages/precise-profile/sections/baby-section";
-import { SharedPipesModule } from "src/app/pipes";
+import { SharedPipesModule } from "src/app/modules/shared/pipes";
 
 const routes: Routes = [
   {
@@ -56,7 +56,7 @@ const routes: Routes = [
     PreciseParticipantsComponent,
   ],
   imports: [
-    CoreComponentsModule,
+    SharedComponentsModule,
     CommonModule,
     RouterModule.forChild(routes),
     PreciseComponentsModule,

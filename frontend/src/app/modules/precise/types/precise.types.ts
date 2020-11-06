@@ -2,12 +2,11 @@
  * Constants
  ********************************************************************************/
 
-import { IODkTableRowData } from "src/app/types/odk.types";
-import { IFormMeta } from "src/app/types/types";
+import { IODkTableRowData } from "src/app/modules/shared/types/odk.types";
 
 // some fields used in profile form views and search
 // _guid used to uniquely identify participant across all forms
-const PARTICIPANT_SUMMARY_FIELDS = [
+export const PARTICIPANT_SUMMARY_FIELDS = [
   "_savepoint_timestamp",
   "f2_guid",
   "f2a_participant_id",
@@ -18,7 +17,7 @@ const PARTICIPANT_SUMMARY_FIELDS = [
 ] as const;
 
 // list of some fields from screening form used to merge with participant registration
-const PARTICIPANT_SCREENING_FIELDS = [
+export const PARTICIPANT_SCREENING_FIELDS = [
   "f0_0_userID",
   "f0_age",
   "f0_cohort_consented",
@@ -59,9 +58,4 @@ export type IParticipantSummary = Partial<IParticipant>;
 
 // hashmap to provide quick lookup of participant by participant id
 // tslint:disable interface-over-type-literal
-type IParticipantsHashmap = { [f2_guid: string]: IParticipant };
-
-// Participant forms contain full form meta with specific participant entries
-export interface IFormMetaWithEntries extends IFormMeta {
-  entries: IODkTableRowData[];
-}
+export type IParticipantsHashmap = { [f2_guid: string]: IParticipant };

@@ -3,15 +3,18 @@
  * These are used to define Precise pages
  ********************************************************************************/
 
-import { IFormMetaWithEntries } from "../stores";
 import { environment } from "src/environments/environment";
-import { IFormMeta, IFormMetaMappedField } from "../types/types";
+import {
+  IFormMeta,
+  IFormMetaMappedField,
+  IFormMetaWithEntries,
+} from "src/app/modules/shared/types";
 const SITE = environment.SITE;
 
 /**
  * Schema where keys represent table ID and values represent form metadata
  * @param icon - Custom icons are placed in `src/assets/icons` and made available
- * by registering in src/app/components/icons.ts
+ * by registering in src/app/modules/shared/components/icons.ts
  * @param mapFields - These refer to any additional data that should be passed from, formatted as:
  * ```
  * [{

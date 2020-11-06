@@ -8,20 +8,17 @@ import { RouterModule, Router } from "@angular/router";
 // stores
 import { MobxAngularModule } from "mobx-angular";
 import remotedev from "mobx-remotedev";
-import { CommonStore } from "./stores";
+import { CommonStore } from "./modules/shared/stores";
 // custom components
-import { CoreComponentsModule } from "./components";
 // pages
-import { HomeComponent } from "./pages/home/home.component";
-import { InstallComponent } from "./pages/install/install.component";
 import { BrowserAnimationsModule } from "@angular/platform-browser/animations";
 // error handling
 import { createErrorHandler as createSentryErrorHandler } from "@sentry/angular";
-import { ODKComponentsModule } from "./components/odk/odk.components.module";
-import { DeveloperToolsComponent } from './pages/developer-tools/developer-tools.component';
+import { ODKComponentsModule } from "./modules/shared/components";
+import { SharedModule } from "./modules/shared/shared.module";
 
 @NgModule({
-  declarations: [AppComponent, HomeComponent, InstallComponent, DeveloperToolsComponent],
+  declarations: [AppComponent],
   imports: [
     BrowserModule,
     BrowserAnimationsModule,
@@ -29,8 +26,8 @@ import { DeveloperToolsComponent } from './pages/developer-tools/developer-tools
     RouterModule,
     HttpClientModule,
     MobxAngularModule,
-    CoreComponentsModule,
     ODKComponentsModule,
+    SharedModule,
   ],
   providers: [
     {

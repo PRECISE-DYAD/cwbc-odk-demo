@@ -1,5 +1,5 @@
 import { Component, OnInit } from "@angular/core";
-import { OdkService } from "src/app/services/odk/odk.service";
+import { OdkService } from "src/app/modules/shared/services/odk/odk.service";
 
 @Component({
   selector: "odk-records-pending",

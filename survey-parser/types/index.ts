@@ -1,5 +1,5 @@
 // re-export types from frontend code
-export * from "../../frontend/src/app/types/odk.types";
+export * from "../../frontend/src/app/modules/shared/types/odk.types";
 
 /**
  * Stats calculated when iterating through a section

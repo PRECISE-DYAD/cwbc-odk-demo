@@ -1,3 +1,6 @@
+export * from "./common/common.components.module";
+export * from "./odk/odk.components.module";
+
 import { NgModule } from "@angular/core";
 import { MaterialComponentsModule } from "./material.components";
 import { ODKComponentsModule } from "./odk/odk.components.module";
@@ -20,4 +23,4 @@ import { CommonComponentsModule } from "./common/common.components.module";
     CommonComponentsModule,
   ],
 })
-export class CoreComponentsModule {}
+export class SharedComponentsModule {}

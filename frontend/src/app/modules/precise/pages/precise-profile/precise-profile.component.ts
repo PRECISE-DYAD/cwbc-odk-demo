@@ -1,19 +1,16 @@
 import { Component, OnDestroy, OnInit } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
-import { IFormMeta } from "src/app/types/types";
-import {
-  PreciseStore,
-  CommonStore,
-  IFormMetaWithEntries,
-  IParticipant,
-} from "src/app/stores";
-import * as Animations from "src/app/animations";
+import { PreciseStore } from "src/app/modules/precise/stores";
+import * as Animations from "src/app/modules/shared/animations";
 import {
   ISectionWithMeta,
   PRECISE_FORM_SECTIONS,
   PRECISE_BABY_FORM_SECTION,
-} from "src/app/models/precise.models";
+} from "src/app/modules/precise/models";
 import { Subscription } from "rxjs";
+import { IFormMeta, IFormMetaWithEntries } from "src/app/modules/shared/types";
+import { CommonStore } from "src/app/modules/shared/stores";
+import { IParticipant } from "src/app/modules/precise/types";
 
 @Component({
   selector: "app-precise-profile",
@@ -63,6 +60,7 @@ export class PreciseProfileComponent implements OnDestroy, OnInit {
     this.commonStore.setPageTitle(`${f2a_participant_id} ${f2a_full_name}`);
   }
   private loadParticipantSections() {
+    console.log("loading participant sections");
     const sections: { [sectionID: string]: ISectionWithMeta } = {};
     PRECISE_FORM_SECTIONS.forEach((s) => {
       const sectionWithMeta = {

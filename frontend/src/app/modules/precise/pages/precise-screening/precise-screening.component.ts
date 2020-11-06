@@ -1,13 +1,13 @@
 import { Component, OnInit, ViewChild } from "@angular/core";
 import { MatPaginator } from "@angular/material/paginator";
-import {
-  PreciseStore,
-  IParticipantSummary,
-  IParticipantScreening,
-} from "src/app/stores";
+import { PreciseStore } from "src/app/modules/precise/stores";
 import { MatTableDataSource } from "@angular/material/table";
 import { MatSort } from "@angular/material/sort";
 import { environment } from "src/environments/environment";
+import {
+  IParticipantScreening,
+  IParticipantSummary,
+} from "src/app/modules/precise/types";
 
 @Component({
   selector: "app-precise-screening",

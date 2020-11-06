@@ -1,5 +1,5 @@
 import { Component } from "@angular/core";
-import { PRECISE_SUMMARY_FIELDS } from "src/app/models/participant-summary.model";
+import { PRECISE_SUMMARY_FIELDS } from "src/app/modules/precise/models/participant-summary.model";
 
 @Component({
   selector: "precise-profile-summary-section",

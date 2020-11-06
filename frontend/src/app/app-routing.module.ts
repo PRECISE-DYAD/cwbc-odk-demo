@@ -1,6 +1,6 @@
 import { NgModule } from "@angular/core";
 import { Routes, RouterModule, PreloadAllModules } from "@angular/router";
-import { HomeComponent } from "./pages/home/home.component";
+import { HomeComponent } from "./modules/shared/pages/home/home.component";
 
 const routes: Routes = [
   {
@@ -29,20 +29,11 @@ const routes: Routes = [
   {
     path: "developer-tools",
     loadChildren: () =>
-      import("./pages/developer-tools/developer-tools.module").then(
-        (m) => m.DeveloperToolsModule
-      ),
+      import(
+        "./modules/shared/pages/developer-tools/developer-tools.module"
+      ).then((m) => m.DeveloperToolsModule),
     data: { animation: "onLeft" },
   },
-  // {
-  //   path: "guides",
-  //   redirectTo: "",
-  // },
-  // {
-  //   path: "guides/install",
-  //   component: InstallComponent,
-  //   data: { title: "Installation Notes" },
-  // },
 ];
 
 @NgModule({

@@ -1,5 +1,5 @@
 import { HttpClient } from "@angular/common/http";
-import { IODKQueryResult } from "src/app/types/odk.types";
+import { IODKQueryResult } from "src/app/modules/shared/types/odk.types";
 import Papa from "papaparse";
 
 // tslint:disable variable-name

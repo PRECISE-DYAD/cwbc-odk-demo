@@ -1,7 +1,7 @@
 import { Component } from "@angular/core";
-import { CommonStore } from "src/app/stores/common.store";
 import { version } from "package.json";
 import { environment } from "src/environments/environment";
+import { CommonStore } from "src/app/modules/shared/stores";
 
 @Component({
   selector: "app-home",
