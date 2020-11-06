@@ -29,7 +29,7 @@ async function main() {
     });
   }
   const site = await promptOptions(
-    ["kenya", "gambia"],
+    ["kenya", "gambia", "staging"],
     "Which configuration do you wish to use?"
   );
   runPrepare();
@@ -58,7 +58,7 @@ function startDesigner() {
     shell: true,
   });
 }
-async function startFrontend(site: "kenya" | "gambia") {
+async function startFrontend(site: string) {
   setFrontendEnvironment(site);
   spawn("npm", ["run", "start"], {
     cwd: "./frontend",
@@ -70,7 +70,7 @@ async function startFrontend(site: "kenya" | "gambia") {
  * Copy site-specific environment file to angular default environment, disabling production mode
  * for local development
  */
-function setFrontendEnvironment(site: "kenya" | "gambia") {
+function setFrontendEnvironment(site: string) {
   const envFolder = "frontend/src/environments";
   const envContent = fs.readFileSync(`${envFolder}/environment.${site}.ts`, {
     encoding: "utf8",
