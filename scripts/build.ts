@@ -18,12 +18,12 @@ async function main() {
   // build and copy frontend
 
   const site = await promptOptions(
-    ["kenya", "gambia"],
-    "Do you wish to build for a specific site?"
+    ["kenya", "gambia", "staging"],
+    "Which site environment should be used?"
   );
-  const configuration =
-    site === "default" ? "production" : `production,${site}`;
   runPrepare();
+  const configuration = `production,${site}`;
+  console.log("configuration", site);
   copyAppVersion();
   await fs.ensureDir(`${designerAssetsPath}/build`);
   await fs.emptyDir(`${designerAssetsPath}/build`);
