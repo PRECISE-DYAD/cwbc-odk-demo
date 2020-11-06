@@ -8,6 +8,11 @@ const ALL_PROJECTS: IProjectMeta[] = [
     name: "Precise",
     id: "precise",
   },
+  // {
+  //   image: "assets/dyad.png",
+  //   name: "Dyad",
+  //   id: "dyad",
+  // },
 ];
 /**
  * The CommonStore manages persisted data and operations across the entire application,
@@ -21,10 +26,9 @@ export class CommonStore {
   @observable projectMeta$: IProjectMeta;
   @observable title = "";
   @observable projects: IProjectMeta[] = ALL_PROJECTS;
-  @computed get activeTheme() {
-    return this.projectMeta$
-      ? `theme-${this.projectMeta$.id}`
-      : "theme-default";
+  @observable activeTheme = "theme-default";
+  @action setActiveTheme(id: string) {
+    this.activeTheme = id ? `theme-${id}` : "theme-default";
   }
 
   @action async setProjectById(id: IProjectMeta["id"]) {
@@ -39,8 +43,12 @@ export class CommonStore {
     router.events.subscribe((e) => {
       if (e instanceof ChildActivationEnd) {
         const { data } = e.snapshot.firstChild;
-        if (data.title) {
-          this.setPageTitle(data.title);
+        const { title, theme } = data;
+        if (title) {
+          this.setPageTitle(title);
+        }
+        if (theme) {
+          this.setActiveTheme(theme);
         }
       }
     });
