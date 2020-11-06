@@ -8,7 +8,7 @@ const routes: Routes = [
     component: HomeComponent,
     // note - animations change whenever the data below changes, so
     // mostly just a placeholder depending on animation specifics
-    data: { title: "Select A Project", animation: "home" },
+    data: { title: "Select A Project", animation: "home", theme: "default" },
   },
   {
     path: "projects",
@@ -17,8 +17,14 @@ const routes: Routes = [
   {
     path: "projects/precise",
     loadChildren: () =>
-      import("./pages/precise/precise.module").then((m) => m.PreciseModule),
-    data: { animation: "onLeft" },
+      import("./modules/precise/precise.module").then((m) => m.PreciseModule),
+    data: { animation: "onLeft", theme: "precise" },
+  },
+  {
+    path: "projects/dyad",
+    loadChildren: () =>
+      import("./modules/dyad/dyad.module").then((m) => m.DyadModule),
+    data: { animation: "onLeft", theme: "dyad" },
   },
   {
     path: "developer-tools",
