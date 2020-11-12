@@ -4,6 +4,7 @@ import {
   PRECISE_BABY_SUMMARY_FIELDS,
   IPreciseParticipantData,
 } from "src/app/modules/precise/models/participant-summary.model";
+import { PreciseStore } from "../../../stores";
 
 @Component({
   selector: "precise-profile-baby-section",
@@ -12,6 +13,7 @@ import {
       <precise-form-summary
         *ngFor="let form of section.forms"
         [form]="form"
+        (entrySelected)="store.launchForm(form, $event)"
       ></precise-form-summary>
       <!-- HACK - only show summary table if data collected for first (birthbaby) form. Could be linked better -->
       <table
@@ -43,6 +45,7 @@ export class PreciseProfileBabySectionComponent implements OnInit {
   summaryFields = PRECISE_BABY_SUMMARY_FIELDS;
   summaryData: IPreciseParticipantData;
   @Input() section: ISectionWithMeta;
+  constructor(public store: PreciseStore) {}
 
   ngOnInit() {
     // Refactor specific baby data to pass to summary-field component and override participant data

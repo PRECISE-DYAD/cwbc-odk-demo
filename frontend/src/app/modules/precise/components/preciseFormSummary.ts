@@ -1,6 +1,4 @@
-import { Component, Input } from "@angular/core";
-import { PreciseStore } from "src/app/modules/precise/stores";
-import { IODkTableRowData } from "src/app/modules/shared/types/odk.types";
+import { Component, EventEmitter, Input, Output } from "@angular/core";
 import { IFormMetaWithEntries } from "src/app/modules/shared/types";
 
 /**
@@ -11,7 +9,7 @@ import { IFormMetaWithEntries } from "src/app/modules/shared/types";
   selector: "precise-form-summary",
   template: `
     <div *ngFor="let entry of form.entries">
-      <button mat-button (click)="openForm(form, entry)">
+      <button mat-button (click)="entrySelected.next(entry._id)">
         <ng-container [ngSwitch]="entry._savepoint_type">
           <mat-icon *ngSwitchCase="'COMPLETE'"> check_box</mat-icon>
           <mat-icon *ngSwitchCase="'INCOMPLETE'"
@@ -33,7 +31,7 @@ import { IFormMetaWithEntries } from "src/app/modules/shared/types";
       <button
         mat-button
         *ngIf="!form.allowRepeats && !form.entries[0]"
-        (click)="openForm(form)"
+        (click)="entrySelected.next()"
       >
         <mat-icon>check_box_outline_blank</mat-icon>
         {{ form.title }}
@@ -42,12 +40,12 @@ import { IFormMetaWithEntries } from "src/app/modules/shared/types";
     <button
       mat-button
       *ngIf="!form.allowRepeats && !form.entries[0]"
-      (click)="openForm(form)"
+      (click)="entrySelected.next()"
     >
       <mat-icon>check_box_outline_blank</mat-icon>
       {{ form.title }}
     </button>
-    <button mat-button *ngIf="form.allowRepeats" (click)="openForm(form)">
+    <button mat-button *ngIf="form.allowRepeats" (click)="entrySelected.next()">
       <mat-icon>add</mat-icon>
       {{ form.title }}
     </button>
@@ -67,11 +65,5 @@ import { IFormMetaWithEntries } from "src/app/modules/shared/types";
 })
 export class PreciseFormSummaryComponent {
   @Input() form: IFormMetaWithEntries;
-  // Add sections for groups of forms, populating with data form stroe
-  constructor(public store: PreciseStore) {}
-
-  openForm(form: IFormMetaWithEntries, entry?: IODkTableRowData) {
-    const editRowId = entry ? entry._id : null;
-    this.store.launchForm(form, editRowId);
-  }
+  @Output() entrySelected = new EventEmitter<string | undefined>();
 }

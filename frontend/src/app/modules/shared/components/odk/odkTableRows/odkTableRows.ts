@@ -13,15 +13,15 @@ import { MatTableDataSource } from "@angular/material/table";
 import { IODkTableRowData } from "src/app/modules/shared/types/odk.types";
 import { OdkService } from "src/app/modules/shared/services/odk/odk.service";
 
-/**
- * Looks up a given odk table by id and returns a html table of values
- */
 @Component({
   selector: "app-odk-table-rows",
   templateUrl: "./odkTableRows.html",
   styleUrls: ["./odkTableRows.scss"],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
+/**
+ * Looks up a given odk table by id and returns a html table of values
+ */
 export class OdkTableRowsComponent implements OnInit {
   /**
    * @Input columns: specify which columns should be displayed. If left
