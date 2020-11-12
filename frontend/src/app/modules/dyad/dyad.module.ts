@@ -6,6 +6,7 @@ import { MobxAngularModule } from "mobx-angular";
 import { SharedPipesModule } from "src/app/modules/shared/pipes";
 import { DyadParticipantsComponent, DyadProfileComponent } from "./pages";
 import { DyadComponentsModule } from "./components";
+import { PreciseComponentsModule } from "../precise/components";
 
 const routes: Routes = [
   {
@@ -31,6 +32,7 @@ const routes: Routes = [
   declarations: [DyadParticipantsComponent, DyadProfileComponent],
   imports: [
     SharedComponentsModule,
+    PreciseComponentsModule,
     CommonModule,
     RouterModule.forChild(routes),
     MobxAngularModule,
