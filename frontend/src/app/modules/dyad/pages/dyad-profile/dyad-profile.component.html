@@ -5,10 +5,24 @@
     *ngIf="dyadService.activeParticipant && dyadService.participantFormsHash"
   >
     <mat-accordion multi displayMode="flat">
-      <!-- Main Sections -->
+      <!-- Summary Section -->
+      <mat-expansion-panel class="no-padding" expanded>
+        <mat-expansion-panel-header expandedHeight="48px">
+          <mat-panel-title
+            ><mat-icon>assignment</mat-icon
+            ><span>Summary</span></mat-panel-title
+          >
+        </mat-expansion-panel-header>
+        <app-field-summary-table
+          [fieldSummaries]="dyadSummaryFields"
+          [participantData]="dyadService.activeParticipantData"
+        ></app-field-summary-table>
+      </mat-expansion-panel>
+      <!-- Mother Sections -->
       <mat-expansion-panel
         *ngFor="let section of formSections"
         class="no-padding theme-default primary-inverted color-rotate-1"
+        expanded
       >
         <mat-expansion-panel-header expandedHeight="48px">
           <mat-panel-title style="color: white"
@@ -32,12 +46,13 @@
 
       <!-- Baby Sections -->
       <mat-expansion-panel
+        expanded
         class="no-padding theme-default primary-inverted color-rotate-2"
       >
         <mat-expansion-panel-header expandedHeight="48px">
           <mat-panel-title style="color: white"
             ><mat-icon svgIcon="baby"></mat-icon>
-            <span>Dyad Baby</span></mat-panel-title
+            <span>Dyad Child</span></mat-panel-title
           >
         </mat-expansion-panel-header>
         <div>Expansion Content</div>

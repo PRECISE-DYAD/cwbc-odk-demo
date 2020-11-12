@@ -1,8 +1,9 @@
 import { Component, OnDestroy, OnInit } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
 import * as Animations from "src/app/modules/shared/animations";
+import { DYAD_SUMMARY_FIELDS } from "../../models/dyad-summary.model";
 import {
-  DYAD_BABY_FORM_SECTIONS,
+  DYAD_CHILD_FORM_SECTIONS,
   DYAD_FORM_SECTIONS,
 } from "../../models/dyad.models";
 import { DyadService } from "../../services";
@@ -15,7 +16,9 @@ import { DyadService } from "../../services";
 })
 export class DyadProfileComponent implements OnDestroy, OnInit {
   formSections = DYAD_FORM_SECTIONS;
-  babyFormSections = DYAD_BABY_FORM_SECTIONS;
+  childFormSections = DYAD_CHILD_FORM_SECTIONS;
+  dyadSummaryFields = DYAD_SUMMARY_FIELDS;
+
   constructor(public dyadService: DyadService, private route: ActivatedRoute) {}
 
   ngOnInit() {
