@@ -10,11 +10,11 @@ import { PreciseStore } from "../../../stores";
   selector: "precise-profile-baby-section",
   template: `
     <section class="section-details">
-      <precise-form-summary
+      <app-form-entries-summary
         *ngFor="let form of section.forms"
         [form]="form"
         (entrySelected)="store.launchForm(form, $event)"
-      ></precise-form-summary>
+      ></app-form-entries-summary>
       <!-- HACK - only show summary table if data collected for first (birthbaby) form. Could be linked better -->
       <table
         style="background:none; margin:1em;"
@@ -23,10 +23,10 @@ import { PreciseStore } from "../../../stores";
         <tr *ngFor="let summary of summaryFields">
           <td class="field-label">{{ summary.label }}</td>
           <td class="field-value">
-            <precise-field-summary
+            <app-field-summary
               [summary]="summary"
               [data]="summaryData"
-            ></precise-field-summary>
+            ></app-field-summary>
           </td>
         </tr>
       </table>

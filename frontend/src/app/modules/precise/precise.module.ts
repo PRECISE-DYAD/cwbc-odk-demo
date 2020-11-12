@@ -17,6 +17,7 @@ import { PreciseProfileSectionComponent } from "./pages/precise-profile/sections
 import { PreciseProfileConfirmationComponent } from "./pages/precise-profile/sections/profile-confirmation";
 import { PreciseProfileBabySectionComponent } from "./pages/precise-profile/sections/baby-section";
 import { SharedPipesModule } from "src/app/modules/shared/pipes";
+import { CWBCComponentsModules } from "../shared/components/cwbc/cwbc.components.module";
 
 const routes: Routes = [
   {
@@ -55,6 +56,7 @@ const routes: Routes = [
   ],
   imports: [
     SharedComponentsModule,
+    CWBCComponentsModules,
     CommonModule,
     RouterModule.forChild(routes),
     PreciseComponentsModule,

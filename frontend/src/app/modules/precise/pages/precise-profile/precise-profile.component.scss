@@ -37,9 +37,14 @@ table {
   background: white;
   width: calc(100% - 2em);
   max-width: 500px;
-  border-collapse: collapse;
   margin: 0 1em;
-  border-collapse: collapse;
+}
+td.field-label {
+  width: 250px;
+}
+td {
+  border: 1px solid rgba(0, 0, 0, 0.2);
+  padding: 5px;
 }
 section {
   transition: all 0.2s ease-in-out;
@@ -56,12 +61,4 @@ section {
 .section-details button {
   width: 100%;
   text-align: left;
-}
-
-td.field-label {
-  width: 250px;
-}
-td {
-  border: 1px solid rgba(0, 0, 0, 0.2);
-  padding: 5px;
 }

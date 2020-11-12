@@ -6,11 +6,11 @@ import { PreciseStore } from "../../../stores";
   selector: "precise-profile-general-section",
   template: `
     <section class="section-details">
-      <precise-form-summary
+      <app-form-entries-summary
         *ngFor="let form of section.forms"
         [form]="form"
         (entrySelected)="store.launchForm(form, $event)"
-      ></precise-form-summary>
+      ></app-form-entries-summary>
     </section>
   `,
   styleUrls: ["../precise-profile.component.scss"],

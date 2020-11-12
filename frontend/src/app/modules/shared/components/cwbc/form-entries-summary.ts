@@ -6,7 +6,7 @@ import { IFormMetaWithEntries } from "src/app/modules/shared/types";
  * any corresponding entries marked as completed or in progress
  */
 @Component({
-  selector: "precise-form-summary",
+  selector: "app-form-entries-summary",
   template: `
     <div *ngFor="let entry of form.entries">
       <button mat-button (click)="entrySelected.next(entry._id)">
@@ -63,7 +63,7 @@ import { IFormMetaWithEntries } from "src/app/modules/shared/types";
     `,
   ],
 })
-export class PreciseFormSummaryComponent {
+export class FormEntriesSummaryComponent {
   @Input() form: IFormMetaWithEntries;
   @Output() entrySelected = new EventEmitter<string | undefined>();
 }

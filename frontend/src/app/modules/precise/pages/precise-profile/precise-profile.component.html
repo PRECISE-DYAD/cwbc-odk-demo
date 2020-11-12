@@ -46,7 +46,10 @@
               ><span>Summary</span></mat-panel-title
             >
           </mat-expansion-panel-header>
-          <precise-profile-summary-section></precise-profile-summary-section>
+          <app-field-summary-table
+            [fieldSummaries]="preciseSummaryFields"
+            [participantData]="store.activeParticipantData"
+          ></app-field-summary-table>
         </mat-expansion-panel>
         <!-- Precise Visit Section -->
         <mat-expansion-panel

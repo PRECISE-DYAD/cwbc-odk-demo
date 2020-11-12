@@ -4,17 +4,11 @@ import { FormsModule } from "@angular/forms";
 import { SharedComponentsModule } from "src/app/modules/shared/components";
 import { CommonModule } from "@angular/common";
 import { RouterModule } from "@angular/router";
-import { PreciseFormSummaryComponent } from "./preciseFormSummary";
-import { PreciseFieldSummaryComponent } from "./preciseFieldSummary";
 import { MobxAngularModule } from "mobx-angular";
 import { EnrollmentDialogComponent } from "./enrollmentDialog";
 import { SharedPipesModule } from "src/app/modules/shared/pipes";
 
-const PreciseComponents = [
-  PreciseFormSummaryComponent,
-  PreciseFieldSummaryComponent,
-  EnrollmentDialogComponent,
-];
+const PreciseComponents = [EnrollmentDialogComponent];
 @NgModule({
   declarations: PreciseComponents,
   imports: [

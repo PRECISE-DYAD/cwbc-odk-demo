@@ -6,6 +6,7 @@ import {
   ISectionWithMeta,
   PRECISE_FORM_SECTIONS,
   PRECISE_BABY_FORM_SECTION,
+  PRECISE_SUMMARY_FIELDS,
 } from "src/app/modules/precise/models";
 import { Subscription } from "rxjs";
 import { IFormMeta, IFormMetaWithEntries } from "src/app/modules/shared/types";
@@ -27,6 +28,7 @@ export class PreciseProfileComponent implements OnDestroy, OnInit {
     profile: true,
   };
   params$: Subscription;
+  preciseSummaryFields = PRECISE_SUMMARY_FIELDS;
   constructor(
     public store: PreciseStore,
     private route: ActivatedRoute,
