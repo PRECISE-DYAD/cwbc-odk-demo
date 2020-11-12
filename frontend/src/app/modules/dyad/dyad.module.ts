@@ -7,6 +7,7 @@ import { SharedPipesModule } from "src/app/modules/shared/pipes";
 import { DyadParticipantsComponent, DyadProfileComponent } from "./pages";
 import { DyadComponentsModule } from "./components";
 import { PreciseComponentsModule } from "../precise/components";
+import { CWBCComponentsModules } from "../shared/components/cwbc/cwbc.components.module";
 
 const routes: Routes = [
   {
@@ -32,6 +33,7 @@ const routes: Routes = [
   declarations: [DyadParticipantsComponent, DyadProfileComponent],
   imports: [
     SharedComponentsModule,
+    CWBCComponentsModules,
     PreciseComponentsModule,
     CommonModule,
     RouterModule.forChild(routes),
