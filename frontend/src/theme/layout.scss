@@ -19,6 +19,10 @@ body {
   flex-direction: column;
   background: white;
 }
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
 
 $rotateBase: 30;
 .color-rotate-0 {
