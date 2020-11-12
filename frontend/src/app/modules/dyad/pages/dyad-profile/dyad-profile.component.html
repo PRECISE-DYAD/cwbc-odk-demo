@@ -1,3 +1,54 @@
-<div class="page">
-  <div>Dyad Profile</div>
+<div class="page primary">
+  <div *ngIf="!dyadService.activeParticipant">Loading...</div>
+  <div
+    style="padding: 1em; flex: 1"
+    *ngIf="dyadService.activeParticipant && dyadService.participantFormsHash"
+  >
+    <mat-accordion multi displayMode="flat">
+      <!-- Main Sections -->
+      <mat-expansion-panel
+        *ngFor="let section of formSections"
+        class="no-padding theme-default primary-inverted color-rotate-1"
+      >
+        <mat-expansion-panel-header expandedHeight="48px">
+          <mat-panel-title style="color: white"
+            ><mat-icon [svgIcon]="section.icon"></mat-icon>
+            <span>{{ section.label }}</span></mat-panel-title
+          >
+        </mat-expansion-panel-header>
+        <section class="section-details">
+          <precise-form-summary
+            *ngFor="let formId of section.formIds"
+            [form]="dyadService.participantFormsHash[formId]"
+            (entrySelected)="
+              dyadService.launchForm(
+                dyadService.participantFormsHash[formId],
+                $event
+              )
+            "
+          ></precise-form-summary>
+        </section>
+      </mat-expansion-panel>
+
+      <!-- Baby Sections -->
+      <mat-expansion-panel
+        class="no-padding theme-default primary-inverted color-rotate-2"
+      >
+        <mat-expansion-panel-header expandedHeight="48px">
+          <mat-panel-title style="color: white"
+            ><mat-icon svgIcon="baby"></mat-icon>
+            <span>Dyad Baby</span></mat-panel-title
+          >
+        </mat-expansion-panel-header>
+        <div>Expansion Content</div>
+      </mat-expansion-panel>
+    </mat-accordion>
+  </div>
+
+  <div
+    id="guid"
+    *ngIf="dyadService.activeParticipant && dyadService.participantFormsHash"
+  >
+    {{ dyadService.activeParticipant.f2_guid }}
+  </div>
 </div>
