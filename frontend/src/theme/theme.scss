@@ -12,7 +12,7 @@ $precise-theme: mat-light-theme($precise-app-primary, $precise-app-accent);
 $dyad-primary: mat-palette($dyad-pallette);
 $dyad-accent: mat-palette($mat-amber, A100, A50, A200);
 $dyad-warn: mat-palette($mat-deep-orange);
-$dyad-theme: mat-dark-theme($dyad-primary, $dyad-accent, $dyad-warn);
+$dyad-theme: mat-light-theme($dyad-primary, $dyad-accent, $dyad-warn);
 
 // Use a mixin to create a class that can be applied to any other components
 @mixin custom-component-mixin($theme) {
