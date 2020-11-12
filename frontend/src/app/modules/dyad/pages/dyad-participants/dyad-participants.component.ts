@@ -48,7 +48,7 @@ export class DyadParticipantsComponent implements OnInit, AfterViewInit {
     this.dataSource.data = participantSummaries;
   }
   handleRowClicked(row: IDyadParticipantSummary) {
-    if (row.dyad_enrollment && row.dyad_enrollment.enrolled) {
+    if (row.dyad_enrollment && row.dyad_enrollment.d1_enroll_consent === "1") {
       this.router.navigate([row.f2_guid], { relativeTo: this.route });
     } else {
       this.dyadService.enrolParticipant(row);

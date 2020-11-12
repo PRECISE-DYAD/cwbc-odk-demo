@@ -5,18 +5,8 @@
       <mat-label color="primary">Search id, phone or name</mat-label>
       <input matInput (keyup)="applyFilter($event)" placeholder="Search" />
     </mat-form-field>
-    <!-- <button
-      mat-flat-button
-      color="accent"
-      (click)="enrolParticipant()"
-      style="margin: 1em"
-    >
-      <mat-icon>add</mat-icon>
-      Enrol Participant
-    </button> -->
   </div>
 
-  <!--  -->
   <mat-progress-bar mode="indeterminate" *ngIf="isLoading"></mat-progress-bar>
   <table mat-table [dataSource]="dataSource" matSort class="mat-elevation-z8">
     <!-- Dyad enrollment column -->
@@ -30,7 +20,7 @@
       >
         <div *ngIf="row['dyad_enrollment'] as enrollment">
           <div style="text-align: center">
-            {{ enrollment.enrolled === true | boolIcon }}
+            {{ enrollment.d1_enroll_consent === "1" | boolIcon }}
           </div>
         </div>
       </td>

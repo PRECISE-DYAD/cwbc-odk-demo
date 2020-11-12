@@ -11,8 +11,7 @@ import { IParticipantSummary } from "../../precise/types";
 export const DYAD_TABLE_IDS = [
   "profileSummary",
   "dyad_enrollment",
-  "dyad_visit1_mother",
-  "dyad_visit1_baby",
+  "dyad_child_visit",
 ] as const;
 
 /**
@@ -31,16 +30,10 @@ export const DYAD_SCHEMA: { [tableId in IDyadTableId]: IFormMeta } = {
     tableId: "dyad_enrollment",
     mapFields: [],
   },
-  dyad_visit1_mother: {
-    title: "Dyad Visit 1 - Mother",
-    formId: "dyad_visit1_mother",
-    tableId: "dyad_visit1_mother",
-    mapFields: [],
-  },
-  dyad_visit1_baby: {
-    title: "Dyad Visit 1 - Baby",
-    formId: "dyad_visit1_baby",
-    tableId: "dyad_visit1_baby",
+  dyad_child_visit: {
+    title: "Dyad Visit 1 - Child",
+    formId: "dyad_child_visit",
+    tableId: "dyad_child_visit",
     mapFields: [],
   },
 };
@@ -51,7 +44,7 @@ export const DYAD_SCHEMA: { [tableId in IDyadTableId]: IFormMeta } = {
 export const DYAD_FORM_SECTIONS: IDyadFormSection[] = [
   {
     _id: "dyadMotherSection",
-    formIds: ["dyad_enrollment", "dyad_visit1_mother"],
+    formIds: ["dyad_enrollment"],
     label: "Dyad Mother",
     icon: "mother",
   },
@@ -59,11 +52,11 @@ export const DYAD_FORM_SECTIONS: IDyadFormSection[] = [
 /**
  * Sub-sections created for every new baby registered
  */
-export const DYAD_BABY_FORM_SECTIONS: IDyadFormSection[] = [
+export const DYAD_CHILD_FORM_SECTIONS: IDyadFormSection[] = [
   {
-    _id: "dyadBabySection",
-    formIds: ["dyad_visit1_baby"],
-    label: "Dyad Baby",
+    _id: "dyadChildSection",
+    formIds: ["dyad_child_visit"],
+    label: "Dyad Child",
     icon: "baby",
   },
 ];
