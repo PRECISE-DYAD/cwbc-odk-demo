@@ -1,13 +1,15 @@
 import { Injectable } from "@angular/core";
 import { takeWhile } from "rxjs/operators";
 import { OdkService } from "src/app/modules/shared/services/odk/odk.service";
-import { PRECISE_SCHEMA } from "src/app/modules/precise/models";
 import * as IPrecise from "src/app/modules/precise/types";
 import { environment } from "src/environments/environment";
 import {
   DYAD_SCHEMA,
   IDyadParticipantSummary,
   IDyadParticipantData,
+  IDyadTableId,
+  DYAD_CHILD_FORM_SECTIONS,
+  IDyadParticipantChild,
 } from "../models/dyad.models";
 import { _arrToHashmap } from "../../shared/utils";
 import { BehaviorSubject } from "rxjs";
@@ -21,7 +23,7 @@ import {
  * Create a new object that contains all the mappings selectable from
  * legacy names (e.g. MAPPED_SCHEMA.visit1.tableId = visit1_v2)
  */
-const MAPPED_SCHEMA: typeof PRECISE_SCHEMA & typeof DYAD_SCHEMA = {} as any;
+const MAPPED_SCHEMA: typeof DYAD_SCHEMA = {} as any;
 Object.entries(DYAD_SCHEMA).forEach(([baseId, value]) => {
   const tableId = environment.tableMapping[baseId] || baseId;
   const formId = environment.formMapping[baseId] || baseId;
@@ -36,8 +38,9 @@ Object.entries(DYAD_SCHEMA).forEach(([baseId, value]) => {
 export class DyadService {
   participantSummaries = [];
   activeParticipant: IDyadParticipantSummary;
+  participantFormsHash: { [tableId in IDyadTableId]: IFormMetaWithEntries };
   activeParticipantData: IDyadParticipantData;
-  participantFormsHash: { [tableId: string]: IFormMetaWithEntries };
+  activeParticipantChildren: IDyadParticipantChild[];
   private _dataLoaded$ = new BehaviorSubject(false);
   constructor(private odk: OdkService) {
     this.init();
@@ -63,6 +66,7 @@ export class DyadService {
       );
       console.log("active participant", this.activeParticipant);
       await this.loadParticipantTableData(this.activeParticipant);
+      this.loadParticipantChildMeta();
     } else {
       this.activeParticipant = null;
     }
@@ -136,7 +140,9 @@ export class DyadService {
    */
   private async loadParticipantTableData(participant: IDyadParticipantSummary) {
     const { f2_guid } = participant;
-    const collated: { [tableId: string]: IFormMetaWithEntries } = {};
+    const collated: {
+      [tableId in IDyadTableId]: IFormMetaWithEntries;
+    } = {} as any;
     const promises = Object.entries(MAPPED_SCHEMA).map(
       async ([key, formMeta]) => {
         const { tableId } = formMeta;
@@ -180,19 +186,53 @@ export class DyadService {
    * Separate action from async load code to allow mobx to update synchronously
    * Additionally collate all participant data from forms into a single object, organised by table
    */
-  private setParticipantForms(collated: {
-    [tableId: string]: IFormMetaWithEntries;
-  }) {
+  private setParticipantForms(
+    collated: {
+      [tableId in IDyadTableId]: IFormMetaWithEntries;
+    }
+  ) {
     const participantFormsHash = _arrToHashmap(
       Object.values(collated),
       "tableId"
-    );
+    ) as any;
     const activeParticipantData = this._extractMappedDataValues(
       Object.values(participantFormsHash)
     ) as any;
     this.participantFormsHash = participantFormsHash;
     this.activeParticipantData = activeParticipantData;
     console.log("participant forms", participantFormsHash);
+  }
+
+  /**
+   * Create repeat groups for nesting child data based on Birthbaby entries
+   * Create formHash with baby entries alongside data object for use in calculations
+   */
+  private loadParticipantChildMeta() {
+    const children: IDyadParticipantChild[] = [];
+    // Use birthmother entries to populate children
+    for (const entry of this.participantFormsHash.Birthbaby.entries) {
+      const { f2_guid_child } = entry;
+      // Generate forms hashmap with filtered entry for child
+      const formsHash: any = {};
+      for (const section of DYAD_CHILD_FORM_SECTIONS) {
+        for (const formId of section.formIds) {
+          const formMeta = this.participantFormsHash[formId];
+          formsHash[formId] = {
+            ...formMeta,
+            entries: formMeta.entries.filter(
+              (e) => e.f2_guid_child === f2_guid_child
+            ),
+          };
+        }
+      }
+      // populate child data for use in calculation
+      const data = this._extractMappedDataValues(
+        Object.values(formsHash)
+      ) as any;
+      children.push({ formsHash, f2_guid_child, data });
+    }
+    console.log("participant children", children);
+    this.activeParticipantChildren = children;
   }
 
   /**

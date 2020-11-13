@@ -5,6 +5,7 @@ import { DYAD_SUMMARY_FIELDS } from "../../models/dyad-summary.model";
 import {
   DYAD_CHILD_FORM_SECTIONS,
   DYAD_FORM_SECTIONS,
+  IDyadParticipantChild,
 } from "../../models/dyad.models";
 import { DyadService } from "../../services";
 
@@ -30,15 +31,25 @@ export class DyadProfileComponent implements OnDestroy, OnInit {
     );
   }
 
+  public launchChildForm(
+    formId: string,
+    editRowId: string,
+    child: IDyadParticipantChild
+  ) {
+    const { f2_guid_child } = child;
+    const formMeta = this.dyadService.participantFormsHash[formId];
+    this.dyadService.launchForm(formMeta, editRowId, { f2_guid_child });
+  }
+
   private async init() {
     await this.dyadService.isReady();
-    console.log(
-      "service ready, setting participant",
-      this.route.snapshot.params.f2_guid
-    );
     await this.dyadService.setActiveParticipantById(
       this.route.snapshot.params.f2_guid
     );
-    console.log("profile loaded", this.dyadService);
+    this.generateChildSections();
+  }
+
+  private generateChildSections() {
+    const { dyad_enrollment } = this.dyadService.activeParticipantData;
   }
 }

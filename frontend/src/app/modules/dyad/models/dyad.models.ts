@@ -1,4 +1,8 @@
-import { IFormMeta, IODkTableRowData } from "src/app/modules/shared/types";
+import {
+  IFormMeta,
+  IFormMetaWithEntries,
+  IODkTableRowData,
+} from "src/app/modules/shared/types";
 import { IParticipantSummary } from "../../precise/types";
 
 /************************************************************************************
@@ -9,6 +13,7 @@ import { IParticipantSummary } from "../../precise/types";
  * This is used to check typings on other fields
  */
 export const DYAD_TABLE_IDS = [
+  "Birthbaby",
   "profileSummary",
   "dyad_enrollment",
   "dyad_child_visit",
@@ -24,6 +29,12 @@ export const DYAD_SCHEMA: { [tableId in IDyadTableId]: IFormMeta } = {
     formId: "profileSummary",
     tableId: "profileSummary",
   },
+  Birthbaby: {
+    title: "Birth Baby",
+    formId: "Birthbaby",
+    tableId: "Birthbaby",
+  },
+  // Main DYAD forms
   dyad_enrollment: {
     title: "Dyad Enrollment",
     formId: "dyad_enrollment",
@@ -77,3 +88,11 @@ export interface IDyadParticipantSummary extends IParticipantSummary {
 export type IDyadParticipantData = {
   [tableId in IDyadTableId]: { [field: string]: any };
 };
+/**
+ * Child interfaces record nested the same as the active participant data
+ */
+export interface IDyadParticipantChild {
+  f2_guid_child: string;
+  formsHash: { [tableId in IDyadTableId]: IFormMetaWithEntries };
+  data: IDyadParticipantData;
+}

@@ -1,0 +1,13 @@
+.section-details {
+  color: var(--color-black);
+  padding: 5px 0;
+  width: 100%;
+  /* let parent background show through */
+  background: rgba(255, 255, 255, 0.75);
+}
+#guid {
+  font-size: x-small;
+  opacity: 0.3;
+  text-align: center;
+  padding: 10px;
+}
