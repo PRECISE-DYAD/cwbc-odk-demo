@@ -1,6 +1,6 @@
 import { NgModule } from "@angular/core";
 import { Routes, RouterModule, PreloadAllModules } from "@angular/router";
-import { HomeComponent } from "./pages/home/home.component";
+import { HomeComponent } from "./modules/shared/pages/home/home.component";
 
 const routes: Routes = [
   {
@@ -8,7 +8,7 @@ const routes: Routes = [
     component: HomeComponent,
     // note - animations change whenever the data below changes, so
     // mostly just a placeholder depending on animation specifics
-    data: { title: "Select A Project", animation: "home" },
+    data: { title: "Select A Project", animation: "home", theme: "default" },
   },
   {
     path: "projects",
@@ -17,26 +17,23 @@ const routes: Routes = [
   {
     path: "projects/precise",
     loadChildren: () =>
-      import("./pages/precise/precise.module").then((m) => m.PreciseModule),
-    data: { animation: "onLeft" },
+      import("./modules/precise/precise.module").then((m) => m.PreciseModule),
+    data: { animation: "onLeft", theme: "precise" },
+  },
+  {
+    path: "projects/dyad",
+    loadChildren: () =>
+      import("./modules/dyad/dyad.module").then((m) => m.DyadModule),
+    data: { animation: "onLeft", theme: "dyad" },
   },
   {
     path: "developer-tools",
     loadChildren: () =>
-      import("./pages/developer-tools/developer-tools.module").then(
-        (m) => m.DeveloperToolsModule
-      ),
+      import(
+        "./modules/shared/pages/developer-tools/developer-tools.module"
+      ).then((m) => m.DeveloperToolsModule),
     data: { animation: "onLeft" },
   },
-  // {
-  //   path: "guides",
-  //   redirectTo: "",
-  // },
-  // {
-  //   path: "guides/install",
-  //   component: InstallComponent,
-  //   data: { title: "Installation Notes" },
-  // },
 ];
 
 @NgModule({

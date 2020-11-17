@@ -1,0 +1,22 @@
+.mat-form-field {
+  font-size: 14px;
+  width: 100%;
+}
+
+.info-row {
+  display: flex;
+  padding: 5px;
+  align-items: center;
+}
+.info-row > mat-icon {
+  margin-right: 10px;
+}
+tr {
+  cursor: pointer;
+}
+tr.mat-header-row {
+  cursor: unset;
+}
+.mat-row:hover {
+  background-color: #efefef;
+}

@@ -1,8 +1,8 @@
 import { Component } from "@angular/core";
-import { CommonStore } from "./stores/common.store";
+import { CommonStore } from "src/app/modules/shared/stores/common.store";
 import { RouterOutlet } from "@angular/router";
-import * as Animations from "./animations";
-import { OdkService } from "./services/odk/odk.service";
+import * as Animations from "src/app/modules/shared/animations";
+import { OdkService } from "src/app/modules/shared/services/odk/odk.service";
 import { environment } from "src/environments/environment";
 
 @Component({

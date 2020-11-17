@@ -1,0 +1,88 @@
+<div class="page primary">
+  <div *ngIf="!dyadService.activeParticipant">Loading...</div>
+  <div
+    style="padding: 1em; flex: 1"
+    *ngIf="dyadService.activeParticipant && dyadService.participantFormsHash"
+  >
+    <mat-accordion multi displayMode="flat">
+      <!-- Summary Section -->
+      <mat-expansion-panel class="no-padding" expanded>
+        <mat-expansion-panel-header expandedHeight="48px">
+          <mat-panel-title
+            ><mat-icon>assignment</mat-icon
+            ><span>Summary</span></mat-panel-title
+          >
+        </mat-expansion-panel-header>
+        <section class="section-details">
+          <app-field-summary-table
+            [fieldSummaries]="dyadSummaryFields"
+            [participantData]="dyadService.activeParticipantData"
+          ></app-field-summary-table>
+        </section>
+      </mat-expansion-panel>
+      <!-- Mother Sections -->
+      <mat-expansion-panel
+        *ngFor="let section of formSections"
+        class="no-padding theme-default primary-inverted color-rotate-1"
+        expanded
+      >
+        <mat-expansion-panel-header expandedHeight="48px">
+          <mat-panel-title style="color: white"
+            ><mat-icon [svgIcon]="section.icon"></mat-icon>
+            <span>{{ section.label }}</span></mat-panel-title
+          >
+        </mat-expansion-panel-header>
+        <section class="section-details">
+          <app-form-entries-summary
+            *ngFor="let formId of section.formIds"
+            [form]="dyadService.participantFormsHash[formId]"
+            (entrySelected)="
+              dyadService.launchForm(
+                dyadService.participantFormsHash[formId],
+                $event
+              )
+            "
+          ></app-form-entries-summary>
+        </section>
+      </mat-expansion-panel>
+
+      <!-- Baby Sections -->
+      <div
+        *ngFor="
+          let child of dyadService.activeParticipantChildren;
+          index as childIndex
+        "
+      >
+        <mat-expansion-panel
+          expanded
+          class="no-padding theme-default primary-inverted color-rotate-2"
+          *ngFor="let section of childFormSections"
+        >
+          <mat-expansion-panel-header expandedHeight="48px">
+            <mat-panel-title style="color: white"
+              ><mat-icon svgIcon="baby"></mat-icon>
+              <span style="margin-right: 5px">{{ section.label }}</span>
+              <span *ngIf="dyadService.activeParticipantChildren.length > 1">
+                - {{ childIndex + 1 }}</span
+              >
+            </mat-panel-title>
+          </mat-expansion-panel-header>
+          <section class="section-details">
+            <app-form-entries-summary
+              *ngFor="let formId of section.formIds"
+              [form]="child.formsHash[formId]"
+              (entrySelected)="launchChildForm(formId, $event, child)"
+            ></app-form-entries-summary>
+          </section>
+        </mat-expansion-panel>
+      </div>
+    </mat-accordion>
+  </div>
+
+  <div
+    id="guid"
+    *ngIf="dyadService.activeParticipant && dyadService.participantFormsHash"
+  >
+    {{ dyadService.activeParticipant.f2_guid }}
+  </div>
+</div>

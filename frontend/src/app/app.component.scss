@@ -4,3 +4,6 @@
   flex-direction: column;
   overflow-y: auto;
 }
+mat-toolbar {
+  transition: background-color 1s ease;
+}

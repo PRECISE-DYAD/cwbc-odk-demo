@@ -17,6 +17,11 @@ body {
   flex: 1;
   height: 100%;
   flex-direction: column;
+  background: white;
+}
+table {
+  width: 100%;
+  border-collapse: collapse;
 }
 
 $rotateBase: 30;
