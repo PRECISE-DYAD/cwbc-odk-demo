@@ -6,9 +6,8 @@ import http from "./http";
  * NOTE - should be kept in sync odkxm project
  */
 export class OdkRestService {
-  public appId = "";
-  constructor() {}
-
+  public appId = "default";
+  constructor(private appID: string = "default") { this.appId = appID; }
   /********************************************************
    * Implementation of specific ODK Rest Functions
    * https://docs.odk-x.org/odk-2-sync-protocol/
