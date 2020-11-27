@@ -104,12 +104,17 @@ async function exportTables(exportFolder: string, tables: IODK.ITableMeta[]) {
     const { schemaETag, tableId } = table;
     // TODO - move table file exports to separate function and use manifest to fully populate
     const tableAssetBase = `tables/${tableId}/forms/${tableId}`;
-    const buffer = await odkRest.getFile(`${tableAssetBase}/${tableId}.xlsx`);
-    fs.ensureDirSync(`${exportFolder}/${tableAssetBase}`);
-    fs.writeFileSync(
-      `${exportFolder}/${tableAssetBase}/${tableId}.xlsx`,
-      buffer
-    );
+    try {
+      const buffer = await odkRest.getFile(`${tableAssetBase}/${tableId}.xlsx`);
+      fs.ensureDirSync(`${exportFolder}/${tableAssetBase}`);
+      fs.writeFileSync(
+        `${exportFolder}/${tableAssetBase}/${tableId}.xlsx`,
+        buffer
+      );
+    } catch (error) {
+      console.log(chalk.red("failed to download table", tableId));
+    }
+
     const { rows } = await odkRest.getRows(tableId, schemaETag);
     if (rows.length > 0) {
       const csvData = convertODKRowsToCSV(rows);

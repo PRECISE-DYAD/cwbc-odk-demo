@@ -107,7 +107,7 @@ export interface ISurveyWorksheetRow {
   isSessionVariable?: string;
   required?: string;
   templatePath?: string;
-  value_list?: string;
+  values_list?: string;
   // not included in docs but still exists
   screen?: {
     screen_type?: string;
