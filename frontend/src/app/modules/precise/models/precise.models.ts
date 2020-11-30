@@ -134,7 +134,6 @@ const Visit2MapFields: IFormMetaMappedField[] = [
   { table_id: "Visit1", field_name: "f6a_as_sfh" },
   { table_id: "profileSummary", field_name: "f2a_cohort" },
   { table_id: "profileSummary", field_name: "f2a_participant_id" },
-  { table_id: "Visit1", field_name: "f6a_ga_enrol" },
   { table_id: "Visit1", field_name: "f6a_final_edd" },
   { table_id: "Visit1", field_name: "f6a_tod_fgr_cohort" },
   { table_id: "Visit1", field_name: "f6a_tod_hypertension_cohort" },
