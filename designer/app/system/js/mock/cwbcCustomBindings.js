@@ -135,7 +135,10 @@ define(["mockImpl"], function (mockImpl) {
         const defaultLog = console.log;
         const defaultErr = console.error;
         console.log = (...data) => {
-            if (data[0] && data[0].indexOf("/") == 1) {
+            if (data &&
+                data[0] &&
+                typeof data[0] === "string" &&
+                data[0].indexOf("/") == 1) {
                 return null;
             } else {
                 defaultLog(...data);
