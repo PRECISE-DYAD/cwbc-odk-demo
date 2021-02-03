@@ -16,7 +16,12 @@ export const DYAD_TABLE_IDS = [
   "Birthbaby",
   "profileSummary",
   "dyad_enrollment",
-  "dyad_child_visit",
+  "dyad_child_visit1",
+  "dyad_child_visit2",
+  "dyad_visit1",
+  "dyad_visit2",
+  "dyad_visit3",
+  "Birthmother",
 ] as const;
 
 /**
@@ -34,6 +39,11 @@ export const DYAD_SCHEMA: { [tableId in IDyadTableId]: IFormMeta } = {
     formId: "Birthbaby",
     tableId: "Birthbaby",
   },
+  Birthmother: {
+    title: "Birth Mother",
+    formId: "Birthmother",
+    tableId: "Birthmother",
+  },
   // Main DYAD forms
   dyad_enrollment: {
     title: "Dyad Enrollment",
@@ -41,10 +51,40 @@ export const DYAD_SCHEMA: { [tableId in IDyadTableId]: IFormMeta } = {
     tableId: "dyad_enrollment",
     mapFields: [],
   },
-  dyad_child_visit: {
+  dyad_child_visit1: {
     title: "Dyad Visit 1 - Child",
-    formId: "dyad_child_visit",
-    tableId: "dyad_child_visit",
+    formId: "dyad_child_visit1",
+    tableId: "dyad_child_visit1",
+    mapFields: [],
+  },
+  dyad_child_visit2: {
+    title: "Dyad Visit 2 - Child",
+    formId: "dyad_child_visit2",
+    tableId: "dyad_child_visit2",
+    mapFields: [],
+  },
+  dyad_visit1: {
+    title: "Dyad Visit 1 - Mother",
+    formId: "dyad_visit1",
+    tableId: "dyad_visit1",
+    mapFields: [
+      {
+        table_id: "Birthmother",
+        field_name: "f7_delivery_location",
+        mapped_field_name: "f7_delivery_location",
+      },
+    ],
+  },
+  dyad_visit2: {
+    title: "Dyad Visit 2 - Mother",
+    formId: "dyad_visit2",
+    tableId: "dyad_visit2",
+    mapFields: [],
+  },
+  dyad_visit3: {
+    title: "Dyad Visit 3 - Mother",
+    formId: "dyad_visit3",
+    tableId: "dyad_visit3",
     mapFields: [],
   },
 };
@@ -55,7 +95,7 @@ export const DYAD_SCHEMA: { [tableId in IDyadTableId]: IFormMeta } = {
 export const DYAD_FORM_SECTIONS: IDyadFormSection[] = [
   {
     _id: "dyadMotherSection",
-    formIds: ["dyad_enrollment"],
+    formIds: ["dyad_enrollment", "dyad_visit1", "dyad_visit2", "dyad_visit3"],
     label: "Dyad Mother",
     icon: "mother",
   },
@@ -66,7 +106,7 @@ export const DYAD_FORM_SECTIONS: IDyadFormSection[] = [
 export const DYAD_CHILD_FORM_SECTIONS: IDyadFormSection[] = [
   {
     _id: "dyadChildSection",
-    formIds: ["dyad_child_visit"],
+    formIds: ["dyad_child_visit1", "dyad_child_visit2"],
     label: "Dyad Child",
     icon: "baby",
   },
@@ -81,6 +121,7 @@ export interface IDyadFormSection {
   label?: string;
   icon?: string;
 }
+
 export type IDyadTableId = typeof DYAD_TABLE_IDS[number];
 export interface IDyadParticipantSummary extends IParticipantSummary {
   dyad_enrollment: IODkTableRowData;
