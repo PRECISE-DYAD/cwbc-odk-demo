@@ -13,11 +13,12 @@ const BIN_PATH = path.join(process.cwd(), "node_modules/.bin");
 async function main() {
   const selectedScript: string = await promptOptions(
     [
-      "Start - start a local development server",
-      "Build - create a production build for upload or deployment to device",
+      "Start  - start a local development server",
+      "Build  - create a production build for upload or deployment to device",
       "Deploy - deploy to a local device",
       "Upload - upload to odkx-sync",
       "Export - download data from an odkx-sync server for local use",
+      "Tasks  - run a predefined defined task script",
     ],
     "Which script do you want to start?"
   );

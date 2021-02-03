@@ -1,14 +1,14 @@
 import * as fs from "fs-extra";
 
 import { APP_CONFIG_PATH, parseCSV } from "./upload-utils";
-import { OdkRestService } from "./odkRest/odk.rest";
+import { OdkRestService } from "../odkRest/odk.rest";
 import {
   IFileUploadActions,
   prepareFileUploadActions,
   processFileUploadActions,
 } from "./upload-files";
-import { IODKTypes as IODK } from "./odkRest/odk.types";
-import { generateUUID } from "./odkRest/odk.utils";
+import { IODKTypes as IODK } from "../odkRest/odk.types";
+import { generateUUID } from "../odkRest/odk.utils";
 import * as chalk from "chalk";
 
 const odkRest = new OdkRestService();

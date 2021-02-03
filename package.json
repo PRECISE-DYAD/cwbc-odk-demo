@@ -10,7 +10,8 @@
     "start": "ts-node scripts/start.ts --watch",
     "deploy": "ts-node scripts/deploy.ts",
     "upload": "ts-node scripts/upload/upload.ts",
-    "export": "ts-node scripts/export.ts"
+    "export": "ts-node scripts/export.ts",
+    "tasks": "ts-node scripts/tasks/index.ts"
   },
   "repository": {
     "type": "git",

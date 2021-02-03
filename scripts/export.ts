@@ -4,8 +4,8 @@ import * as chalk from "chalk";
 import * as archiver from "archiver";
 import { promptOptions, setEnv } from "./utils";
 // TODO - refactor to have upload and export scripts and deps as siblings
-import { OdkRestService } from "./upload/odkRest/odk.rest";
-import { IODKTypes as IODK } from "./upload/odkRest/odk.types";
+import { OdkRestService } from "./odkRest/odk.rest";
+import { IODKTypes as IODK } from "./odkRest/odk.types";
 import { writeCSV } from "./upload/upload-utils";
 
 const odkRest = new OdkRestService();
@@ -55,7 +55,7 @@ function copyExportToLocalFormsFolder(exportFolder: string) {
  * Create a zip backup of everything in local forms folder
  */
 async function backupLocalFormsFolder() {
-  return new Promise((resolve, reject) => {
+  return new Promise<void>((resolve, reject) => {
     const stamp = new Date().toISOString().substring(0, 16).split(":").join("");
     const backupPath = `exports/local/forms_${stamp}.zip`;
     fs.createFileSync(backupPath);

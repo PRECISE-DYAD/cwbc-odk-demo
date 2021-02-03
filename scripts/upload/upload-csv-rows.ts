@@ -1,8 +1,8 @@
 import * as fs from "fs-extra";
 import * as path from "path";
 import * as readline from "readline";
-import { OdkRestService } from "./odkRest/odk.rest";
-import { IODKTypes as IODK } from "./odkRest/odk.types";
+import { OdkRestService } from "../odkRest/odk.rest";
+import { IODKTypes as IODK } from "../odkRest/odk.types";
 import { parseCSV } from "./upload-utils";
 
 const odkRest = new OdkRestService();
