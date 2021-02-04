@@ -13,16 +13,16 @@ const BIN_PATH = path.join(process.cwd(), "node_modules/.bin");
 async function main() {
   const selectedScript: string = await promptOptions(
     [
-      "Start  - start a local development server",
-      "Build  - create a production build for upload or deployment to device",
-      "Deploy - deploy to a local device",
-      "Upload - upload to odkx-sync",
-      "Export - download data from an odkx-sync server for local use",
-      "Tasks  - run a predefined defined task script",
+      "Start  | start a local development server",
+      "Build  | create a build for upload or deployment to device",
+      "Deploy | deploy to a local device",
+      "Upload | upload to odkx-sync",
+      "Export | download data from an odkx-sync server for local use",
+      "Tasks  | run a predefined defined task script",
     ],
     "Which script do you want to start?"
   );
-  const script = selectedScript.split(" - ")[0].toLowerCase();
+  const script = selectedScript.split("|")[0].trim().toLowerCase();
   if (script !== "start") {
     return spawn("npm", ["run", script], {
       stdio: ["inherit", "inherit", "inherit"],
@@ -77,10 +77,7 @@ function setFrontendEnvironment(site: string) {
     encoding: "utf8",
   });
   // update prod environment
-  const envUpdated = envContent.replace(
-    "production: true",
-    "production: false"
-  );
+  const envUpdated = envContent.replace("production: true", "production: false");
   fs.writeFileSync(`${envFolder}/environment.ts`, envUpdated);
 }
 function watchFormChanges() {
