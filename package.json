@@ -25,6 +25,7 @@
   "homepage": "https://github.com/PRECISE-DYAD/cwbc-odkx-app.git#readme",
   "devDependencies": {
     "@types/archiver": "^3.1.1",
+    "@types/better-sqlite3": "^5.4.1",
     "@types/chalk": "^2.2.0",
     "@types/crypto-js": "^3.1.47",
     "@types/fs-extra": "^9.0.1",
@@ -33,6 +34,7 @@
     "@types/papaparse": "^5.0.3",
     "archiver": "^5.0.2",
     "axios": "^0.19.2",
+    "better-sqlite3": "^7.1.2",
     "chalk": "^4.1.0",
     "crypto-js": "^4.0.0",
     "dotenv": "^8.2.0",
