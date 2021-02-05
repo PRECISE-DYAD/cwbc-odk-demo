@@ -205,7 +205,9 @@ export class PreciseStore {
     this.launchForm(MAPPED_SCHEMA.profileSummary, rowId);
   }
   async withdrawParticipant() {
-    return this.launchForm(MAPPED_SCHEMA.Withdrawal);
+    // if withdrawal form already exists load again
+    const editRowId = this.participantFormsHash.Withdrawal.entries[0]?._id;
+    return this.launchForm(MAPPED_SCHEMA.Withdrawal, editRowId);
   }
 
   /**
