@@ -49,6 +49,16 @@ import { IODkTableRowData } from "src/app/types/odk.types";
       <mat-icon>add</mat-icon>
       {{ form.title }}
     </button>
+    <div
+      class="multiple-entry-warning"
+      *ngIf="!form.allowRepeats && form.entries.length > 1"
+    >
+      <mat-icon>warning</mat-icon>
+      <span
+        >Multiple entries detected. Please notify your supervisor or data
+        manager to resolve.
+      </span>
+    </div>
   `,
   styles: [
     `
@@ -56,6 +66,16 @@ import { IODkTableRowData } from "src/app/types/odk.types";
         font-size: smaller;
         margin-left: 55px;
         margin-top: -8px;
+      }
+      .multiple-entry-warning {
+        padding: 8px;
+        margin: 8px;
+        background: white;
+        color: black;
+        display: flex;
+        align-items: center;
+        border: 2px solid;
+        border-radius: 4px;
       }
       :host {
         display: block;
