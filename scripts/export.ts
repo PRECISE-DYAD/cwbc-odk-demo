@@ -20,28 +20,49 @@ async function main() {
   if (!ODK_SERVER_URL) {
     throw new Error("ODK_SERVER_URL not specified in .env, aborting export");
   }
-  console.log("Exporting tables from ", chalk.bgBlack.yellow(ODK_SERVER_URL));
-  const tables = (await odkRest.getTables()).tables;
-  console.log(tables.map((t) => t.tableId));
-  if (
-    (await promptOptions(["no", "yes"], "Do you wish to proceed?")) === "yes"
-  ) {
-    const serverBase = ODK_SERVER_URL.replace(/(^\w+:|^)\/\//, "");
-    const timestamp = new Date().toISOString().substring(0, 10);
-    const exportFolder = `exports/${serverBase}/${timestamp}`;
-    fs.ensureDirSync(exportFolder);
-    fs.emptyDirSync(exportFolder);
-    await exportFramework(exportFolder);
-    await exportTables(exportFolder, tables);
+  const serverBase = ODK_SERVER_URL.replace(/(^\w+:|^)\/\//, "");
+  let folderTimestamp = new Date().toISOString().substring(0, 10);
+  const task = await promptOptions([
+    "Create a new export",
+    "Load an existing export",
+  ]);
+  // Create Export
+  if (task === "Create a new export") {
+    console.log("Exporting tables from ", chalk.bgBlack.yellow(ODK_SERVER_URL));
+    const tables = (await odkRest.getTables()).tables;
+    console.log(tables.map((t) => t.tableId));
     if (
-      (await promptOptions(
-        ["no", "yes"],
-        "Would you like to replace your local forms folder with the exported content?"
-      )) === "yes"
+      (await promptOptions(["no", "yes"], "Do you wish to proceed?")) === "yes"
     ) {
-      await backupLocalFormsFolder();
-      copyExportToLocalFormsFolder(exportFolder);
+      const exportFolder = `exports/${serverBase}/${folderTimestamp}`;
+      fs.ensureDirSync(exportFolder);
+      fs.emptyDirSync(exportFolder);
+      await exportFramework(exportFolder);
+      await exportTables(exportFolder, tables);
     }
+    // Load Existing
+  } else {
+    const existingExports = fs.readdirSync(`exports/${serverBase}`);
+    if (existingExports.length > 0) {
+      folderTimestamp = await promptOptions(
+        existingExports.reverse(),
+        "Select Export"
+      );
+    } else {
+      console.log(chalk.red(`There are no existing exports for ${serverBase}`));
+      process.exit(0);
+    }
+  }
+  // Populate local folders
+  if (
+    (await promptOptions(
+      ["no", "yes"],
+      "Would you like to replace your local forms folder with the exported content?"
+    )) === "yes"
+  ) {
+    const exportFolder = `exports/${serverBase}/${folderTimestamp}`;
+    await backupLocalFormsFolder();
+    copyExportToLocalFormsFolder(exportFolder);
   }
 }
 function copyExportToLocalFormsFolder(exportFolder: string) {
