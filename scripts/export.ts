@@ -2,7 +2,7 @@ import * as fs from "fs-extra";
 import * as path from "path";
 import * as chalk from "chalk";
 import * as archiver from "archiver";
-import { promptOptions, setEnv } from "./utils";
+import { promptInput, promptOptions, setEnv } from "./utils";
 // TODO - refactor to have upload and export scripts and deps as siblings
 import { OdkRestService } from "./odkRest/odk.rest";
 import { IODKTypes as IODK } from "./odkRest/odk.types";
@@ -22,26 +22,30 @@ async function main() {
     throw new Error("ODK_SERVER_URL not specified in .env, aborting export");
   }
   const serverBase = ODK_SERVER_URL.replace(/(^\w+:|^)\/\//, "");
-  let folderTimestamp = new Date().toISOString().substring(0, 10);
+  let exportFolder = new Date().toISOString().substring(0, 10);
   const task = await promptOptions(["Create a new export", "Load an existing export"]);
   // Create Export
   if (task === "Create a new export") {
     console.log("Exporting tables from ", chalk.bgBlack.yellow(ODK_SERVER_URL));
-    console.log("Exporting tables from ", chalk.bgBlack.yellow(ODK_SERVER_URL));
+    // add additional suffix to timestamp name if required
+    const exportName = await promptInput("Specify a name for the export", exportFolder);
+    if (exportName !== exportFolder) {
+      exportFolder += `-${exportName}`;
+    }
     const tables = (await odkRest.getTables()).tables;
     console.log(tables.map((t) => t.tableId));
     if ((await promptOptions(["no", "yes"], "Do you wish to proceed?")) === "yes") {
-      const exportFolder = `exports/${serverBase}/${folderTimestamp}`;
-      fs.ensureDirSync(exportFolder);
-      fs.emptyDirSync(exportFolder);
-      await exportFramework(exportFolder);
-      await exportTables(exportFolder, tables);
+      const exportPath = `exports/${serverBase}/${exportFolder}`;
+      fs.ensureDirSync(exportPath);
+      fs.emptyDirSync(exportPath);
+      await exportFramework(exportPath);
+      await exportTables(exportPath, tables);
     }
     // Load Existing
   } else {
     const existingExports = fs.readdirSync(`exports/${serverBase}`);
     if (existingExports.length > 0) {
-      folderTimestamp = await promptOptions(existingExports.reverse(), "Select Export");
+      exportFolder = await promptOptions(existingExports.reverse(), "Select Export");
     } else {
       console.log(chalk.red(`There are no existing exports for ${serverBase}`));
       process.exit(0);
@@ -54,9 +58,9 @@ async function main() {
       "Would you like to replace your local forms folder with the exported content?"
     )) === "yes"
   ) {
-    const exportFolder = `exports/${serverBase}/${folderTimestamp}`;
+    const exportPath = `exports/${serverBase}/${exportFolder}`;
     await backupLocalFormsFolder();
-    copyExportToLocalFormsFolder(exportFolder);
+    copyExportToLocalFormsFolder(exportPath);
   }
 }
 function copyExportToLocalFormsFolder(exportFolder: string) {

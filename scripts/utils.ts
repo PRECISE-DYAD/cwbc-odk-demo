@@ -10,17 +10,12 @@ import { spawnSync } from "child_process";
  * and population to process.env
  */
 export async function setEnv() {
-  const envFiles = fs
-    .readdirSync(process.cwd())
-    .filter((f) => f.includes(".env"));
+  const envFiles = fs.readdirSync(process.cwd()).filter((f) => f.includes(".env"));
   const parsedEnvFiles = envFiles.map((f) => {
     const e = dotenv.parse(fs.readFileSync(f));
     return { name: `${path.basename(f)}: ${e.ODK_SERVER_URL}`, value: e };
   });
-  const selectedEnv = await promptOptions(
-    parsedEnvFiles,
-    "Select Environment (.env file) to use"
-  );
+  const selectedEnv = await promptOptions(parsedEnvFiles, "Select Environment (.env file) to use");
   Object.keys(selectedEnv).forEach((k) => {
     process.env[k] = selectedEnv[k];
   });
@@ -39,12 +34,7 @@ export function runPrepare() {
  * find files by a given extension recursively, returning full paths
  * @param ext - file extension (without '.'), e.g. 'xlsx' or 'json'
  * */
-export function recFindByExt(
-  base: string,
-  ext: string,
-  files?: string[],
-  result?: string[]
-) {
+export function recFindByExt(base: string, ext: string, files?: string[], result?: string[]) {
   files = files || fs.readdirSync(base);
   result = result || [];
   for (const file of files) {
@@ -89,14 +79,15 @@ export function listFolders(path: string) {
     .map((dirent) => dirent.name);
 }
 
-export async function promptOptions(
-  choices = [],
-  message = "Select an option"
-) {
-  const res = await inquirer.prompt([
-    { type: "list", name: "selected", message, choices },
-  ]);
+export async function promptOptions(choices = [], message = "Select an option") {
+  const res = await inquirer.prompt([{ type: "list", name: "selected", message, choices }]);
   return res.selected;
+}
+export async function promptInput(message: string, defaultValue?: string) {
+  const res = await inquirer.prompt([
+    { type: "input", message, default: defaultValue, name: "value" },
+  ]);
+  return res.value;
 }
 
 /**
