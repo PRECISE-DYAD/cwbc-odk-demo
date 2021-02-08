@@ -59,13 +59,15 @@ async function del<T = any>(endpoint: string) {
     .catch((err) => handleErr(err));
 }
 
-function handleRes<T>(res: AxiosResponse) {
+/**
+ * When handling responses check in case res indicates more results exist, in which
+ * ase use odk's resume cursor parameter to retrieve further results
+ * @param res
+ * @param endpoint
+ * @param config
+ */
+async function handleRes<T>(res: AxiosResponse) {
   console.log(`[${res.status}][${res.request.method}]`, res.request.path);
-  if (res.data.hasMoreResults) {
-    throw new Error(
-      "Batch requests not currently supported, res has more results"
-    );
-  }
   return res.data as T;
 }
 function handleErr<T = any>(err: AxiosError): T {
@@ -80,10 +82,7 @@ function handleErr<T = any>(err: AxiosError): T {
     const e = err as any; // possible network error instead of axios
     console.log(`[${e.code}][${e.hostname}]`);
   } else if (err.response) {
-    console.log(
-      `[${err.response.status}][${err.request.method}]`,
-      err.request.path
-    );
+    console.log(`[${err.response.status}][${err.request.method}]`, err.request.path);
     console.log(err.response.data);
   } else {
     console.log("err", Object.keys(err));

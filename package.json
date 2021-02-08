@@ -10,7 +10,8 @@
     "start": "ts-node scripts/start.ts --watch",
     "deploy": "ts-node scripts/deploy.ts",
     "upload": "ts-node scripts/upload/upload.ts",
-    "export": "ts-node scripts/export.ts"
+    "export": "ts-node scripts/export.ts",
+    "tasks": "ts-node scripts/tasks/index.ts"
   },
   "repository": {
     "type": "git",
@@ -24,6 +25,7 @@
   "homepage": "https://github.com/PRECISE-DYAD/cwbc-odkx-app.git#readme",
   "devDependencies": {
     "@types/archiver": "^3.1.1",
+    "@types/better-sqlite3": "^5.4.1",
     "@types/chalk": "^2.2.0",
     "@types/crypto-js": "^3.1.47",
     "@types/fs-extra": "^9.0.1",
@@ -31,6 +33,7 @@
     "@types/node": "^14.0.5",
     "@types/papaparse": "^5.0.3",
     "archiver": "^5.0.2",
+    "better-sqlite3": "^7.1.2",
     "axios": "^0.21.1",
     "chalk": "^4.1.0",
     "crypto-js": "^4.0.0",

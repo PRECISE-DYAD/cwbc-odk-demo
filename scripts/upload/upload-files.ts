@@ -3,8 +3,8 @@ import * as md5File from "md5-file";
 import * as fs from "fs-extra";
 import { recFind } from "../utils";
 import { APP_CONFIG_PATH, parseCSV, writeCSV } from "./upload-utils";
-import { IODKTypes as IODK } from "./odkRest/odk.types";
-import { OdkRestService } from "./odkRest/odk.rest";
+import { IODKTypes as IODK } from "../odkRest/odk.types";
+import { OdkRestService } from "../odkRest/odk.rest";
 
 type IManifestHash = { [filename: string]: IODK.IManifestItem };
 const odkRest = new OdkRestService();

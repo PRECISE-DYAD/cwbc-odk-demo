@@ -81,5 +81,22 @@ define(["promptTypes", "jquery"], function (promptTypes, $) {
     custom_as_date: promptTypes.input_type.extend({
       templatePath: "../config/assets/templates/custom_as_date.handlebars",
     }),
+    custom_json: promptTypes.json.extend({
+      templatePath: "../config/assets/templates/custom_json.handlebars",
+      // default json renderer displays entire survey row. Modify to just show specific question field
+      configureRenderContext: function (ctxt) {
+        var that = this;
+        if (JSON !== null && JSON !== undefined) {
+          that.renderContext.value = JSON.stringify(
+            that.renderContext.data[that.renderContext.name],
+            null,
+            2
+          );
+        } else {
+          that.renderContext.value = "JSON Unavailable";
+        }
+        ctxt.success();
+      },
+    }),
   };
 });
