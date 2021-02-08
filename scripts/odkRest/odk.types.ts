@@ -40,6 +40,7 @@ export namespace IODKTypes {
     _savepoint_creator: string;
     _savepoint_timestamp: ISOString;
     _savepoint_type: Savepoint;
+    [field: string]: any;
   }
 
   // CSV table data follows specific format for fields before and after form key:value pairs

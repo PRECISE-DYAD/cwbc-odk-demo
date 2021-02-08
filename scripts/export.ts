@@ -4,9 +4,10 @@ import * as chalk from "chalk";
 import * as archiver from "archiver";
 import { promptOptions, setEnv } from "./utils";
 // TODO - refactor to have upload and export scripts and deps as siblings
-import { OdkRestService } from "./upload/odkRest/odk.rest";
-import { IODKTypes as IODK } from "./upload/odkRest/odk.types";
+import { OdkRestService } from "./odkRest/odk.rest";
+import { IODKTypes as IODK } from "./odkRest/odk.types";
 import { writeCSV } from "./upload/upload-utils";
+import { convertODKRowsForExport } from "./odkRest/odk.utils";
 
 const odkRest = new OdkRestService();
 odkRest.appId = "default";
@@ -22,18 +23,14 @@ async function main() {
   }
   const serverBase = ODK_SERVER_URL.replace(/(^\w+:|^)\/\//, "");
   let folderTimestamp = new Date().toISOString().substring(0, 10);
-  const task = await promptOptions([
-    "Create a new export",
-    "Load an existing export",
-  ]);
+  const task = await promptOptions(["Create a new export", "Load an existing export"]);
   // Create Export
   if (task === "Create a new export") {
     console.log("Exporting tables from ", chalk.bgBlack.yellow(ODK_SERVER_URL));
+    console.log("Exporting tables from ", chalk.bgBlack.yellow(ODK_SERVER_URL));
     const tables = (await odkRest.getTables()).tables;
     console.log(tables.map((t) => t.tableId));
-    if (
-      (await promptOptions(["no", "yes"], "Do you wish to proceed?")) === "yes"
-    ) {
+    if ((await promptOptions(["no", "yes"], "Do you wish to proceed?")) === "yes") {
       const exportFolder = `exports/${serverBase}/${folderTimestamp}`;
       fs.ensureDirSync(exportFolder);
       fs.emptyDirSync(exportFolder);
@@ -44,10 +41,7 @@ async function main() {
   } else {
     const existingExports = fs.readdirSync(`exports/${serverBase}`);
     if (existingExports.length > 0) {
-      folderTimestamp = await promptOptions(
-        existingExports.reverse(),
-        "Select Export"
-      );
+      folderTimestamp = await promptOptions(existingExports.reverse(), "Select Export");
     } else {
       console.log(chalk.red(`There are no existing exports for ${serverBase}`));
       process.exit(0);
@@ -76,7 +70,7 @@ function copyExportToLocalFormsFolder(exportFolder: string) {
  * Create a zip backup of everything in local forms folder
  */
 async function backupLocalFormsFolder() {
-  return new Promise((resolve, reject) => {
+  return new Promise<void>((resolve, reject) => {
     const stamp = new Date().toISOString().substring(0, 16).split(":").join("");
     const backupPath = `exports/local/forms_${stamp}.zip`;
     fs.createFileSync(backupPath);
@@ -128,17 +122,14 @@ async function exportTables(exportFolder: string, tables: IODK.ITableMeta[]) {
     try {
       const buffer = await odkRest.getFile(`${tableAssetBase}/${tableId}.xlsx`);
       fs.ensureDirSync(`${exportFolder}/${tableAssetBase}`);
-      fs.writeFileSync(
-        `${exportFolder}/${tableAssetBase}/${tableId}.xlsx`,
-        buffer
-      );
+      fs.writeFileSync(`${exportFolder}/${tableAssetBase}/${tableId}.xlsx`, buffer);
     } catch (error) {
       console.log(chalk.red("failed to download table", tableId));
     }
 
     const { rows } = await odkRest.getRows(tableId, schemaETag);
     if (rows.length > 0) {
-      const csvData = convertODKRowsToCSV(rows);
+      const csvData = convertODKRowsForExport(rows);
       writeCSV(`${exportFolder}/csv/${tableId}.csv`, csvData);
     }
     summary.push({ tableId, "rows exported": rows.length });
@@ -156,62 +147,6 @@ function writeTablesInit(exportFolder: string, tableIds: string[]) {
     const line = `\r\n${tableId}.filename=config/assets/csv/${tableId}.csv`;
     fs.appendFileSync(tablesInitPath, line);
   }
-}
-
-/**
- * Reverse method of convertCSVToODKRows
- * Copied from odkx-m repo, see for more documentation
- */
-function convertODKRowsToCSV(rows: IODK.IResTableRow[]): IODK.ITableRow[] {
-  const converted = [];
-  rows.forEach((row) => {
-    const data: any = {};
-    // create mapping for all fields as snake case, and un-nest filtersocpe fields
-    const { filterScope } = row;
-    Object.entries(filterScope).forEach(([key, value]) => {
-      row[`_${_camelToSnake(key)}`] = value;
-    });
-    Object.entries(row).forEach(([key, value]) => {
-      row[`_${_camelToSnake(key)}`] = value;
-    });
-    const metadataColumns1: IODK.ITableMetaColumnKey[] = [
-      "_id",
-      "_form_id",
-      "_locale",
-      "_savepoint_type",
-      "_savepoint_timestamp",
-      "_savepoint_creator",
-      "_deleted",
-      "_data_etag_at_modification",
-    ];
-    // some metadata columns go to front
-    metadataColumns1.forEach((col) => (data[col] = row[col]));
-    // main data in centre
-    row.orderedColumns.forEach((el) => {
-      const { column, value } = el;
-      data[column] = value;
-    });
-    const metadataColumns2: IODK.ITableMetaColumnKey[] = [
-      "_default_access",
-      "_group_modify",
-      "_group_privileged",
-      "_group_read_only",
-      "_row_etag",
-      "_row_owner",
-    ];
-    // other metadata columns go to back
-    metadataColumns2.forEach((col) => (data[col] = row[col]));
-    converted.push(data);
-  });
-  return converted;
-}
-
-function _camelToSnake(str: string) {
-  return str
-    .replace(/[\w]([A-Z])/g, function (m) {
-      return m[0] + "_" + m[1];
-    })
-    .toLowerCase();
 }
 
 main()

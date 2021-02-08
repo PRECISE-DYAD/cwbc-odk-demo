@@ -1,0 +1,25 @@
+{{!--  --}}
+<div >
+   <pre id="jsonContainer">{{value}}</pre>
+</div>
+
+<script>
+
+    valueToJson()
+
+    // The value passed to this template will be stringified json
+    // Example method to extract back to a json object (not currently used)
+    function valueToJson() {
+        var jsonEl$ = document.getElementById('jsonContainer')
+        if(jsonEl$){
+            var jsonData = JSON.parse(jsonEl$.innerHTML);
+            // console.log('jsonData',jsonData)
+        }
+    }
+</script>
+
+
+{{!-- optional - debug logging --}}
+{{!-- <div>
+    {{log 'custom_select this' this}}
+</div> --}}

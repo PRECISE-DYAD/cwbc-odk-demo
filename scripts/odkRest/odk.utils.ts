@@ -1,3 +1,4 @@
+import OdkRestService from "./odk.rest";
 import { IODKTypes as IODK } from "./odk.types";
 
 /********************************************************
@@ -13,9 +14,7 @@ import { IODKTypes as IODK } from "./odk.types";
  * - Delete various fields
  * - Match metafield order as specified in SyncClient.java
  */
-export function convertODKRowsForExport(
-  rows: IODK.IResTableRow[]
-): IODK.ITableRow[] {
+export function convertODKRowsForExport(rows: IODK.IResTableRow[]): IODK.ITableRow[] {
   const converted = [];
   rows.forEach((row) => {
     const r = { ...row };
