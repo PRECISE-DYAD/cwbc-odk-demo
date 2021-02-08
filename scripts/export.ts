@@ -22,52 +22,61 @@ async function main() {
     throw new Error("ODK_SERVER_URL not specified in .env, aborting export");
   }
   const serverBase = ODK_SERVER_URL.replace(/(^\w+:|^)\/\//, "");
-  let exportFolder = new Date().toISOString().substring(0, 10);
+  console.log("Exporting tables from ", chalk.bgBlack.yellow(ODK_SERVER_URL));
   const task = await promptOptions(["Create a new export", "Load an existing export"]);
   // Create Export
   if (task === "Create a new export") {
-    console.log("Exporting tables from ", chalk.bgBlack.yellow(ODK_SERVER_URL));
-    // add additional suffix to timestamp name if required
-    const exportName = await promptInput("Specify a name for the export", exportFolder);
-    if (exportName !== exportFolder) {
-      exportFolder += `-${exportName}`;
-    }
-    const tables = (await odkRest.getTables()).tables;
-    console.log(tables.map((t) => t.tableId));
-    if ((await promptOptions(["no", "yes"], "Do you wish to proceed?")) === "yes") {
-      const exportPath = `exports/${serverBase}/${exportFolder}`;
-      fs.ensureDirSync(exportPath);
-      fs.emptyDirSync(exportPath);
-      await exportFramework(exportPath);
-      await exportTables(exportPath, tables);
-    }
-    // Load Existing
+    await createLocalExport(serverBase);
   } else {
-    const existingExports = fs.readdirSync(`exports/${serverBase}`);
-    if (existingExports.length > 0) {
-      exportFolder = await promptOptions(existingExports.reverse(), "Select Export");
-    } else {
-      console.log(chalk.red(`There are no existing exports for ${serverBase}`));
-      process.exit(0);
-    }
-  }
-  // Populate local folders
-  if (
-    (await promptOptions(
-      ["no", "yes"],
-      "Would you like to replace your local forms folder with the exported content?"
-    )) === "yes"
-  ) {
-    const exportPath = `exports/${serverBase}/${exportFolder}`;
-    await backupLocalFormsFolder();
-    copyExportToLocalFormsFolder(exportPath);
+    await loadLocalExport(serverBase);
   }
 }
+
+async function createLocalExport(serverBase: string) {
+  let exportFolder = new Date().toISOString().substring(0, 10);
+  // add additional suffix to timestamp name if required
+  const exportName = await promptInput("Specify a name for the export", exportFolder);
+  if (exportName !== exportFolder) {
+    exportFolder += `-${exportName}`;
+  }
+  const tables = (await odkRest.getTables()).tables;
+  console.log(tables.map((t) => t.tableId));
+  if ((await promptOptions(["no", "yes"], "Do you wish to proceed?")) === "yes") {
+    const exportPath = `exports/${serverBase}/${exportFolder}`;
+    fs.ensureDirSync(exportPath);
+    fs.emptyDirSync(exportPath);
+    await exportFramework(exportPath);
+    await exportTables(exportPath, tables);
+    // load the newly exported files into local folder (creating backup first)
+    if (
+      (await promptOptions(
+        ["no", "yes"],
+        "Would you like to replace your local forms folder with the exported content?"
+      )) === "yes"
+    ) {
+      await backupLocalFormsFolder();
+      copyExportToLocalFormsFolder(exportPath);
+    }
+  }
+}
+async function loadLocalExport(serverBase: string) {
+  const existingExports = fs.readdirSync(`exports/${serverBase}`);
+  if (existingExports.length > 0) {
+    const exportFolder = await promptOptions(existingExports.reverse(), "Select Export");
+    const exportPath = `exports/${serverBase}/${exportFolder}`;
+    copyExportToLocalFormsFolder(exportPath);
+  } else {
+    console.log(chalk.red(`There are no existing exports for ${serverBase}`));
+    process.exit(0);
+  }
+}
+
 function copyExportToLocalFormsFolder(exportFolder: string) {
   fs.removeSync("forms/tables");
   fs.removeSync("forms/csv");
   fs.removeSync("forms/framework");
   fs.copySync(exportFolder, "forms");
+  console.log(chalk.yellow("Forms folder populated"));
   // TODO - populate custom tables init for loading all data
 }
 /**
@@ -75,7 +84,7 @@ function copyExportToLocalFormsFolder(exportFolder: string) {
  */
 async function backupLocalFormsFolder() {
   return new Promise<void>((resolve, reject) => {
-    const stamp = new Date().toISOString().substring(0, 16).split(":").join("");
+    const stamp = new Date().toISOString().substring(0, 20).split(":").join("");
     const backupPath = `exports/local/forms_${stamp}.zip`;
     fs.createFileSync(backupPath);
     const output = fs.createWriteStream(backupPath);
@@ -84,7 +93,7 @@ async function backupLocalFormsFolder() {
       throw err;
     });
     output.on("close", () => {
-      console.log("backup created:", path.join(process.cwd(), backupPath));
+      console.log(chalk.yellow("backup created:", path.join(process.cwd(), backupPath)));
       resolve();
     });
     output.on("end", function () {
