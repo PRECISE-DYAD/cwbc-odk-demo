@@ -1,4 +1,4 @@
-import { async, ComponentFixture, TestBed } from "@angular/core/testing";
+import { ComponentFixture, TestBed, waitForAsync } from "@angular/core/testing";
 
 import { DyadParticipantsComponent } from "./dyad-participants.component";
 
@@ -6,7 +6,7 @@ describe("DyadParticipantsComponent", () => {
   let component: DyadParticipantsComponent;
   let fixture: ComponentFixture<DyadParticipantsComponent>;
 
-  beforeEach(async(() => {
+  beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
       declarations: [DyadParticipantsComponent],
     }).compileComponents();
