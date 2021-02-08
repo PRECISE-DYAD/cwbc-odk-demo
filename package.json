@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "build": "ts-node scripts/build.ts",
-    "postinstall": "node scripts/postinstall.js",
+    "postinstall": "ts-node scripts/postinstall.ts",
     "prepare": "ts-node scripts/prepare.ts",
     "start": "ts-node scripts/start.ts --watch",
     "deploy": "ts-node scripts/deploy.ts",

@@ -1,7 +1,8 @@
 import * as path from "path";
 import * as fs from "fs-extra";
+import * as chalk from "chalk";
 import { promptOptions, runPrepare } from "./utils";
-import { spawn } from "child_process";
+import { spawn, spawnSync } from "child_process";
 const BIN_PATH = path.join(process.cwd(), "node_modules/.bin");
 
 /**
@@ -11,6 +12,7 @@ const BIN_PATH = path.join(process.cwd(), "node_modules/.bin");
  * @argument --watch: include watch for live form changes
  */
 async function main() {
+  installDependencies();
   const selectedScript: string = await promptOptions(
     [
       "Start  | start a local development server",
@@ -50,6 +52,14 @@ async function main() {
       startDesigner();
       startFrontend(site);
   }
+}
+
+function installDependencies() {
+  console.log(chalk.blue("Checking dependencies"));
+  spawnSync("yarn install --silent", {
+    stdio: "inherit",
+    shell: true,
+  });
 }
 
 function startDesigner() {
