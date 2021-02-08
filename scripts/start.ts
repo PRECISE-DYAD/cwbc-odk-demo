@@ -54,9 +54,10 @@ async function main() {
   }
 }
 
+/** Run yarn install in child folders */
 function installDependencies() {
   console.log(chalk.blue("Checking dependencies"));
-  spawnSync("yarn install --silent", {
+  spawnSync("yarn install", {
     stdio: "inherit",
     shell: true,
   });

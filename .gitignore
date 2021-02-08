@@ -27,3 +27,10 @@ frontend/src/environments/environment.ts
 
 # avoid use of npm, prefer yarn
 **/npm.lock
+
+**/.yarn/*
+!**/.yarn/cache
+!**/.yarn/releases
+!**/.yarn/plugins
+!**/.yarn/sdks
+!**/.yarn/versions
