@@ -3,13 +3,18 @@
     <h2>Database Tables</h2>
     <p>The following table information is present</p>
     <p>Note, CSVs will only populate if defined in <code>tables.init</code></p>
-    <div
-      *ngFor="let tableId of missingTables"
-      class="table-warning"
-      (click)="deleteTable(tableId)"
-    >
+    <div *ngFor="let tableId of missingTables" class="table-warning" (click)="deleteTable(tableId)">
       <p>Warning, table exists in database but not in framework</p>
       <button mat-button><mat-icon>delete</mat-icon> {{ tableId }}</button>
+    </div>
+    <div *ngIf="missingFormDefs.length > 0" class="table-warning">
+      <p>
+        Warning, the following tables are referenced in the framework but do not have local form
+        definitions
+      </p>
+      <ul>
+        <li *ngFor="let formDef of missingFormDefs">{{ formDef }}</li>
+      </ul>
     </div>
 
     <table style="color: var(--color-black)">
@@ -23,11 +28,7 @@
         <td>{{ table.display.title.text }}</td>
         <td style="text-align: center; width: 50px">
           <div>{{ table.rows.length }}</div>
-          <button
-            mat-icon-button
-            (click)="empty(table, i)"
-            [disabled]="isLoading"
-          >
+          <button mat-icon-button (click)="empty(table, i)" [disabled]="isLoading">
             <mat-icon>delete</mat-icon>
           </button>
         </td>
@@ -39,26 +40,19 @@
             mat-icon-button
             (click)="importCSV(table, i)"
             [disabled]="
-              table.isImporting ||
-              table.csvRows.length === table.rows.length ||
-              isLoading
+              table.isImporting || table.csvRows.length === table.rows.length || isLoading
             "
           >
             <span *ngIf="table.isImporting">
               {{ table.importProcessed }} / {{ table.csvRows.length }}
             </span>
-            <mat-icon
-              *ngIf="
-                !table.isImporting && table.csvRows.length !== table.rows.length
-              "
+            <mat-icon *ngIf="!table.isImporting && table.csvRows.length !== table.rows.length"
               >import_export</mat-icon
             >
           </button>
         </td>
         <td style="width: 50px">
-          <button mat-stroked-button (click)="openInDesigner(table)">
-            Show
-          </button>
+          <button mat-stroked-button (click)="openInDesigner(table)">Show</button>
         </td>
       </tr>
     </table>
