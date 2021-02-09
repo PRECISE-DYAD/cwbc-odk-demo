@@ -1,8 +1,4 @@
-import {
-  IFormMeta,
-  IFormMetaWithEntries,
-  IODkTableRowData,
-} from "src/app/modules/shared/types";
+import { IFormMeta, IFormMetaWithEntries, IODkTableRowData } from "src/app/modules/shared/types";
 import { IParticipantSummary } from "../../precise/types";
 
 /************************************************************************************
@@ -22,6 +18,7 @@ export const DYAD_TABLE_IDS = [
   "dyad_visit2",
   "dyad_visit3",
   "Birthmother",
+  "Visit1",
 ] as const;
 
 /**
@@ -33,6 +30,11 @@ export const DYAD_SCHEMA: { [tableId in IDyadTableId]: IFormMeta } = {
     title: "General Info",
     formId: "profileSummary",
     tableId: "profileSummary",
+  },
+  Visit1: {
+    title: "Visit1",
+    formId: "Visit1",
+    tableId: "Visit1",
   },
   Birthbaby: {
     title: "Birth Baby",
@@ -68,6 +70,41 @@ export const DYAD_SCHEMA: { [tableId in IDyadTableId]: IFormMeta } = {
     formId: "dyad_visit1",
     tableId: "dyad_visit1",
     mapFields: [
+      {
+        table_id: "profileSummary",
+        field_name: "f2a_phone_number",
+        mapped_field_name: "f2a_phone_number",
+      },
+      {
+        table_id: "profileSummary",
+        field_name: "f2a_phone_number_2",
+        mapped_field_name: "f2a_phone_number_2",
+      },
+      {
+        table_id: "Birthbaby",
+        field_name: "f9_mode_of_delivery",
+        mapped_field_name: "f9_mode_of_delivery",
+      },
+      {
+        table_id: "Birthbaby",
+        field_name: "f9_baby_born_alive",
+        mapped_field_name: "f9_baby_born_alive",
+      },
+      {
+        table_id: "Birthbaby",
+        field_name: "f9_baby_admitted_route",
+        mapped_field_name: "f9_baby_admitted_route",
+      },
+      {
+        table_id: "Birthbaby",
+        field_name: "f9_baby_alive",
+        mapped_field_name: "f9_baby_alive",
+      },
+      {
+        table_id: "Visit1",
+        field_name: "f6a_maternal_height_1st",
+        mapped_field_name: "f6a_maternal_height_1st",
+      },
       {
         table_id: "Birthmother",
         field_name: "f7_delivery_location",
