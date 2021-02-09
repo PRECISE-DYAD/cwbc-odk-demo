@@ -167,13 +167,7 @@ export class OdkService {
   addRowWithSurvey(tableId: string, formId: string, screenPath?, jsonMap?) {
     this.activeArgs = { tableId, formId, screenPath, jsonMap };
     this.surveyIsOpen$.next(true);
-    return this.window.odkTables.addRowWithSurvey(
-      null,
-      tableId,
-      formId,
-      screenPath,
-      jsonMap
-    );
+    return this.window.odkTables.addRowWithSurvey(null, tableId, formId, screenPath, jsonMap);
   }
   /**
    * Launch ODK survey with a row for editing
@@ -183,13 +177,7 @@ export class OdkService {
   editRowWithSurvey(tableId, rowId, formId) {
     this.activeArgs = { tableId, formId, rowId };
     this.surveyIsOpen$.next(true);
-    return this.window.odkTables.editRowWithSurvey(
-      null,
-      tableId,
-      rowId,
-      formId,
-      null
-    );
+    return this.window.odkTables.editRowWithSurvey(null, tableId, rowId, formId, null);
   }
 
   addRow(tableId: string, columnNameValueMap, rowId: string) {
@@ -208,13 +196,7 @@ export class OdkService {
       );
       this.window.odkData
         .getOdkDataIf()
-        .addRow(
-          tableId,
-          JSON.stringify(columnNameValueMap),
-          rowId,
-          revision,
-          req._callbackId
-        );
+        .addRow(tableId, JSON.stringify(columnNameValueMap), rowId, revision, req._callbackId);
     });
   }
   /**
@@ -295,8 +277,7 @@ export class OdkService {
     tableId: string,
     sqlCommand: string,
     sqlBindParams: string[] = [],
-    failureCallback = (err) =>
-      this.handleError(err, `query tableId: ${tableId}`)
+    failureCallback = (err) => this.handleError(err, `query tableId: ${tableId}`)
   ): Promise<any> {
     return new Promise((resolve, reject) => {
       this.window.odkData.arbitraryQuery(
@@ -359,9 +340,7 @@ export class OdkService {
  * This function merges into a single JSON object array
  * @param res - result object passed from ODK
  */
-function queryResultToJsonArray<T>(
-  res: IODKQueryResult
-): (IODkTableRowData & T)[] {
+function queryResultToJsonArray<T>(res: IODKQueryResult): (IODkTableRowData & T)[] {
   // query execution returns a queue reference, which needs to be used to retrieve data
   const { metadata, data } = res.resultObj;
   const cols = {};

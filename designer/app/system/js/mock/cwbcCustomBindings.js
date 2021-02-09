@@ -1,4 +1,5 @@
 /**
+ * CWBC Custom Bindings
  * Specific overrides not part of core designer system package
  * (and hence only available during development mode)
  *
@@ -23,12 +24,14 @@ define(["mockImpl"], function (mockImpl) {
             // if can't access parent then running within iframe on different port, expose
             console.log("enabling iframe access", mockImpl);
             exposeWindowToParentHost();
+            addErrorNotifications();
             notifyParentReady();
         }
     }
     /***************************************************************************
      * Mock implementation overrides
      ***************************************************************************/
+
     // Override default method that relies on reading formdef files to run query against any sql table
     window.odkData.arbitrarySqlQueryLocalOnlyTables = (
         tableId,
@@ -119,6 +122,12 @@ define(["mockImpl"], function (mockImpl) {
      ***************************************************************************/
     function postMessage(message) {
         console.log("postMessage", message);
+    }
+    /** Listen to any uncaught errors and notify parent */
+    function addErrorNotifications(){
+        window.addEventListener('error', function(e) {
+            window.parent.postMessage(`odk:error - ${e.error.message}`,"*")
+          })
     }
     // listeners on parent iframe will be informed that the window is ready for access
     function notifyParentReady() {
