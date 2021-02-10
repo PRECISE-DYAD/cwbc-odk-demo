@@ -22,6 +22,7 @@
       <th style="width: 50px">Display Name</th>
       <th>Local Rows</th>
       <th>CSV Import</th>
+      <th>CSV Export</th>
       <th>Designer</th>
       <tr *ngFor="let table of tablesMeta; index as i">
         <td>{{ table.tableId }}</td>
@@ -49,6 +50,16 @@
             <mat-icon *ngIf="!table.isImporting && table.csvRows.length !== table.rows.length"
               >import_export</mat-icon
             >
+          </button>
+        </td>
+        <td style="text-align: center; width: 50px">
+          <button
+            *ngIf="table.rows.length > 0"
+            mat-icon-button
+            [disabled]="table.isImporting || isLoading"
+            (click)="exportCSV(table, i)"
+          >
+            <mat-icon>file_download</mat-icon>
           </button>
         </td>
         <td style="width: 50px">

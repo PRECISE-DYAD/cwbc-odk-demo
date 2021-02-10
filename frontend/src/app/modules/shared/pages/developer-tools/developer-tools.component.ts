@@ -3,7 +3,7 @@ import { Component, OnInit } from "@angular/core";
 import { takeWhile } from "rxjs/operators";
 import { OdkService } from "src/app/modules/shared/services/odk/odk.service";
 import { IFormDef, IFormDefSpecificationChoice } from "src/app/modules/shared/types/odk.types";
-import { parseCSV } from "src/app/modules/shared/services/utils";
+import { downloadCSVToFile, parseCSV, unparseCSV } from "src/app/modules/shared/services/utils";
 import { _arrToHashmap } from "src/app/modules/shared/utils";
 
 @Component({
@@ -141,6 +141,19 @@ export class DeveloperToolsComponent implements OnInit {
       }
     }
     this.loadLocalTableRows(this.tablesMeta);
+  }
+
+  async exportCSV(meta: ITableMeta, metaIndex: number) {
+    console.log("exporting csv", meta);
+    // when exporting local rows remove some metadata columns
+    const exportRows = meta.rows.map((r) => {
+      delete r._sync_state;
+      delete r._conflict_type;
+      return r;
+    });
+    const csv = await unparseCSV(exportRows);
+    console.log("csv", csv);
+    await downloadCSVToFile(csv, `${meta.tableId}.csv`);
   }
   /**
    * Delete all rows in a table
