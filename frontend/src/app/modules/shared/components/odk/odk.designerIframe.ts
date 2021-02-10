@@ -60,15 +60,21 @@ export class ODKDesignerIframeComponent {
     if (event.origin === "http://localhost:8000") {
       console.log("odk event", event);
     }
-    if (event.data === "odk:ready") {
-      const childWindow = this.iframeRef.nativeElement.contentWindow as any;
-      if (!this.odkService.ready$.value) {
-        console.log("odk ready");
-        this.odkService.setWindow(childWindow);
+    if (event.data && typeof event.data === "string") {
+      const msg = event.data as string;
+      if (msg === "odk:ready") {
+        const childWindow = this.iframeRef.nativeElement.contentWindow as any;
+        if (!this.odkService.ready$.value) {
+          console.log("odk ready");
+          this.odkService.setWindow(childWindow);
+        }
       }
-    }
-    if (event.data && event.data.startsWith("odk:error")) {
-      this.notifications.handleError(event.data);
+      if (msg.startsWith("odk:error")) {
+        // ignore some specific errors
+        if (msg.includes("Cannot read property 'promptPath' of null")) return;
+        // otherwise show error notification
+        this.notifications.handleError(event.data);
+      }
     }
   }
 
