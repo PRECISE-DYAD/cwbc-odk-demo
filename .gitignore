@@ -20,6 +20,7 @@ scripts/logs/*.json
 !*.gitkeep
 ~$*
 
+.history/*
 *.env
 .env.*
 frontend/src/assets/odk

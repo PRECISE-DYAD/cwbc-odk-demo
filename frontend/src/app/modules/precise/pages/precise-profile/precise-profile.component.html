@@ -18,6 +18,31 @@
         </button>
       </mat-menu>
     </div>
+    <div *ngIf="store.participantFormsHash.Withdrawal.entries[0] as w">
+      <div
+        *ngIf="
+          w.fw_withdraw_from_study === '1' || w.fw_lost_to_followup === '1'
+        "
+        class="withdrawal-message"
+      >
+        <mat-icon style="margin-right: 10px">exit_to_app</mat-icon>
+        <div>
+          <span *ngIf="w.fw_withdraw_from_study === '1'"
+            >Participant Withdrawn
+          </span>
+          <span *ngIf="w.fw_lost_to_followup === '1'"
+            >Participant Lost to Follow-up
+          </span>
+        </div>
+        <button
+          mat-stroked-button
+          (click)="store.withdrawParticipant()"
+          style="margin-left: auto"
+        >
+          View Form
+        </button>
+      </div>
+    </div>
 
     <mat-accordion multi displayMode="flat">
       <!-- profile section -->

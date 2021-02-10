@@ -30,6 +30,17 @@
   margin: 1em auto;
 }
 
+.withdrawal-message {
+  font-size: large;
+  background: #ffe033;
+  color: #000000e6;
+  padding: 16px;
+  border-radius: 2px;
+  margin-bottom: 1em;
+  display: flex;
+  align-items: center;
+}
+
 /***********************************************
   Common styles shared with section components
 ***********************************************/
