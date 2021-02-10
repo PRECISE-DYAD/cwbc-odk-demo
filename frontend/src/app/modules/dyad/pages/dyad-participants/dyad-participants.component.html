@@ -10,17 +10,17 @@
   <mat-progress-bar mode="indeterminate" *ngIf="isLoading"></mat-progress-bar>
   <table mat-table [dataSource]="dataSource" matSort class="mat-elevation-z8">
     <!-- Dyad enrollment column -->
-    <ng-container matColumnDef="dyad_enrollment">
-      <th mat-header-cell *matHeaderCellDef mat-sort-header>Dyad Enrollment</th>
+    <ng-container matColumnDef="dyad_consent">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header>Dyad Consent</th>
       <td
         mat-cell
         *matCellDef="let row"
         style="width: 100px; font-weight: bold"
         (click)="handleRowClicked(row)"
       >
-        <div *ngIf="row['dyad_enrollment'] as enrollment">
+        <div *ngIf="row['dyad_consent'] as consent">
           <div style="text-align: center">
-            {{ enrollment.d1_enroll_consent === "1" | boolIcon }}
+            {{ consent.d1_enroll_consent === "1" | boolIcon }}
           </div>
         </div>
       </td>

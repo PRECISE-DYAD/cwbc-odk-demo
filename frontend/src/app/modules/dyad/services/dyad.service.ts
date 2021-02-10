@@ -72,28 +72,34 @@ export class DyadService {
    */
   async updateParticipantSummaryTable() {
     const { f2_guid } = this.activeParticipant;
-    let summaryEntry = { f2_guid, dyad_summary: {} };
+    const summaryEntry = { f2_guid, mapped_summary: {} };
     DYAD_SUMMARY_FIELDS.forEach((f) => {
       const { field, value } = this.evaluateProfileSummaryField(f, this.activeParticipantData);
-      summaryEntry.dyad_summary[field] = value;
+      if (field) {
+        summaryEntry.mapped_summary[field] = value;
+      }
     });
-    console.log("summaryEntry", summaryEntry);
+
     // when writing object value to database it still must be sent as string
-    summaryEntry.dyad_summary = JSON.stringify(summaryEntry.dyad_summary);
-    const tableEntries = await this.odk.query("summary", "f2_guid = ?", [f2_guid]);
+    summaryEntry.mapped_summary = JSON.stringify(summaryEntry.mapped_summary);
+    console.log("mappedSummary", JSON.parse(summaryEntry.mapped_summary as string));
+    const table_id: IDyadTableId = "dyad_summary";
+    const tableEntries = await this.odk.query(table_id, "f2_guid = ?", [f2_guid]);
     if (tableEntries.length > 0) {
       const currentEntry = tableEntries[0];
 
       // compare changes between proposed update and outstanding doc
       // preserving existing metadata
       const updatedEntry = { ...currentEntry, ...summaryEntry };
-      console.log("current entry", currentEntry);
-      console.log("updatedEntry", updatedEntry);
       if (!deepEqual(currentEntry, updatedEntry)) {
-        this.odk.updateRow("summary", f2_guid, summaryEntry);
+        console.log("updating summary", currentEntry, updatedEntry);
+        this.odk.updateRow(table_id, f2_guid, summaryEntry);
+      } else {
+        console.log("summary up to date");
       }
     } else {
-      this.odk.addRow("summary", summaryEntry, f2_guid);
+      console.log("creating row", summaryEntry);
+      this.odk.addRow(table_id, summaryEntry, f2_guid);
     }
   }
 
@@ -102,25 +108,26 @@ export class DyadService {
    * opted-out participant for editing
    */
   async enrolParticipant(participant: IDyadParticipantSummary) {
-    const { f2_guid, dyad_enrollment } = participant;
+    console.log("enrol participant", participant);
+    const { f2_guid, dyad_consent } = participant;
     // open form for editing if entry already exists
-    const editRowId = dyad_enrollment ? dyad_enrollment._id : null;
-    this.launchForm(MAPPED_SCHEMA.dyad_enrollment, editRowId, { f2_guid });
+    const editRowId = dyad_consent ? dyad_consent._id : null;
+    this.launchForm(MAPPED_SCHEMA.dyad_consent, editRowId, { f2_guid });
   }
 
   /**
-   * Load all participants availble with Precise profiles and merge with Dyad enrollment data
+   * Load all participants availble with Precise profiles and merge with Dyad consent data
    */
   private async loadParticipants() {
     await this.odk.ready$.pipe(takeWhile((isReady) => !isReady)).toPromise();
-    const dyadProfiles = await this.odk.getTableRows(MAPPED_SCHEMA.dyad_enrollment.tableId);
+    const dyadProfiles = await this.odk.getTableRows(MAPPED_SCHEMA.dyad_consent.tableId);
     const dyadProfileHash = _arrToHashmap(dyadProfiles, "f2_guid");
     const preciseProfiles = await this.odk.getTableRows<IPrecise.IParticipant>(
       MAPPED_SCHEMA.profileSummary.tableId
     );
     this.participantSummaries = preciseProfiles.map((p) => ({
       ...p,
-      dyad_enrollment: dyadProfileHash[p.f2_guid] || null,
+      dyad_consent: dyadProfileHash[p.f2_guid] || null,
     }));
   }
 
