@@ -126,7 +126,9 @@ define(["mockImpl"], function (mockImpl) {
     /** Listen to any uncaught errors and notify parent */
     function addErrorNotifications(){
         window.addEventListener('error', function(e) {
-            window.parent.postMessage(`odk:error - ${e.error.message}`,"*")
+            if(e.error && e.error.message){
+                window.parent.postMessage(`odk:error - ${e.error.message}`,"*")
+            }
           })
     }
     // listeners on parent iframe will be informed that the window is ready for access
