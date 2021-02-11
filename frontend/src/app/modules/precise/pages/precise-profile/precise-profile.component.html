@@ -8,11 +8,7 @@
         <mat-icon>more_vert</mat-icon>
       </button>
       <mat-menu #menu="matMenu" backdropClass="backdrop-dark">
-        <button
-          mat-menu-item
-          class="participant-menu-button"
-          (click)="store.withdrawParticipant()"
-        >
+        <button mat-menu-item class="participant-menu-button" (click)="store.withdrawParticipant()">
           <mat-icon>remove_circle</mat-icon>
           <span>Withdraw Participant</span>
         </button>
@@ -20,25 +16,15 @@
     </div>
     <div *ngIf="store.participantFormsHash.Withdrawal.entries[0] as w">
       <div
-        *ngIf="
-          w.fw_withdraw_from_study === '1' || w.fw_lost_to_followup === '1'
-        "
-        class="withdrawal-message"
+        *ngIf="w.fw_withdraw_from_study === '1' || w.fw_lost_to_followup === '1'"
+        class="warning-message"
       >
         <mat-icon style="margin-right: 10px">exit_to_app</mat-icon>
         <div>
-          <span *ngIf="w.fw_withdraw_from_study === '1'"
-            >Participant Withdrawn
-          </span>
-          <span *ngIf="w.fw_lost_to_followup === '1'"
-            >Participant Lost to Follow-up
-          </span>
+          <span *ngIf="w.fw_withdraw_from_study === '1'">Participant Withdrawn </span>
+          <span *ngIf="w.fw_lost_to_followup === '1'">Participant Lost to Follow-up </span>
         </div>
-        <button
-          mat-stroked-button
-          (click)="store.withdrawParticipant()"
-          style="margin-left: auto"
-        >
+        <button mat-stroked-button (click)="store.withdrawParticipant()" style="margin-left: auto">
           View Form
         </button>
       </div>
@@ -46,14 +32,9 @@
 
     <mat-accordion multi displayMode="flat">
       <!-- profile section -->
-      <mat-expansion-panel
-        [expanded]="expandedSections.profile"
-        class="no-padding"
-      >
+      <mat-expansion-panel [expanded]="expandedSections.profile" class="no-padding">
         <mat-expansion-panel-header expandedHeight="48px">
-          <mat-panel-title
-            ><mat-icon>person</mat-icon><span>Profile</span></mat-panel-title
-          >
+          <mat-panel-title><mat-icon>person</mat-icon><span>Profile</span></mat-panel-title>
         </mat-expansion-panel-header>
         <precise-profile-section
           [participant]="store.activeParticipant"
@@ -66,10 +47,7 @@
         <!-- Summary Section -->
         <mat-expansion-panel class="no-padding" expanded>
           <mat-expansion-panel-header expandedHeight="48px">
-            <mat-panel-title
-              ><mat-icon>assignment</mat-icon
-              ><span>Summary</span></mat-panel-title
-            >
+            <mat-panel-title><mat-icon>assignment</mat-icon><span>Summary</span></mat-panel-title>
           </mat-expansion-panel-header>
           <app-field-summary-table
             [fieldSummaries]="preciseSummaryFields"
@@ -77,13 +55,10 @@
           ></app-field-summary-table>
         </mat-expansion-panel>
         <!-- Precise Visit Section -->
-        <mat-expansion-panel
-          class="no-padding theme-default primary-inverted color-rotate-1"
-        >
+        <mat-expansion-panel class="no-padding theme-default primary-inverted color-rotate-1">
           <mat-expansion-panel-header expandedHeight="48px">
             <mat-panel-title style="color: white"
-              ><mat-icon svgIcon="visit"></mat-icon>
-              <span>Precise Visit</span></mat-panel-title
+              ><mat-icon svgIcon="visit"></mat-icon> <span>Precise Visit</span></mat-panel-title
             >
           </mat-expansion-panel-header>
           <precise-profile-general-section
@@ -101,19 +76,14 @@
               <span>Baby {{ babySection.label }}</span></mat-panel-title
             >
           </mat-expansion-panel-header>
-          <precise-profile-baby-section
-            [section]="babySection"
-          ></precise-profile-baby-section>
+          <precise-profile-baby-section [section]="babySection"></precise-profile-baby-section>
         </mat-expansion-panel>
 
         <!-- TOD - ANC section -->
-        <mat-expansion-panel
-          class="no-padding theme-default primary-inverted color-rotate-3"
-        >
+        <mat-expansion-panel class="no-padding theme-default primary-inverted color-rotate-3">
           <mat-expansion-panel-header expandedHeight="48px">
             <mat-panel-title style="color: white"
-              ><mat-icon svgIcon="disease"></mat-icon>
-              <span>TOD - ANC</span></mat-panel-title
+              ><mat-icon svgIcon="disease"></mat-icon> <span>TOD - ANC</span></mat-panel-title
             >
           </mat-expansion-panel-header>
           <precise-profile-general-section
@@ -121,13 +91,10 @@
           ></precise-profile-general-section>
         </mat-expansion-panel>
         <!-- Lab Section -->
-        <mat-expansion-panel
-          class="no-padding theme-default primary-inverted color-rotate-4"
-        >
+        <mat-expansion-panel class="no-padding theme-default primary-inverted color-rotate-4">
           <mat-expansion-panel-header expandedHeight="48px">
             <mat-panel-title style="color: white"
-              ><mat-icon svgIcon="lab"></mat-icon>
-              <span>Lab</span></mat-panel-title
+              ><mat-icon svgIcon="lab"></mat-icon> <span>Lab</span></mat-panel-title
             >
           </mat-expansion-panel-header>
           <precise-profile-general-section
@@ -138,16 +105,11 @@
     </mat-accordion>
 
     <!-- profile confirmation -->
-    <div
-      *ngIf="!profileConfirmed && store.participantDataLoaded"
-      [@fadeEntryExit]
-    >
+    <div *ngIf="!profileConfirmed && store.participantDataLoaded" [@fadeEntryExit]>
       <precise-profile-confirmation></precise-profile-confirmation>
     </div>
   </div>
-  <div *ngIf="store.listDataLoaded && !store.activeParticipant">
-    No Participant Profile
-  </div>
+  <div *ngIf="store.listDataLoaded && !store.activeParticipant">No Participant Profile</div>
   <div id="guid" *ngIf="store.activeParticipant">
     {{ store.activeParticipant.f2_guid }}
   </div>

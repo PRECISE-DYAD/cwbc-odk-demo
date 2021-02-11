@@ -46,7 +46,7 @@ export class DyadParticipantsComponent implements OnInit, AfterViewInit {
     if (row.dyad_consent && row.dyad_consent.d1_enroll_consent === "1") {
       this.router.navigate([row.f2_guid], { relativeTo: this.route });
     } else {
-      this.dyadService.enrolParticipant(row);
+      this.dyadService.enrolParticipant(this.router, this.route, row);
     }
   }
 
