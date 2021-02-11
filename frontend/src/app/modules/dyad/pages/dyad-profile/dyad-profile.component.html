@@ -4,6 +4,13 @@
     style="padding: 1em; flex: 1"
     *ngIf="dyadService.activeParticipant && dyadService.participantFormsHash"
   >
+    <div
+      *ngIf="dyadService.activeParticipantData.dyad_consent.d1_enroll_consent === '0'"
+      class="warning-message"
+    >
+      <mat-icon style="margin-right: 10px">block</mat-icon>
+      <div>Participant has not consented to Dyad</div>
+    </div>
     <mat-accordion multi displayMode="flat">
       <!-- Form Sections -->
       <mat-expansion-panel
@@ -22,13 +29,35 @@
         </mat-expansion-panel-header>
         <section class="section-details">
           <div *ngFor="let formSchema of section.formSchema">
-            <!-- form entry create and edit -->
+            <!-- mother form entry create and edit -->
             <app-form-entries-summary
+              *ngIf="!formSchema.is_child_form"
               [form]="dyadService.participantFormsHash[formSchema.id]"
               (entrySelected)="
                 dyadService.launchForm(dyadService.participantFormsHash[formSchema.id], $event)
               "
             ></app-form-entries-summary>
+            <!-- child form entry create and edit -->
+            <div *ngIf="formSchema.is_child_form" class="child-form-section">
+              <div class="child-form-heading">
+                <mat-icon svgIcon="baby"></mat-icon>
+                <span>{{ formSchema.title }}</span>
+              </div>
+              <div *ngFor="let child of dyadService.activeParticipantChildren; index as childIndex">
+                <app-form-entries-summary
+                  [title]="child.data.Birthbaby.f9_baby_id || child.f2_guid_child.split('_').pop()"
+                  [form]="child.formsHash[formSchema.id]"
+                  (entrySelected)="launchChildForm(formSchema, $event, child)"
+                ></app-form-entries-summary>
+              </div>
+              <div *ngIf="dyadService.activeParticipantChildren.length === 0" class="basic-warning">
+                <mat-icon>warning</mat-icon>
+                <span
+                  >No records for Precise Birthbaby form. {{ formSchema.title }} form cannot be
+                  completed</span
+                >
+              </div>
+            </div>
             <!-- summary table display -->
             <app-field-summary-table
               *ngIf="formSchema.summary_table_fields"

@@ -1,7 +1,12 @@
 import { Component, OnDestroy, OnInit } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
 import * as Animations from "src/app/modules/shared/animations";
-import { DYAD_FORM_SECTIONS, DYAD_SCHEMA, IDyadParticipantChild } from "../../models/dyad.models";
+import {
+  DYAD_FORM_SECTIONS,
+  DYAD_SCHEMA,
+  IDyadParticipantChild,
+  IFormSchema,
+} from "../../models/dyad.models";
 import { DyadService } from "../../services";
 
 @Component({
@@ -27,10 +32,9 @@ export class DyadProfileComponent implements OnDestroy, OnInit {
     this.dyadService.setActiveParticipantById(this.route.snapshot.params.f2_guid);
   }
 
-  public launchChildForm(formId: string, editRowId: string, child: IDyadParticipantChild) {
+  public launchChildForm(formSchema: IFormSchema, editRowId: string, child: IDyadParticipantChild) {
     const { f2_guid_child } = child;
-    const formMeta = this.dyadService.participantFormsHash[formId];
-    this.dyadService.launchForm(formMeta, editRowId, { f2_guid_child });
+    this.dyadService.launchForm(formSchema, editRowId, { f2_guid_child });
   }
 
   private async init() {
