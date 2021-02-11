@@ -1,14 +1,18 @@
-import { IFormMeta, IFormMetaWithEntries, IODkTableRowData } from "src/app/modules/shared/types";
+import {
+  IFormMetaMappedField,
+  IFormMetaWithEntries,
+  IODkTableRowData,
+} from "src/app/modules/shared/types";
 import { IParticipantSummary } from "../../precise/types";
 import { ICustomIcon } from "../../shared/components/icons";
-import { DYAD_SUMMARY_FIELDS } from "./dyad-summary.model";
+import { DYAD_SUMMARY_FIELDS, IDyadFieldSummary } from "./dyad-summary.model";
 
 /************************************************************************************
  *  Constants - Used for data population
  ************************************************************************************/
 /**
  * Masterlist of all table IDs
- * This is used to check typings on other fields
+ * This is used to type-check other fields
  */
 export const DYAD_TABLE_IDS = [
   "dyad_consent",
@@ -18,7 +22,8 @@ export const DYAD_TABLE_IDS = [
   "dyad_child_visit2",
   "dyad_visit1",
   "dyad_visit2",
-  // any precise forms references in formulae should be included here
+  // Any precise forms referenced in formulae should be included here and referenced in DYAD_SCHEMA_BASE.
+  // They do not need to be included in the DYAD_FORM_SECTIONS metadata
   "Birthbaby",
   "profileSummary",
   "Birthmother",
@@ -26,51 +31,32 @@ export const DYAD_TABLE_IDS = [
 ] as const;
 
 /**
- * Metadata for DYAD tableIDs.
+ * Metadata for DYAD tableIDs. See full set of options in IFormSchema below.
+ * @see {IFormSchema}
  */
 const DYAD_SCHEMA_BASE: { [tableId in IDyadTableId]: IFormSchema } = {
-  // Note, tables accessed from precise data should also be included here to ensure the data is loaded
-  profileSummary: {
-    title: "General Info",
-  },
-  Visit1: {
-    title: "Visit1",
-  },
-  Birthbaby: {
-    title: "Birth Baby",
-  },
-  Birthmother: {
-    title: "Birth Mother",
-  },
-  // Main DYAD forms
-  dyad_enrollment: {
-    title: "Dyad Enrollment",
-    mapFields: [],
-  },
-  dyad_consent: {
-    title: "Dyad Consent",
-  },
+  // Precise forms (required in calculations)
+  profileSummary: { title: "General Info" },
+  Visit1: { title: "Visit1" },
+  Birthbaby: { title: "Birth Baby", is_child_form: true },
+  Birthmother: { title: "Birth Mother" },
+  // DYAD forms
+  dyad_enrollment: { title: "Dyad Visit 1 - Enrollment" },
+  dyad_consent: { title: "Dyad Consent" },
   dyad_summary: {
     title: "Dyad Summary",
     mapped_json: DYAD_SUMMARY_FIELDS,
-    // when showing the dyad_summary include all mapped fields
-    // display_summary: [
-    //   { field: "clinical_edd", label: "Clinical EDD" },
-    //   ...DYAD_SUMMARY_FIELDS.map((f) => ({
-    //     label: f.label,
-    //     field: `mapped_json.${f.summaryTableFieldname || f.field}`,
-    //   })),
-    // ],
+    summary_table_fields: DYAD_SUMMARY_FIELDS,
   },
   dyad_child_visit1: {
     title: "Dyad Visit 1 - Child",
     mapFields: [],
-    child_form: true,
+    is_child_form: true,
   },
   dyad_child_visit2: {
     title: "Dyad Visit 2 - Child",
     mapFields: [],
-    child_form: true,
+    is_child_form: true,
   },
   dyad_visit1: {
     title: "Dyad Visit 1 - Mother",
@@ -122,15 +108,13 @@ const DYAD_SCHEMA_BASE: { [tableId in IDyadTableId]: IFormSchema } = {
     mapFields: [],
   },
 };
-/** when exporting automatically populate table and form ids when not specified using key */
-Object.entries(DYAD_SCHEMA_BASE).forEach(([id, schema]) => {
-  schema.tableId = schema.tableId || id;
-  schema.formId = schema.formId || id;
-});
-export const DYAD_SCHEMA = DYAD_SCHEMA_BASE as { [tableId in IDyadTableId]: IFormMeta };
 
 /**
  * Forms to include with specific sections on profile summary page
+ * @param formIds - a list of forms to show metadata (including summary tables) from
+ * @param label - header text shown at the top of the section
+ * @param icon - icon displayed in the header, from a predefined list of available icons
+ * @param color - color variant to use (based on primary color), from 1-6. If omitted will be black/white
  */
 export const DYAD_FORM_SECTIONS: IDyadFormSection[] = [
   {
@@ -144,35 +128,29 @@ export const DYAD_FORM_SECTIONS: IDyadFormSection[] = [
     formIds: ["dyad_enrollment", "dyad_visit1", "dyad_child_visit1"],
     label: "Dyad Visit 1",
     icon: "visit",
+    color: "1",
   },
   {
     _id: "dyad_visit_2",
     formIds: ["dyad_enrollment", "dyad_visit2", "dyad_child_visit2"],
     label: "Dyad Visit 2",
     icon: "visit",
+    color: "1",
   },
   {
     _id: "dyad_verbal_autopsy",
     formIds: [],
     label: "Verbal Autopsy",
     icon: "verbal",
+    color: "2",
   },
   {
     _id: "dyad_end_of_report",
     formIds: [],
     label: "End of Report",
+    icon: "assignment",
+    color: "3",
   },
-];
-/**
- * Sub-sections created for every new baby registered
- */
-export const DYAD_CHILD_FORM_SECTIONS: IDyadFormSection[] = [
-  // {
-  //   _id: "dyadChildSection",
-  //   formIds: ["dyad_child_visit1", "dyad_child_visit2"],
-  //   label: "Dyad Child",
-  //   icon: "baby",
-  // },
 ];
 
 /************************************************************************************
@@ -183,14 +161,20 @@ export interface IDyadFormSection {
   formIds: IDyadTableId[];
   label?: string;
   icon?: ICustomIcon;
+  /** color variants 1-6 are variations on the primary color, if blank will be black/white */
+  color?: "1" | "2" | "3" | "4" | "5" | "6";
 }
 
 export type IDyadTableId = typeof DYAD_TABLE_IDS[number];
 export interface IDyadParticipantSummary extends IParticipantSummary {
   dyad_consent: IODkTableRowData;
 }
+/**
+ * Participant data is saved by table, with top-level referring to latest entry (in case of multiple)
+ * and a _rows property which can be used to access additional entries
+ */
 export type IDyadParticipantData = {
-  [tableId in IDyadTableId]: { [field: string]: any };
+  [tableId in IDyadTableId]: IODkTableRowData & { _rows: IODkTableRowData[] };
 };
 /**
  * Child interfaces record nested the same as the active participant data
@@ -201,18 +185,41 @@ export interface IDyadParticipantChild {
   data: IDyadParticipantData;
 }
 
-export interface IFormSchema extends Partial<IFormMeta> {
+// TODO - merge with IFormMeta type definition
+export interface IFormSchema {
   title: string;
+  /** override the default tableId that will otherwise be populated from the object key */
+  tableId?: string;
+  /** override the default tableId that will otherwise be populated from the object key */
+  formId?: string;
+  /** if child form will create a separate instance for every child */
+  is_child_form?: boolean;
+  /** specify if the form should accept multiple entries from the same participant */
+  allowRepeats?: boolean;
+  /** specify individual fields to map into the form */
+  mapFields?: IFormMetaMappedField[];
   /** data can be passed as json to a single `mapped_json` column, as well as individual mapFields */
-  mapped_json?: any[];
+  mapped_json?: IDyadFieldSummary[];
   /** specify a list of fields to show in the summary display */
-  // display_summary?: { field: string; label: string }[];
-  /** specify condition to disable the form */
-  disabled?: (data: IDyadParticipantData) => boolean;
-  /** if form allows repeats, limit maximum entries */
-  repeats_limit?: number;
-  /** if child form will create a separate instance for every child*/
-  child_form?: boolean;
-  /** TO CONSIDER - or assume all forms with mapped_json/mapFields will want recalc? */
-  calculate_on_load?: boolean;
+  summary_table_fields?: IDyadFieldSummary[];
+
+  // TODO / Consider additional options //
+  /**  - specify condition to disable the form */
+  // hidden?: boolean | ((data: IDyadParticipantData) => boolean);
+  /** If form allows repeats, limit maximum entries  */
+  // repeats_limit?: number;
+  /** Determine whether the passed fields should be recalculated on home page load (not just form) */
+  // calculate_on_load?: boolean;
 }
+
+/************************************************************************************
+ *  Additional Export Functions
+ ************************************************************************************/
+/** when exporting automatically populate table and form ids when not specified using key */
+Object.entries(DYAD_SCHEMA_BASE).forEach(([id, schema]) => {
+  schema.tableId = schema.tableId || id;
+  schema.formId = schema.formId || id;
+});
+export const DYAD_SCHEMA = DYAD_SCHEMA_BASE as {
+  [tableId in IDyadTableId]: IFormSchema & { formId: IDyadTableId; tableId: IDyadTableId };
+};
