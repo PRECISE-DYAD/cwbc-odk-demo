@@ -5,54 +5,42 @@
     *ngIf="dyadService.activeParticipant && dyadService.participantFormsHash"
   >
     <mat-accordion multi displayMode="flat">
-      <!-- Summary Section -->
-      <mat-expansion-panel class="no-padding" expanded>
-        <mat-expansion-panel-header expandedHeight="48px">
-          <mat-panel-title
-            ><mat-icon>assignment</mat-icon
-            ><span>Summary</span></mat-panel-title
-          >
-        </mat-expansion-panel-header>
-        <section class="section-details">
-          <app-field-summary-table
-            [fieldSummaries]="dyadSummaryFields"
-            [participantData]="dyadService.activeParticipantData"
-          ></app-field-summary-table>
-        </section>
-      </mat-expansion-panel>
-      <!-- Mother Sections -->
+      <!-- Form Sections -->
       <mat-expansion-panel
         *ngFor="let section of formSections"
-        class="no-padding theme-default primary-inverted color-rotate-1"
+        class="no-padding"
+        [ngClass]="
+          section.color ? 'theme-default primary-inverted color-rotate-' + section.color : ''
+        "
         expanded
       >
         <mat-expansion-panel-header expandedHeight="48px">
-          <mat-panel-title style="color: white"
-            ><mat-icon [svgIcon]="section.icon"></mat-icon>
-            <span>{{ section.label }}</span></mat-panel-title
-          >
+          <mat-panel-title [style.color]="section.color ? 'white' : 'black'">
+            <mat-icon [svgIcon]="section.icon"></mat-icon>
+            <span>{{ section.label }}</span>
+          </mat-panel-title>
         </mat-expansion-panel-header>
         <section class="section-details">
-          <app-form-entries-summary
-            *ngFor="let formId of section.formIds"
-            [form]="dyadService.participantFormsHash[formId]"
-            (entrySelected)="
-              dyadService.launchForm(
-                dyadService.participantFormsHash[formId],
-                $event
-              )
-            "
-          ></app-form-entries-summary>
+          <div *ngFor="let formSchema of section.formSchema">
+            <!-- form entry create and edit -->
+            <app-form-entries-summary
+              [form]="dyadService.participantFormsHash[formSchema.id]"
+              (entrySelected)="
+                dyadService.launchForm(dyadService.participantFormsHash[formSchema.id], $event)
+              "
+            ></app-form-entries-summary>
+            <!-- summary table display -->
+            <app-field-summary-table
+              *ngIf="formSchema.summary_table_fields"
+              [fieldSummaries]="formSchema.summary_table_fields"
+              [participantData]="dyadService.activeParticipantData"
+            ></app-field-summary-table>
+          </div>
         </section>
       </mat-expansion-panel>
 
       <!-- Baby Sections -->
-      <div
-        *ngFor="
-          let child of dyadService.activeParticipantChildren;
-          index as childIndex
-        "
-      >
+      <!-- <div *ngFor="let child of dyadService.activeParticipantChildren; index as childIndex">
         <mat-expansion-panel
           expanded
           class="no-padding theme-default primary-inverted color-rotate-2"
@@ -75,14 +63,22 @@
             ></app-form-entries-summary>
           </section>
         </mat-expansion-panel>
-      </div>
+      </div> -->
     </mat-accordion>
+    <!-- Custom/Hacky way to override default back button behaviour and return to dyad profile after viewing precise -->
+    <button
+      mat-button
+      [routerLink]="['/projects/precise/participants', dyadService.activeParticipant.f2_guid]"
+      [queryParams]="{
+        previous: '/projects/dyad/participants/' + dyadService.activeParticipant.f2_guid
+      }"
+      style="float: right; margin-top: 1em"
+    >
+      View Precise Profile
+    </button>
   </div>
 
-  <div
-    id="guid"
-    *ngIf="dyadService.activeParticipant && dyadService.participantFormsHash"
-  >
+  <div id="guid" *ngIf="dyadService.activeParticipant && dyadService.participantFormsHash">
     {{ dyadService.activeParticipant.f2_guid }}
   </div>
 </div>
