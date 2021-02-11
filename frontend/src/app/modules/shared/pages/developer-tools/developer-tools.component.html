@@ -21,19 +21,29 @@
       <th style="width: 50px">Table ID</th>
       <th style="width: 50px">Display Name</th>
       <th>Local Rows</th>
-      <th>CSV Import</th>
-      <th>CSV Export</th>
+      <th>Export</th>
+      <th>Import</th>
       <th>Designer</th>
       <tr *ngFor="let table of tablesMeta; index as i">
         <td>{{ table.tableId }}</td>
         <td>{{ table.display.title.text }}</td>
-        <td style="text-align: center; width: 50px">
+        <td data-section="displayName" style="text-align: center; width: 50px">
           <div>{{ table.rows.length }}</div>
           <button mat-icon-button (click)="empty(table, i)" [disabled]="isLoading">
             <mat-icon>delete</mat-icon>
           </button>
         </td>
-        <td style="text-align: center; width: 50px">
+        <td data-section="export" style="text-align: center; width: 50px">
+          <button
+            *ngIf="table.rows.length > 0"
+            mat-icon-button
+            [disabled]="table.isImporting || isLoading"
+            (click)="exportCSV(table, i)"
+          >
+            <mat-icon>file_download</mat-icon>
+          </button>
+        </td>
+        <td data-section="import" style="text-align: center; width: 50px">
           <div *ngIf="table.csvFilePath">{{ table.csvRows.length }}</div>
           <div *ngIf="!table.csvFilePath">No CSV</div>
           <button
@@ -52,16 +62,7 @@
             >
           </button>
         </td>
-        <td style="text-align: center; width: 50px">
-          <button
-            *ngIf="table.rows.length > 0"
-            mat-icon-button
-            [disabled]="table.isImporting || isLoading"
-            (click)="exportCSV(table, i)"
-          >
-            <mat-icon>file_download</mat-icon>
-          </button>
-        </td>
+
         <td style="width: 50px">
           <button mat-stroked-button (click)="openInDesigner(table)">Show</button>
         </td>
