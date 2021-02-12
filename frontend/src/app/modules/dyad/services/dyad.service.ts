@@ -16,7 +16,7 @@ import {
 } from "../models/dyad.models";
 import { _arrToHashmap } from "../../shared/utils";
 import { BehaviorSubject } from "rxjs";
-import { IFormMeta, IFormMetaWithEntries } from "../../shared/types";
+import { IFormMeta, IFormMetaWithEntries, IODkTableRowData } from "../../shared/types";
 import { DYAD_SUMMARY_FIELDS } from "../models/dyad-summary.model";
 import { ActivatedRoute, Router } from "@angular/router";
 
@@ -184,7 +184,7 @@ export class DyadService {
     const promises = Object.entries(MAPPED_SCHEMA).map(async ([key, formMeta]) => {
       const { tableId } = formMeta;
       // lookup the data for every table given by the mapped table id
-      let participantRows: any;
+      let participantRows: IODkTableRowData[];
       try {
         participantRows = await this.odk.query(
           tableId,
@@ -197,17 +197,12 @@ export class DyadService {
         // either table does not exist or no f2_guid field - likely issue but could be exceptions
         console.error("could not query user records:", formMeta.tableId, f2_guid);
       }
+      // omit entries created partially when a form opened and closed again locally
+      const entries = (participantRows || []).filter((r) => r._savepoint_type !== null);
       // attach metadata
-      collated[tableId] = {
-        ...formMeta,
-        entries: participantRows || [],
-      } as any;
+      collated[tableId] = { ...formMeta, entries };
       // duplicate data to pre-mapped table id for use in lookups
-      collated[key] = {
-        ...formMeta,
-        tableId: key,
-        entries: participantRows || [],
-      };
+      collated[key] = { ...formMeta, tableId: key, entries };
     });
     await Promise.all(promises);
     this.setParticipantForms(collated);

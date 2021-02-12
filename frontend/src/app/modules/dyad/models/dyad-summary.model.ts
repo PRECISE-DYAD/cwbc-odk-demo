@@ -93,7 +93,7 @@ export const DYAD_CHILD_SUMMARY_FIELDS: IDyadMappedField[] = [
       if (data.Birthbaby.f9_delivery_date) {
         return differenceInWeeks(new Date(), new Date(data.Birthbaby.f9_delivery_date)) + " weeks";
       } else {
-        return "No delivery date specified in Birthbaby form";
+        return "N/A - no delivery date specified in Birthbaby form";
       }
     },
   },

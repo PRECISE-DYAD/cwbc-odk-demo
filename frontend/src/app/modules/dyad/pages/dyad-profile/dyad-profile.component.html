@@ -39,6 +39,7 @@
               ></app-form-entries-summary>
               <app-field-summary-table
                 *ngIf="formSchema.summary_table_fields"
+                style="margin-left: 36px; margin-top: 8px"
                 [fieldSummaries]="formSchema.summary_table_fields"
                 [participantData]="dyadService.activeParticipantData"
               ></app-field-summary-table>
@@ -50,7 +51,10 @@
                 <mat-icon svgIcon="baby"></mat-icon>
                 <span>{{ formSchema.title }}</span>
               </div>
-              <div *ngFor="let child of dyadService.activeParticipantChildren; index as childIndex">
+              <div
+                *ngFor="let child of dyadService.activeParticipantChildren; index as childIndex"
+                style="margin-left: 32px"
+              >
                 <app-form-entries-summary
                   [title]="child.data.Birthbaby.f9_baby_id || child.f2_guid_child.split('_').pop()"
                   [form]="child.formsHash[formSchema.id]"
@@ -58,6 +62,7 @@
                 ></app-form-entries-summary>
                 <app-field-summary-table
                   *ngIf="formSchema.summary_table_fields"
+                  style="margin-left: 36px; margin-top: 8px"
                   [fieldSummaries]="formSchema.summary_table_fields"
                   [participantData]="child.data"
                 ></app-field-summary-table>
