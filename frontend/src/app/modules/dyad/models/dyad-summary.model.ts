@@ -1,7 +1,8 @@
 // tslint:disable
 
 import { environment } from "src/environments/environment";
-import { IDyadTableId } from "./dyad.models";
+import { IDyadMappedField, IDyadParticipantData } from "./dyad.models";
+import { differenceInWeeks } from "date-fns";
 
 /**
  * Fields displayed in the profile under the 'summary' tab
@@ -9,11 +10,25 @@ import { IDyadTableId } from "./dyad.models";
  * TODO - pass back array in cases where multiple entries possible
  */
 const SITE = environment.SITE;
-export const DYAD_SUMMARY_FIELDS: IDyadFieldSummary[] = [
+export const DYAD_SUMMARY_FIELDS: IDyadMappedField[] = [
   {
     label: "PTID",
     tableId: "profileSummary",
     field: "f2a_participant_id",
+  },
+  {
+    label: "randomisation group",
+    mapped_field_name: "randomisation_group",
+    calculation: (data) => {
+      if (data.dyad_summary.control_group_allocation) {
+        return data.dyad_summary.control_group_allocation;
+      } else {
+        if ("some condition") {
+          return "1";
+        }
+      }
+    },
+    field: "summary_field_name",
   },
   {
     label: "Full Name",
@@ -71,18 +86,25 @@ export const DYAD_SUMMARY_FIELDS: IDyadFieldSummary[] = [
   },
 ];
 
+export const DYAD_CHILD_SUMMARY_FIELDS: IDyadMappedField[] = [
+  {
+    label: "Age of child",
+    calculation: (data) => {
+      if (data.Birthbaby.f9_delivery_date) {
+        return differenceInWeeks(new Date(), new Date(data.Birthbaby.f9_delivery_date)) + " weeks";
+      } else {
+        return "No delivery date specified in Birthbaby form";
+      }
+    },
+  },
+];
+
 switch (SITE) {
   case "gambia":
   case "kenya":
   default:
   /* do nothing here */
 }
-
-/**
- * NOTE - in the case of multiple babies unique data is sent each time to calculations
- * and shown within the specific baby section
- */
-export const PRECISE_BABY_SUMMARY_FIELDS: IDyadFieldSummary[] = [];
 
 /******************************************************************************************
  * Functions used in calculations
@@ -248,39 +270,6 @@ function weeks_postpartum_visit1(data: IDyadParticipantData) {
  * ```
  *
  */
-export type IDyadParticipantData = {
-  [tableId in IDyadTableId]: { [field: string]: any };
-};
-
-/**
- * Calc data is the combination of all data known about a participant,
- * listed as nested json by form
- * @param label - Text that appears before the value on a form
- * @param tableId - If supplied with a field, will return specific value
- * @param field
- * @param calculation - Function executed to calculate value (with access to participant data object)
- * @param summaryTableFieldname - Additional mapping for populating standalone precise summary table
- * @param hidden - TODO - Hide field from summary
- * ```
- * calculation: (data)=>Math.min(data.Visit1.f2_some_field, data.Visit2.f3_another_field)
- * ```
- * @
- * @param grouping - (WiP) - group fields together (only used in profile table)
- * @param icon - (WiP) - optional icon to appear before text
- * @param transformation - (WiP) - additional transformation to be applied to
- * the final value, such as specific representation for a date (TBC)
- *
- *
- */
-export interface IDyadFieldSummary {
-  label: string;
-  tableId?: IDyadTableId;
-  field?: string;
-  calculation?: (data: IDyadParticipantData) => string;
-  summaryTableFieldname?: string;
-  // deprecated or not fully implemented
-  hidden?: boolean;
-  grouping?: string;
-  icon?: string;
-  transformation?: string;
-}
+// export type IDyadParticipantData = {
+//   [tableId in IDyadtableId]: { [field: string]: any };
+// };

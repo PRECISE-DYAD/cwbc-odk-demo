@@ -30,13 +30,20 @@
         <section class="section-details">
           <div *ngFor="let formSchema of section.formSchema">
             <!-- mother form entry create and edit -->
-            <app-form-entries-summary
-              *ngIf="!formSchema.is_child_form"
-              [form]="dyadService.participantFormsHash[formSchema.id]"
-              (entrySelected)="
-                dyadService.launchForm(dyadService.participantFormsHash[formSchema.id], $event)
-              "
-            ></app-form-entries-summary>
+            <div *ngIf="!formSchema.is_child_form">
+              <app-form-entries-summary
+                [form]="dyadService.participantFormsHash[formSchema.id]"
+                (entrySelected)="
+                  dyadService.launchForm(dyadService.participantFormsHash[formSchema.id], $event)
+                "
+              ></app-form-entries-summary>
+              <app-field-summary-table
+                *ngIf="formSchema.summary_table_fields"
+                [fieldSummaries]="formSchema.summary_table_fields"
+                [participantData]="dyadService.activeParticipantData"
+              ></app-field-summary-table>
+            </div>
+
             <!-- child form entry create and edit -->
             <div *ngIf="formSchema.is_child_form" class="child-form-section">
               <div class="child-form-heading">
@@ -49,6 +56,11 @@
                   [form]="child.formsHash[formSchema.id]"
                   (entrySelected)="launchChildForm(formSchema, $event, child)"
                 ></app-form-entries-summary>
+                <app-field-summary-table
+                  *ngIf="formSchema.summary_table_fields"
+                  [fieldSummaries]="formSchema.summary_table_fields"
+                  [participantData]="child.data"
+                ></app-field-summary-table>
               </div>
               <div *ngIf="dyadService.activeParticipantChildren.length === 0" class="basic-warning">
                 <mat-icon>warning</mat-icon>
@@ -58,12 +70,6 @@
                 >
               </div>
             </div>
-            <!-- summary table display -->
-            <app-field-summary-table
-              *ngIf="formSchema.summary_table_fields"
-              [fieldSummaries]="formSchema.summary_table_fields"
-              [participantData]="dyadService.activeParticipantData"
-            ></app-field-summary-table>
           </div>
         </section>
       </mat-expansion-panel>

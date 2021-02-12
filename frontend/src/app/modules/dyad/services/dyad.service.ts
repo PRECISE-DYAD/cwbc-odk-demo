@@ -11,11 +11,13 @@ import {
   IDyadTableId,
   IDyadParticipantChild,
   IFormSchema,
+  IDyadMappedField,
+  IFormSchemaWithEntries,
 } from "../models/dyad.models";
 import { _arrToHashmap } from "../../shared/utils";
 import { BehaviorSubject } from "rxjs";
-import { IFormMeta, IFormMetaMappedField, IFormMetaWithEntries } from "../../shared/types";
-import { DYAD_SUMMARY_FIELDS, IDyadFieldSummary } from "../models/dyad-summary.model";
+import { IFormMeta, IFormMetaWithEntries } from "../../shared/types";
+import { DYAD_SUMMARY_FIELDS } from "../models/dyad-summary.model";
 import { ActivatedRoute, Router } from "@angular/router";
 
 /**
@@ -72,10 +74,11 @@ export class DyadService {
    * and write to the summary table
    */
   async updateParticipantSummaryTable() {
+    return;
     const { f2_guid } = this.activeParticipant;
     const summaryEntry = { f2_guid, mapped_json: {} };
     DYAD_SUMMARY_FIELDS.forEach((f) => {
-      const { field, value } = this.evaluateProfileSummaryField(f, this.activeParticipantData);
+      const { field, value } = this._evaluateMappedField(f, this.activeParticipantData);
       if (field) {
         // when assigning values convert undefined or empty string to null
         summaryEntry.mapped_json[field] = value || null;
@@ -137,36 +140,6 @@ export class DyadService {
   }
 
   /**
-   * Takes a summary calculation object and relevant participant data
-   * to calculate a value for the given summary
-   * TODO - code should be merged with field-summary.ts component logic
-   */
-  private evaluateProfileSummaryField(summary: IDyadFieldSummary, data: IDyadParticipantData) {
-    let { tableId, field, calculation, summaryTableFieldname } = summary;
-    // direct lookup
-    let value: any;
-    if (tableId && field) {
-      value = data[tableId][field];
-    }
-    // calculation
-    if (calculation) {
-      try {
-        if (typeof calculation === "string") {
-          value = this._parseExpression(data, calculation);
-        } else {
-          value = calculation(data);
-        }
-      } catch (error) {
-        console.warn("could not evaluate", calculation, error, data);
-        value = "ERR";
-      }
-    }
-    // apply any field name changes
-    field = summaryTableFieldname || field;
-    return { field, value };
-  }
-
-  /**
    * Launch a form in ODK survey, optionally providing an existing rowId to
    * open an existing form (otherwise creates a new entry).
    * Additionally pipe any key-value data pairs to the form, and automatically
@@ -206,7 +179,7 @@ export class DyadService {
   private async loadParticipantTableData(participant: IDyadParticipantSummary) {
     const { f2_guid } = participant;
     const collated: {
-      [tableId in IDyadTableId]: IFormMetaWithEntries;
+      [tableId in IDyadTableId]: IFormSchemaWithEntries;
     } = {} as any;
     const promises = Object.entries(MAPPED_SCHEMA).map(async ([key, formMeta]) => {
       const { tableId } = formMeta;
@@ -228,7 +201,7 @@ export class DyadService {
       collated[tableId] = {
         ...formMeta,
         entries: participantRows || [],
-      };
+      } as any;
       // duplicate data to pre-mapped table id for use in lookups
       collated[key] = {
         ...formMeta,
@@ -246,7 +219,7 @@ export class DyadService {
    */
   private setParticipantForms(
     collated: {
-      [tableId in IDyadTableId]: IFormMetaWithEntries;
+      [tableId in IDyadTableId]: IFormSchemaWithEntries;
     }
   ) {
     const participantFormsHash = _arrToHashmap(Object.values(collated), "tableId") as any;
@@ -329,22 +302,44 @@ export class DyadService {
    * optional mapped_field_name to retrieve and return
    * NOTE - in case of multiple table entries returns only first entry
    */
-  private _generateMappedFields(mapFields: IFormMetaMappedField[] = []) {
+  private _generateMappedFields(mapFields: IDyadMappedField[] = []) {
     const mapping = {};
-
-    for (const field of mapFields) {
-      const { field_name, mapped_field_name, value } = field;
-      const fieldName = mapped_field_name || field_name;
-      // If value hardcoded (even if ""),simply reutrn
-      if (field.hasOwnProperty("value")) {
-        mapping[fieldName] = value;
-      } else {
-        const tableMeta = MAPPED_SCHEMA[field.table_id];
-        const { tableId } = tableMeta;
-        const entries = this.participantFormsHash[tableId].entries;
-        mapping[fieldName] = entries[0] ? entries[0][fieldName] : null;
+    for (const mapField of mapFields) {
+      const { field, value } = this._evaluateMappedField(mapField, this.activeParticipantData);
+      if (field) {
+        mapping[field] = value || null;
       }
     }
     return mapping;
+  }
+
+  /**
+   * Takes a mappedField object and relevant participant data
+   * to calculate a value for the given summary
+   * TODO - code should be merged with field-summary.ts component logic
+   */
+  private _evaluateMappedField(mappedField: IDyadMappedField, data: IDyadParticipantData) {
+    let { tableId, field, calculation, mapped_field_name } = mappedField;
+    // direct lookup
+    let value: any;
+    if (tableId && field) {
+      value = data[tableId][field];
+    }
+    // calculation
+    if (calculation) {
+      try {
+        if (typeof calculation === "string") {
+          value = this._parseExpression(data, calculation);
+        } else {
+          value = calculation(data);
+        }
+      } catch (error) {
+        console.warn("could not evaluate", calculation, error, data);
+        value = "ERR";
+      }
+    }
+    // apply any field name changes
+    field = mapped_field_name || field;
+    return { field, value };
   }
 }
