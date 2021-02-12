@@ -1,10 +1,8 @@
 import watch from "node-watch";
 import * as path from "path";
-import * as fs from "fs-extra";
-import * as child from "child_process";
+import { spawnSync } from "child_process";
 
 const rootPath = process.cwd();
-const designerPath = path.join(rootPath, "designer");
 const formsPath = path.join(rootPath, "forms");
 /**
  * Automatically watch for changes to form xlsx files
@@ -31,7 +29,7 @@ main();
  * so just run across all files to make thing easier
  */
 function processChangedFile(filepath: string) {
-  child.spawnSync(`npm run prepare`, {
+  spawnSync(`npm run prepare`, {
     stdio: ["ignore", "inherit", "inherit"],
     shell: true,
   });

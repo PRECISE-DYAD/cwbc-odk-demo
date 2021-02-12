@@ -93,7 +93,7 @@ export async function promptInput(message: string, defaultValue?: string) {
 /**
  * Take an input file and return an array of strings representing each line
  */
-function readFileByLine(filepath: string) {
+export function readFileByLine(filepath: string) {
   return (
     fs
       .readFileSync(filepath)

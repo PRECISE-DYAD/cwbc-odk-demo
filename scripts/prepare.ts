@@ -1,15 +1,15 @@
 import * as fs from "fs-extra";
 import * as path from "path";
+import * as chalk from "chalk";
 import * as child from "child_process";
 import * as md5File from "md5-file";
-import { recFind, listFolders, recFindByExt } from "./utils";
-import * as chalk from "chalk";
+import * as boxen from "boxen";
+import { recFind, listFolders, recFindByExt, readFileByLine } from "./utils";
 
 const rootPath = process.cwd();
 const designerPath = path.join(rootPath, "designer");
 const designerAssetsPath = path.join(designerPath, "app/config/assets");
 const designerTablesPath = path.join(designerPath, "app/config/tables");
-const frontendPath = path.join(rootPath, "frontend");
 
 /**
  *
@@ -23,13 +23,9 @@ async function run() {
   copyCustomHandlebarsTemplates();
   // copy preload data
   ensureCopy("forms/csv", `${designerAssetsPath}/csv`, true);
-  fs.moveSync(
-    `${designerAssetsPath}/csv/tables.init`,
-    `${designerAssetsPath}/tables.init`,
-    {
-      overwrite: true,
-    }
-  );
+  fs.moveSync(`${designerAssetsPath}/csv/tables.init`, `${designerAssetsPath}/tables.init`, {
+    overwrite: true,
+  });
   ensureCopy("forms/app.properties", `${designerAssetsPath}/app.properties`);
   console.log(chalk.green("Prepare complete"));
 }
@@ -77,39 +73,43 @@ async function processXlsxFile(filepath: string) {
   const relativePath = path.relative("forms", filepath);
   const formFolder = path.dirname(relativePath);
   const appTargetBase =
-    filename === "framework.xlsx"
-      ? "app/config/assets/framework/forms"
-      : "app/config";
+    filename === "framework.xlsx" ? "app/config/assets/framework/forms" : "app/config";
   const appXLSXTargetPath = path.join(appTargetBase, relativePath);
   const designerXLSXPath = `designer/${appXLSXTargetPath}`;
-  const targetMd5 = fs.existsSync(designerXLSXPath)
-    ? await md5File(designerXLSXPath)
-    : null;
+  const targetMd5 = fs.existsSync(designerXLSXPath) ? await md5File(designerXLSXPath) : null;
   if (sourceMd5 !== targetMd5) {
     // copy and process entire table folder
-    const formDefTargetPath = appXLSXTargetPath.replace(
-      filename,
-      "formDef.json"
-    );
+    const formDefTargetPath = appXLSXTargetPath.replace(filename, "formDef.json");
     const targetFolderPath = `designer/${appTargetBase}/${formFolder}`;
     fs.ensureDir(targetFolderPath);
     fs.emptyDirSync(targetFolderPath);
     fs.copySync(`forms/${formFolder}`, targetFolderPath);
     // call grunt task that converts xlsx file to formdef
-    child.spawnSync(
-      `npx grunt exec:macGenConvert:${appXLSXTargetPath}:${formDefTargetPath}`,
-      {
-        cwd: designerPath,
-        stdio: ["ignore", "inherit", "inherit"],
-        shell: true,
-      }
-    );
+    child.spawnSync(`npx grunt exec:macGenConvert:${appXLSXTargetPath}:${formDefTargetPath}`, {
+      cwd: designerPath,
+      stdio: ["ignore", "inherit", "inherit"],
+      shell: true,
+    });
     // Ensure formdef parsed correctly, flag error and remove xlsx if not
     try {
       fs.readJSONSync(`designer/${formDefTargetPath}`);
     } catch (error) {
-      console.error("Invalid formdef", formDefTargetPath);
-      console.error(error);
+      const errorText = readFileByLine(`designer/${formDefTargetPath}`);
+      console.log(
+        boxen(
+          `
+      ${chalk.red("Form Error")}
+      ${path.join(process.cwd(), "designer", formDefTargetPath)}
+
+      ${chalk.yellow(errorText[0]).replace("Error: ", "")}
+      `,
+          { padding: 1, borderColor: "red" }
+        )
+      );
+      // console.error(chalk.red(""));
+      // console.log(chalk.red());
+      // console.log(chalk.yellow(
+      // console.log(chalk.red("==============================================="));
       fs.removeSync(designerXLSXPath);
       process.exit(1);
     }
@@ -136,10 +136,8 @@ function populateSampleFiles() {
   // additional files to check and create if not existing, {destination:source} mapping
   const otherFiles = {
     ".env": ".env.sample",
-    "forms/framework/customPromptTypes.js":
-      "forms/demo/framework/customPromptTypes.js",
-    "forms/framework/customScreenTypes.js":
-      "forms/demo/framework/customScreenTypes.js",
+    "forms/framework/customPromptTypes.js": "forms/demo/framework/customPromptTypes.js",
+    "forms/framework/customScreenTypes.js": "forms/demo/framework/customScreenTypes.js",
   };
   for (let [destination, source] of Object.entries(otherFiles)) {
     if (!fs.existsSync(destination)) {
@@ -155,9 +153,7 @@ function populateSampleFiles() {
  */
 function copyCustomTypeTemplates() {
   const srcDir = "forms/templates";
-  const srcFiles = fs
-    .readdirSync(srcDir)
-    .filter((f) => path.extname(f) === ".js");
+  const srcFiles = fs.readdirSync(srcDir).filter((f) => path.extname(f) === ".js");
   const tableIds = listFolders(designerTablesPath);
   for (let tableId of tableIds) {
     const formFolders = listFolders(`${designerTablesPath}/${tableId}/forms`);
@@ -178,9 +174,7 @@ function copyCustomHandlebarsTemplates() {
   const targetDir = `${designerAssetsPath}/templates`;
   fs.ensureDirSync(targetDir);
   fs.emptyDirSync(targetDir);
-  const templates = fs
-    .readdirSync(srcDir)
-    .filter((f) => path.extname(f) === ".handlebars");
+  const templates = fs.readdirSync(srcDir).filter((f) => path.extname(f) === ".handlebars");
   for (let template of templates) {
     fs.copyFileSync(`${srcDir}/${template}`, `${targetDir}/${template}`);
   }
