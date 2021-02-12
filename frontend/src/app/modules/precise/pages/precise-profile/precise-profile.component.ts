@@ -59,7 +59,7 @@ export class PreciseProfileComponent implements OnDestroy, OnInit {
 
   private setPageTitle(activeParticipant: IParticipant) {
     const { f2a_full_name, f2a_participant_id } = activeParticipant;
-    this.commonStore.setPageTitle(`${f2a_participant_id} ${f2a_full_name}`);
+    this.commonStore.setPageTitle(`${f2a_participant_id || ""} ${f2a_full_name || ""}`);
   }
   private loadParticipantSections() {
     console.log("loading participant sections");
@@ -67,9 +67,7 @@ export class PreciseProfileComponent implements OnDestroy, OnInit {
     PRECISE_FORM_SECTIONS.forEach((s) => {
       const sectionWithMeta = {
         ...s,
-        forms: s.formIds.map((formId) =>
-          this.getFormWithEntries(formId as string)
-        ),
+        forms: s.formIds.map((formId) => this.getFormWithEntries(formId as string)),
       };
       sections[s._id] = sectionWithMeta;
     });
@@ -81,8 +79,7 @@ export class PreciseProfileComponent implements OnDestroy, OnInit {
   private loadParticipantBabySections() {
     // Add placeholders for additional children recorded
     const numberOfBabies =
-      this.store.participantFormsHash.Birthmother.entries[0]
-        ?.f7_delivery_num_of_babies || 1;
+      this.store.participantFormsHash.Birthmother.entries[0]?.f7_delivery_num_of_babies || 1;
     // add any additional sections if more babies specified
     const { f2_guid } = this.store.activeParticipant;
     const expectedEntries = new Array(numberOfBabies)
