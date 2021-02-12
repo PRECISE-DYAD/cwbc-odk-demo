@@ -106,10 +106,6 @@ async function processXlsxFile(filepath: string) {
           { padding: 1, borderColor: "red" }
         )
       );
-      // console.error(chalk.red(""));
-      // console.log(chalk.red());
-      // console.log(chalk.yellow(
-      // console.log(chalk.red("==============================================="));
       fs.removeSync(designerXLSXPath);
       process.exit(1);
     }
