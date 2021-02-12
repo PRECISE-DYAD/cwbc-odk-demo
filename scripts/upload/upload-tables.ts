@@ -104,8 +104,15 @@ export async function processTableUploadActions(actions: ITableUploadAction[]) {
 async function createServerTable(tableId: string) {
   // upload table schema
   const tableDefPath = `${APP_CONFIG_PATH}/tables/${tableId}/definition.csv`;
-  const orderedColumns = await parseCSV<IODK.ISchemaColumn>(tableDefPath, {
+  let orderedColumns = await parseCSV<IODK.ISchemaColumn>(tableDefPath, {
     transformHeader: (h) => _snakeToCamel(h),
+  });
+  // fix conversion of listchildelementkeys (expected format: "[\"test\"]")
+  orderedColumns = orderedColumns.map((c) => {
+    if (c.elementType === "object" || c.elementType === "array") {
+      c.listChildElementKeys = JSON.stringify(JSON.parse(c.listChildElementKeys));
+    }
+    return c;
   });
   const schema = { tableId, orderedColumns };
   const table = await odkRest.createTable(schema);

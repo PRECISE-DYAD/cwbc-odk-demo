@@ -103,3 +103,14 @@ function readFileByLine(filepath: string) {
       .split("\n")
   );
 }
+
+// TODO - could be made more generic
+export function writeTablesInit(outputFolder: string, tableIds: string[]) {
+  const tablesInitPath = `${outputFolder}/tables.init`;
+  fs.createFileSync(tablesInitPath);
+  fs.appendFileSync(tablesInitPath, `table_keys=${tableIds.join(",")}`);
+  for (let tableId of tableIds) {
+    const line = `\r\n${tableId}.filename=config/assets/csv/${tableId}.csv`;
+    fs.appendFileSync(tablesInitPath, line);
+  }
+}
