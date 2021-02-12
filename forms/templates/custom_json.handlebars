@@ -12,8 +12,12 @@
     function valueToJson() {
         var jsonEl$ = document.getElementById('jsonContainer')
         if(jsonEl$){
-            var jsonData = JSON.parse(jsonEl$.innerHTML);
-            // console.log('jsonData',jsonData)
+            const jsonString = jsonEl$.innerHTML
+            if(jsonString && typeof jsonString==='string'){
+                var jsonData = JSON.parse(jsonString);
+                // console.log('jsonData',jsonData)
+            }
+            
         }
     }
 </script>

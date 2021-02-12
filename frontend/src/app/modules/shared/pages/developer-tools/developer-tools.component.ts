@@ -2,11 +2,8 @@ import { HttpClient } from "@angular/common/http";
 import { Component, OnInit } from "@angular/core";
 import { takeWhile } from "rxjs/operators";
 import { OdkService } from "src/app/modules/shared/services/odk/odk.service";
-import {
-  IFormDef,
-  IFormDefSpecificationChoice,
-} from "src/app/modules/shared/types/odk.types";
-import { parseCSV } from "src/app/modules/shared/services/utils";
+import { IFormDef, IFormDefSpecificationChoice } from "src/app/modules/shared/types/odk.types";
+import { downloadCSVToFile, parseCSV, unparseCSV } from "src/app/modules/shared/services/utils";
 import { _arrToHashmap } from "src/app/modules/shared/utils";
 
 @Component({
@@ -16,7 +13,10 @@ import { _arrToHashmap } from "src/app/modules/shared/utils";
 })
 export class DeveloperToolsComponent implements OnInit {
   tablesMeta: ITableMeta[];
+  /** Tables that are in local database but not present in framework json */
   missingTables: string[] = [];
+  /** Tables that are referenced in the framework but don't have a local formdef */
+  missingFormDefs: string[] = [];
   isLoading = false;
   constructor(private odkService: OdkService, private http: HttpClient) {}
 
@@ -42,28 +42,31 @@ export class DeveloperToolsComponent implements OnInit {
       ...t,
       rows: [],
     }));
-    this.tablesMeta = tablesWithRows.map((t) => ({ ...t, rows: [] }));
-    await this.checkMissingTables(this.tablesMeta);
-    this.loadLocalTableRows();
+    const tablesMetaBase = tablesWithRows.map((t) => ({ ...t, rows: [] }));
+    await this.checkMissingTables(tablesMetaBase);
+    await this.loadLocalTableRows(tablesMetaBase);
   }
   /**
    * Run a request to get the current metadata for all tables, including total row count
    */
-  async loadLocalTableRows() {
+  async loadLocalTableRows(tablesMetaBase: ITableMeta[]) {
     this.isLoading = true;
-    const getRowOperations = this.tablesMeta.map(async (meta) => {
+    const getRowOperations = tablesMetaBase.map(async (meta) => {
       let rows = [];
+      let formDef = null;
       const { tableId } = meta;
       try {
         // ensure exists before loading otherwise there will be unhandled errors
         const formDefBase = `config/tables/${tableId}/forms/${tableId}/formDef.json`;
         const formDefPath = this.odkService.getFileAsUrl(formDefBase);
-        const formDef = await this.http.get(formDefPath).toPromise();
+        formDef = await this.http.get(formDefPath).toPromise();
         rows = await this.odkService.getTableRows(tableId);
       } catch (err) {}
-      return { ...meta, rows };
+      return { ...meta, rows, formDef };
     });
-    this.tablesMeta = await Promise.all(getRowOperations);
+    const tablesMeta = await Promise.all(getRowOperations);
+    this.missingFormDefs = tablesMeta.filter((t) => !t.formDef).map((t) => t.tableId);
+    this.tablesMeta = tablesMeta.filter((f) => f.formDef);
     this.isLoading = false;
   }
   /**
@@ -75,7 +78,7 @@ export class DeveloperToolsComponent implements OnInit {
     this.odkService.surveyIsOpen$
       .pipe(takeWhile((isOpen) => isOpen))
       .toPromise()
-      .then(() => this.loadLocalTableRows());
+      .then(() => this.loadLocalTableRows(this.tablesMeta));
   }
   /**
    * Load csv files as defined in tables.init and populate raw json to table meta
@@ -86,9 +89,7 @@ export class DeveloperToolsComponent implements OnInit {
       if (meta.csvFilePath) {
         try {
           const csvPath = this.odkService.getFileAsUrl(meta.csvFilePath);
-          const csvText = await this.http
-            .get(csvPath, { responseType: "text" })
-            .toPromise();
+          const csvText = await this.http.get(csvPath, { responseType: "text" }).toPromise();
           csvRows = await parseCSV(csvText, {
             // TODO - should be a way to pass empty strings but for now just set as NULL
             transform: (v) => (v ? v : "NULL"),
@@ -111,14 +112,9 @@ export class DeveloperToolsComponent implements OnInit {
     const { tableId, csvFilePath } = meta;
     // TODO - handle checking data consistency before import (all columns defined)
     const definitions = await this.getTableDefinitions(tableId);
-    const definitionsByKey = _arrToHashmap<ITableDefinitionRow>(
-      definitions,
-      "_element_key"
-    );
+    const definitionsByKey = _arrToHashmap<ITableDefinitionRow>(definitions, "_element_key");
     const csvPath = this.odkService.getFileAsUrl(csvFilePath);
-    const csvText = await this.http
-      .get(csvPath, { responseType: "text" })
-      .toPromise();
+    const csvText = await this.http.get(csvPath, { responseType: "text" }).toPromise();
     const rows: any[] = await parseCSV(csvText, {
       transform: (value, key) => {
         // TODO - should be a way to pass empty strings but for now just set as NULL
@@ -144,7 +140,20 @@ export class DeveloperToolsComponent implements OnInit {
         break;
       }
     }
-    this.loadLocalTableRows();
+    this.loadLocalTableRows(this.tablesMeta);
+  }
+
+  async exportCSV(meta: ITableMeta, metaIndex: number) {
+    console.log("exporting csv", meta);
+    // when exporting local rows remove some metadata columns
+    const exportRows = meta.rows.map((r) => {
+      delete r._sync_state;
+      delete r._conflict_type;
+      return r;
+    });
+    const csv = await unparseCSV(exportRows);
+    console.log("csv", csv);
+    await downloadCSVToFile(csv, `${meta.tableId}.csv`);
   }
   /**
    * Delete all rows in a table
@@ -161,24 +170,25 @@ export class DeveloperToolsComponent implements OnInit {
       []
     );
     this.tablesMeta[metaIndex].isImporting = false;
-    this.loadLocalTableRows();
+    this.loadLocalTableRows(this.tablesMeta);
   }
 
   async deleteTable(tableId: string) {
     // remove odk definition
-    await this.odkService.arbitraryQuery(
-      this.tablesMeta[0].tableId,
-      `DELETE FROM _table_definitions WHERE _table_id=?`,
-      [tableId]
-    );
-    await this.checkMissingTables(this.tablesMeta);
-    // drop main table (if created). Note - use other valid table for return
-    await this.odkService.arbitraryQuery(
-      this.tablesMeta[0].tableId,
-      `DROP TABLE ${tableId}`,
-      [],
-      (err) => console.error(err)
-    );
+    // Note - query requires a specified table for response, so use
+    const validTable = this.tablesMeta.find((m) => m.formDef);
+    if (validTable) {
+      await this.odkService.arbitraryQuery(
+        validTable.tableId,
+        `DELETE FROM _table_definitions WHERE _table_id=?`,
+        [tableId]
+      );
+      await this.checkMissingTables(this.tablesMeta);
+      // drop main table (if created).
+      await this.odkService.arbitraryQuery(validTable.tableId, `DROP TABLE ${tableId}`, [], (err) =>
+        console.error(err)
+      );
+    }
   }
   /**
    * Return a json-parsed representation of a table's definitions.csv file
@@ -195,12 +205,9 @@ export class DeveloperToolsComponent implements OnInit {
 
   private async checkMissingTables(frameworkTables: ITableMeta[]) {
     const expectedTables = frameworkTables.map((t) => t.tableId);
-    const websqlTables = (await this.odkService.getTableMeta()).map(
-      (t) => t._table_id
-    );
-    const missing = websqlTables.filter(
-      (_table_id) => !expectedTables.includes(_table_id)
-    );
+    const websqlTables = (await this.odkService.getTableMeta()).map((t) => t._table_id);
+    console.log("websql tables", websqlTables);
+    const missing = websqlTables.filter((_table_id) => !expectedTables.includes(_table_id));
     this.missingTables = missing;
   }
 
@@ -257,8 +264,7 @@ export class DeveloperToolsComponent implements OnInit {
       // generate final list, assuming that tableIds without specific filename will use default path
       const csvPathsByTable: { [tableId: string]: string } = {};
       tableKeys.forEach((tableId) => {
-        csvPathsByTable[tableId] =
-          csvPaths[tableId] || `config/assets/csv/${tableId}.csv`;
+        csvPathsByTable[tableId] = csvPaths[tableId] || `config/assets/csv/${tableId}.csv`;
       });
       return csvPathsByTable;
     } catch (error) {
@@ -276,6 +282,7 @@ interface ITableMeta {
   csvRows?: any[];
   isImporting?: boolean;
   importProcessed?: number;
+  formDef?: any;
 }
 
 interface ITableDefinitionRow {

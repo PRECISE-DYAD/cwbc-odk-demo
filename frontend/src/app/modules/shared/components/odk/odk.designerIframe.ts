@@ -1,13 +1,8 @@
-import {
-  Component,
-  ViewChild,
-  ElementRef,
-  HostListener,
-  NgZone,
-} from "@angular/core";
+import { Component, ViewChild, ElementRef, HostListener, NgZone } from "@angular/core";
 import { DomSanitizer, SafeUrl } from "@angular/platform-browser";
 import { slideInOut } from "src/app/modules/shared/animations";
 import { OdkService } from "src/app/modules/shared/services/odk/odk.service";
+import { NotificationService } from "src/app/modules/shared/services";
 
 @Component({
   selector: "odk-designer-iframe",
@@ -17,12 +12,7 @@ import { OdkService } from "src/app/modules/shared/services/odk/odk.service";
       <mat-toolbar color="accent">
         <span>Form Preview</span>
         <span style="flex: 1;"></span>
-        <button
-          mat-button
-          class="close-button"
-          aria-label="close"
-          (click)="closeIframe()"
-        >
+        <button mat-button class="close-button" aria-label="close" (click)="closeIframe()">
           Close
           <mat-icon>close</mat-icon>
         </button>
@@ -70,18 +60,29 @@ export class ODKDesignerIframeComponent {
     if (event.origin === "http://localhost:8000") {
       console.log("odk event", event);
     }
-    if (event.data === "odk:ready") {
-      const childWindow = this.iframeRef.nativeElement.contentWindow as any;
-      if (!this.odkService.ready$.value) {
-        console.log("odk ready");
-        this.odkService.setWindow(childWindow);
+    if (event.data && typeof event.data === "string") {
+      const msg = event.data as string;
+      if (msg === "odk:ready") {
+        const childWindow = this.iframeRef.nativeElement.contentWindow as any;
+        if (!this.odkService.ready$.value) {
+          console.log("odk ready");
+          this.odkService.setWindow(childWindow);
+        }
+      }
+      if (msg.startsWith("odk:error")) {
+        // ignore some specific errors
+        if (msg.includes("Cannot read property 'promptPath' of null")) return;
+        // otherwise show error notification
+        this.notifications.handleError(event.data);
       }
     }
   }
+
   constructor(
     private odkService: OdkService,
     private sanitizer: DomSanitizer,
-    private ngZone: NgZone
+    private ngZone: NgZone,
+    private notifications: NotificationService
   ) {
     // allow child and parent to both communicate on localhost even if on different ports
     // (requires setting on child also)
@@ -107,9 +108,7 @@ export class ODKDesignerIframeComponent {
       const instanceId = urlRef.split("#instanceId=")[1];
       const { tableId, formId } = this.odkService.activeArgs;
       const baseUrl = "http://localhost:8000/app/system/index.html";
-      const formPath = encodeURIComponent(
-        `../config/tables/${tableId}/forms/${formId}/`
-      );
+      const formPath = encodeURIComponent(`../config/tables/${tableId}/forms/${formId}/`);
       let uri = `${baseUrl}?#formPath=${formPath}&instanceId=${instanceId}`;
       // TODO - figure out how to know which screen should be initial
       // const screenpath = encodeURIComponent(`initial/2`);
@@ -173,5 +172,9 @@ export class ODKDesignerIframeComponent {
         childWindow.location.reload();
       }, 100);
     }
+  }
+
+  handleIframeError(e) {
+    console.log("iframe error", e);
   }
 }

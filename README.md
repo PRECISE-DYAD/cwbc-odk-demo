@@ -15,13 +15,19 @@ This is a monorepo extension of ODK application designer. It contains the follow
 - Node  
   https://nodejs.org/en/download/
 
+- Yarn package manager
+  ```
+  npm i -g yarn
+  ``
+  ```
+
 ## Installation
 
 ```
-npm install
+yarn install
 ```
 
-This will install core dependencies, and trigger the `postinstall` script which installs dependencies of the child application designer and frontend directories.
+Note, this will automatically be run when using the start scripts below.
 
 ## Development
 

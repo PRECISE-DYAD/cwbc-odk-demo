@@ -35,8 +35,8 @@ async function post<T = any>(endpoint: string, data: any, headers = {}) {
         ...headers,
         "X-OpenDataKit-Version": "2.0",
         // set max limits for posting size
-        maxContentLength: 100000000,
-        maxBodyLength: 1000000000,
+        maxContentLength: Infinity,
+        maxBodyLength: Infinity,
       },
     })
     .then((res) => handleRes<T>(res))
@@ -47,7 +47,8 @@ async function put<T = any>(endpoint: string, data: any, headers = {}) {
     .put(endpoint, data, {
       headers: { ...headers, "X-OpenDataKit-Version": "2.0" },
       // set max limits for posting size
-      maxContentLength: 100000000,
+      maxContentLength: Infinity,
+      maxBodyLength: Infinity,
     })
     .then((res) => handleRes<T>(res))
     .catch((err) => handleErr(err));

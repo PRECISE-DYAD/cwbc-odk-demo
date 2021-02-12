@@ -14,12 +14,7 @@ import { DyadService } from "../../services/dyad.service";
 export class DyadParticipantsComponent implements OnInit, AfterViewInit {
   isLoading = true;
   dataSource = new MatTableDataSource<IDyadParticipantSummary>();
-  displayedColumns = [
-    "dyad_enrollment",
-    "f2a_participant_id",
-    "f2a_full_name",
-    "f2_guid",
-  ];
+  displayedColumns = ["dyad_consent", "f2a_participant_id", "f2a_full_name", "f2_guid"];
   @ViewChild(MatPaginator, { static: true }) paginator: MatPaginator;
   @ViewChild(MatSort, { static: true }) sort: MatSort;
   constructor(
@@ -38,7 +33,7 @@ export class DyadParticipantsComponent implements OnInit, AfterViewInit {
     this.dataSource.sort.sort({
       start: "desc",
       disableClear: false,
-      id: "dyad_enrollment",
+      id: "dyad_consent",
     });
   }
   async loadParticipants() {
@@ -48,10 +43,10 @@ export class DyadParticipantsComponent implements OnInit, AfterViewInit {
     this.dataSource.data = participantSummaries;
   }
   handleRowClicked(row: IDyadParticipantSummary) {
-    if (row.dyad_enrollment && row.dyad_enrollment.d1_enroll_consent === "1") {
+    if (row.dyad_consent && row.dyad_consent.d1_enroll_consent === "1") {
       this.router.navigate([row.f2_guid], { relativeTo: this.route });
     } else {
-      this.dyadService.enrolParticipant(row);
+      this.dyadService.enrolParticipant(this.router, this.route, row);
     }
   }
 

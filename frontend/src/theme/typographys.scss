@@ -1,3 +1,25 @@
 body {
   color: var(--color-black);
 }
+// used at top of pages, includes yellow background
+.warning-message {
+  font-size: large;
+  background: #ffe033;
+  color: #000000e6;
+  padding: 16px;
+  border-radius: 2px;
+  margin-bottom: 1em;
+  display: flex;
+  align-items: center;
+}
+// used inline in tables, no background to avoid change from color-rotate filters
+.basic-warning {
+  padding: 8px;
+  margin: 8px;
+  background: white;
+  color: black;
+  display: flex;
+  align-items: center;
+  border: 2px solid;
+  border-radius: 4px;
+}

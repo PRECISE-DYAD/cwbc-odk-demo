@@ -1,4 +1,4 @@
-import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 
 import { PreciseScreeningComponent } from './precise-screening.component';
 
@@ -6,7 +6,7 @@ describe('PreciseScreeningComponent', () => {
   let component: PreciseScreeningComponent;
   let fixture: ComponentFixture<PreciseScreeningComponent>;
 
-  beforeEach(async(() => {
+  beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
       declarations: [ PreciseScreeningComponent ]
     })

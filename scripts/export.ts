@@ -2,7 +2,7 @@ import * as fs from "fs-extra";
 import * as path from "path";
 import * as chalk from "chalk";
 import * as archiver from "archiver";
-import { promptInput, promptOptions, setEnv } from "./utils";
+import { promptInput, promptOptions, setEnv, writeTablesInit } from "./utils";
 // TODO - refactor to have upload and export scripts and deps as siblings
 import { OdkRestService } from "./odkRest/odk.rest";
 import { IODKTypes as IODK } from "./odkRest/odk.types";
@@ -148,19 +148,11 @@ async function exportTables(exportFolder: string, tables: IODK.ITableMeta[]) {
     summary.push({ tableId, "rows exported": rows.length });
   }
   const tableIds = tables.map((t) => t.tableId);
-  writeTablesInit(exportFolder, tableIds);
+  writeTablesInit(`${exportFolder}/csv`, tableIds);
   console.table(summary);
   console.log("exported to", path.join(process.cwd(), exportFolder));
 }
-function writeTablesInit(exportFolder: string, tableIds: string[]) {
-  const tablesInitPath = `${exportFolder}/csv/tables.init`;
-  fs.createFileSync(tablesInitPath);
-  fs.appendFileSync(tablesInitPath, `table_keys=${tableIds.join(",")}`);
-  for (let tableId of tableIds) {
-    const line = `\r\n${tableId}.filename=config/assets/csv/${tableId}.csv`;
-    fs.appendFileSync(tablesInitPath, line);
-  }
-}
+
 
 main()
   .then(() => process.exit(0))
