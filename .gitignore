@@ -35,3 +35,4 @@ frontend/src/environments/environment.ts
 !**/.yarn/plugins
 !**/.yarn/sdks
 !**/.yarn/versions
+.vscode/settings.json

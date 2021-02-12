@@ -144,15 +144,17 @@ export class DeveloperToolsComponent implements OnInit {
   }
 
   async exportCSV(meta: ITableMeta, metaIndex: number) {
-    console.log("exporting csv", meta);
-    // when exporting local rows remove some metadata columns
-    const exportRows = meta.rows.map((r) => {
-      delete r._sync_state;
-      delete r._conflict_type;
-      return r;
+    // extract non-meta columns
+    const dataColumns = Object.keys(meta.rows[0] || {}).filter((r) => !r.startsWith("_"));
+    // order columns in specific format to match ODK export (meta at start, main data, meta at end)
+    const csvFields: string[] = [...EXPORT_COLUMNS_START, ...dataColumns, ...EXPORT_COLUMNS_END];
+    const csvData = [];
+    meta.rows.forEach((rowData) => {
+      // add default row access and push rest of data to row
+      rowData._default_access = rowData._default_access || "FULL";
+      csvData.push(csvFields.map((colId) => rowData[colId] || null));
     });
-    const csv = await unparseCSV(exportRows);
-    console.log("csv", csv);
+    const csv = await unparseCSV({ fields: csvFields, data: csvData });
     await downloadCSVToFile(csv, `${meta.tableId}.csv`);
   }
   /**
@@ -291,3 +293,20 @@ interface ITableDefinitionRow {
   _element_type: string;
   _list_child_element_keys: string;
 }
+
+const EXPORT_COLUMNS_START = [
+  "_id",
+  "_form_id",
+  "_locale",
+  "_savepoint_type",
+  "_savepoint_timestamp",
+  "_savepoint_creator",
+];
+const EXPORT_COLUMNS_END = [
+  "_default_access",
+  "_group_modify",
+  "_group_privileged",
+  "_group_read_only",
+  "_row_etag",
+  "_row_owner",
+];

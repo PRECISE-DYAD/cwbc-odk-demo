@@ -107,6 +107,9 @@ function readFileByLine(filepath: string) {
 // TODO - could be made more generic
 export function writeTablesInit(outputFolder: string, tableIds: string[]) {
   const tablesInitPath = `${outputFolder}/tables.init`;
+  if (fs.existsSync(tablesInitPath)) {
+    fs.removeSync(tablesInitPath);
+  }
   fs.createFileSync(tablesInitPath);
   fs.appendFileSync(tablesInitPath, `table_keys=${tableIds.join(",")}`);
   for (let tableId of tableIds) {
