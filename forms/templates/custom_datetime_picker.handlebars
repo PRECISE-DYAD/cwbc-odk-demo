@@ -17,7 +17,7 @@
         var formattedLocalDate = formatDateTimeForInput();
         document.getElementById("slider-{{promptId}}").value = formattedLocalDate;;
         // manually trigger change detection when updating programatically
-        window.$("#slider-{{promptId}}").trigger('change')
+        window.$(document.getElementById("slider-{{promptId}}")).trigger('change')
     })
 
     // take a given date (default local datetime) and format as YYYY-MM-DDTHH:MM

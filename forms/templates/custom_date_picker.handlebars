@@ -15,9 +15,11 @@
 <script>
     document.getElementById("slider-{{promptId}}-button").addEventListener('click', function () {
         var formattedLocalDate = formatDateForInput();
-        document.getElementById("slider-{{promptId}}").value = formattedLocalDate;;
+        var inputEl = document.getElementById("slider-{{promptId}}")
+        inputEl.value = formattedLocalDate;;
         // manually trigger change detection when updating programatically
-        window.$("#slider-{{promptId}}").trigger('change')
+        // pass inputEl directly (and not query) as jquery can fail when promptIds contain '/'
+        window.$(inputEl).trigger('change')
     })
 
     // take a given date (default local datetime) and format as YYYY-MM-DD

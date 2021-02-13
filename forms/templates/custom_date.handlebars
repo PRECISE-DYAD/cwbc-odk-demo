@@ -23,14 +23,14 @@
     }
 
     document.getElementById("slider-{{promptId}}-button").addEventListener('click', function (e) {
-      if ($("#slider-{{promptId}}").prop("value") == dummyValue()) {
+      if ($(document.getElementById("slider-{{promptId}}")).prop("value") == dummyValue()) {
         e.stopPropagation();
-        $("#slider-{{promptId}}-button").prop('disabled', true);
+        $(document.getElementById("slider-{{promptId}}-button")).prop('disabled', true);
       } else {
         var formattedLocalDate = formatDateForInput();
         document.getElementById("slider-{{promptId}}").value = formattedLocalDate;;
         // manually trigger change detection when updating programmatically
-        window.$("#slider-{{promptId}}").trigger('change')
+        window.$(document.getElementById("slider-{{promptId}}")).trigger('change')
       }
     })
 
@@ -48,22 +48,22 @@
       //const dummyValue = formatDateForInput(new Date(50, 0));
       // set default checkbox state
       if ("{{value}}" == dummyValue()) {
-        $("#idk-{{promptId}}").prop('checked', true);
-        $("#slider-{{promptId}}").prop('disabled', true);
+        $(document.getElementById("idk-{{promptId}}")).prop('checked', true);
+        $(document.getElementById("slider-{{promptId}}")).prop('disabled', true);
       }
       // handle checkbox click by setting input value to -99 or "" if checked or not
-      $('#idk-{{promptId}}').click(function (e) {
+      $(document.getElementById("idk-{{promptId}}")).click(function (e) {
         // prevent default change handler assigned by odk propagating checkbox value to data
         e.stopPropagation();
         // toggle checkbox state and set associated values
-        let isChecked = $("#idk-{{promptId}}").prop("checked");
+        let isChecked = $(document.getElementById("idk-{{promptId}}")).prop("checked");
         const targetValue = isChecked ? dummyValue() : "";
-        $("#idk-{{promptId}}").prop("checked", isChecked);
-        $("#idk-{{promptId}}").val(targetValue);
-        $("#slider-{{promptId}}").val(targetValue);
-        $("#slider-{{promptId}}").prop('disabled', isChecked);
-        $("#slider-{{promptId}}-button").prop('disabled', isChecked);
-        $("#slider-{{promptId}}").trigger('change')
+        $(document.getElementById("idk-{{promptId}}")).prop("checked", isChecked);
+        $(document.getElementById("idk-{{promptId}}")).val(targetValue);
+        $(document.getElementById("slider-{{promptId}}")).val(targetValue);
+        $(document.getElementById("slider-{{promptId}}")).prop('disabled', isChecked);
+        $(document.getElementById("slider-{{promptId}}-button")).prop('disabled', isChecked);
+        $(document.getElementById("slider-{{promptId}}")).trigger('change')
       });
     }
     handleIDKCheckbox()
@@ -71,7 +71,7 @@
     // check validation status and messages from input el. Display in message div if exists
     function checkValidation() {
       var inputEl = document.getElementById('slider-{{promptId}}')
-      var messageEl$ = $("#validation-message-{{promptId}}")
+      var messageEl$ =$(document.getElementById("validation-message-{{promptId}}"))
       const isValid = inputEl.checkValidity();
       if (!isValid) {
         const validationMsg = inputEl.validationMessage

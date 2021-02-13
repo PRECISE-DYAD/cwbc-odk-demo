@@ -29,21 +29,21 @@
     function handleIDKCheckbox() {
         // set default checkbox state
         if ("{{value}}" == "-99") {
-            $("#idk-{{promptId}}").prop('checked', true);
-            $("#slider-{{promptId}}").prop('disabled', true);
+            $(document.getElementById("idk-{{promptId}}")).prop('checked', true);
+            $(document.getElementById("slider-{{promptId}}")).prop('disabled', true);
         }
         // handle checkbox click by setting input value to -99 or "" if checked or not
-        $('#idk-{{promptId}}').click(function (e) {
+        $(document.getElementById("idk-{{promptId}}")).click(function (e) {
             // prevent default change handler assigned by odk propagating checkbox value to data
             e.stopPropagation()
             // toggle checkbox state and set associated values
-            let isChecked = $("#idk-{{promptId}}").prop("checked");
+            let isChecked = $(document.getElementById("idk-{{promptId}}")).prop("checked");
             const targetValue = isChecked ? "-99" : ""
-            $("#idk-{{promptId}}").prop("checked", isChecked);
-            $("#idk-{{promptId}}").val(targetValue);
-            $("#slider-{{promptId}}").val(targetValue);
-            $("#slider-{{promptId}}").prop('disabled', isChecked);
-            $("#slider-{{promptId}}").trigger('change')
+            $(document.getElementById("idk-{{promptId}}")).prop("checked", isChecked);
+            $(document.getElementById("idk-{{promptId}}")).val(targetValue);
+            $(document.getElementById("slider-{{promptId}}")).val(targetValue);
+            $(document.getElementById("slider-{{promptId}}")).prop('disabled', isChecked);
+            $(document.getElementById("slider-{{promptId}}")).trigger('change')
         });
     }
     handleIDKCheckbox()
