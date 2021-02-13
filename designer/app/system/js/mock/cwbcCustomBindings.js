@@ -120,16 +120,19 @@ define(["mockImpl"], function (mockImpl) {
     /***************************************************************************
      * Iframe cross-communication
      ***************************************************************************/
-    function postMessage(message) {
-        console.log("postMessage", message);
-    }
+
     /** Listen to any uncaught errors and notify parent */
     function addErrorNotifications(){
         window.addEventListener('error', function(e) {
             if(e.error && e.error.message){
-                window.parent.postMessage(`odk:error - ${e.error.message}`,"*")
+                notifyParentError(e.error.message)
             }
           })
+    }
+    function notifyParentError(message){
+        if(message){
+            window.parent.postMessage(`odk:error - ${message}`,"*")
+        }
     }
     // listeners on parent iframe will be informed that the window is ready for access
     function notifyParentReady() {
@@ -159,12 +162,18 @@ define(["mockImpl"], function (mockImpl) {
             if (
                 data &&
                 data[0] &&
-                typeof data[0] === "string" &&
-                data[0].indexOf("/") == 1
+                typeof data[0] === "string"
+
             ) {
-                return null;
+                // only pass messages that don't start E/ W/ etc.
+                // as these are excessive odk logs
+                if(data[0].indexOf("/") != 1){
+                    notifyParentError(data[0])
+                }
             } else {
                 defaultErr(...data);
+
+
             }
         };
     }
