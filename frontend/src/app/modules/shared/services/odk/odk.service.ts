@@ -309,7 +309,7 @@ export class OdkService {
     tableId: string,
     sqlCommand: string,
     sqlBindParams: string[] = [],
-    failureCallback = this.handleError
+    failureCallback = (err) => this.handleError(err, `query tableId: ${tableId}`)
   ): Promise<T[]> {
     return new Promise((resolve, reject) => {
       this.window.odkData.arbitrarySqlQueryLocalOnlyTables(

@@ -58,22 +58,35 @@ export class ODKDesignerIframeComponent {
   @ViewChild("iframe") iframeRef: ElementRef<HTMLIFrameElement>;
   @HostListener("window:message", ["$event"]) onPostMessage(event: any) {
     if (event.origin === "http://localhost:8000") {
-      console.log("odk event", event);
-    }
-    if (event.data && typeof event.data === "string") {
-      const msg = event.data as string;
-      if (msg === "odk:ready") {
-        const childWindow = this.iframeRef.nativeElement.contentWindow as any;
-        if (!this.odkService.ready$.value) {
-          console.log("odk ready");
-          this.odkService.setWindow(childWindow);
+      if (event.data && typeof event.data === "string") {
+        const msg = event.data as string;
+        if (msg === "odk:ready") {
+          const childWindow = this.iframeRef.nativeElement.contentWindow as any;
+          if (!this.odkService.ready$.value) {
+            console.log("odk ready");
+            this.odkService.setWindow(childWindow);
+          }
         }
-      }
-      if (msg.startsWith("odk:error")) {
-        // ignore some specific errors
-        if (msg.includes("Cannot read property 'promptPath' of null")) return;
-        // otherwise show error notification
-        this.notifications.handleError(event.data);
+        if (msg.startsWith("odk:error")) {
+          console.warn(msg);
+          // ignore some specific errors
+          if (msg.includes("Cannot read property 'promptPath' of null")) {
+            return;
+          }
+          if (
+            msg.includes(
+              "odk:error - insertNewKeyValueMapDataTableStmt: changes contains unrecognized database"
+            )
+          ) {
+            return;
+          }
+          // otherwise show error notification
+          this.notifications.handleError(event.data);
+        } else {
+          console.log("odk event", event);
+        }
+      } else {
+        console.log("odk event", event);
       }
     }
   }
