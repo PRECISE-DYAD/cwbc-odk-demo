@@ -65,10 +65,56 @@ export class DyadService {
       await this.loadParticipantTableData(this.activeParticipant);
       this.loadParticipantChildMeta();
       await this.updateParticipantSummaryTable();
+      await this.updateParticipantMappedData();
     } else {
       this.activeParticipant = null;
     }
   }
+
+  async updateParticipantMappedData() {
+    console.log("checking mapped data");
+    const updates = Object.entries(MAPPED_SCHEMA).map(async ([table_id, schema]) => {
+      const updatableFields = (schema.mapFields || []).filter((f) => f.write_updates);
+
+      if (updatableFields.length > 0) {
+        console.log("checking fields", table_id, updatableFields);
+        if (schema.is_child_form) {
+          // TODO - iterate child forms
+        } else {
+          const { f2_guid } = this.activeParticipant;
+          const rows = this.activeParticipantData[table_id]._rows;
+          // handle new row creation where permitted
+          if (rows.length == 0 && schema.allow_new_mapFields_row) {
+            console.log("creating new row for mapped data");
+            await this.odk.addRow(table_id, { f2_guid }, f2_guid);
+            return this.setActiveParticipantById(f2_guid);
+          } else {
+            for (const row of rows) {
+              const updateEntry = this.comparedMappedFieldData(row, updatableFields);
+              // note - if row identical odk also provides own check whether for sql updates required, so not strictly required
+              if (Object.keys(updateEntry).length > 0) {
+                console.log("updating row", row);
+                await this.odk.updateRow(table_id, row._id, { ...row, ...updateEntry });
+              }
+            }
+          }
+        }
+      }
+    });
+    await Promise.all(updates);
+  }
+  comparedMappedFieldData(row, mapFields) {
+    const updatedFields: any = {};
+    for (const mapField of mapFields) {
+      const { field, value } = this._evaluateMappedField(mapField, this.activeParticipantData);
+      const existingValue = row[field];
+      if (existingValue !== value) {
+        updatedFields[field] = value;
+      }
+    }
+    return updatedFields;
+  }
+
   /**
    * Evaluate the list of all fieds specified in the dyad_summary_fields model
    * and write to the summary table

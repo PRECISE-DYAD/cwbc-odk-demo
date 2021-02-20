@@ -43,6 +43,7 @@ const DYAD_SCHEMA_BASE: { [tableId in IDyadTableId]: IFormSchema } = {
     title: "Dyad Summary",
     mapFields: DYAD_SUMMARY_FIELDS,
     summary_table_fields: DYAD_SUMMARY_FIELDS,
+    allow_new_mapFields_row: true,
   },
   dyad_child_visit1: {
     title: "Dyad Visit 1 - Child",
@@ -54,6 +55,16 @@ const DYAD_SCHEMA_BASE: { [tableId in IDyadTableId]: IFormSchema } = {
     title: "Dyad Visit 2 - Child",
     mapFields: [],
     is_child_form: true,
+    // disabled: (data) => {
+    //   const totalLabRecords = data.lab._rows.length;
+    //   const firstLabDate = data.lab._rows[2]
+    //   if(!data.lab._rows[some_field){
+    //     return true
+    //   }
+    //   if (!data.dyad_child_visit1) {
+    //     return true;
+    //   }
+    // },
   },
   dyad_visit1: {
     title: "Dyad Visit 1 - Mother",
@@ -185,6 +196,8 @@ export interface IDyadParticipantChild {
  * @param mapFields specify individual fields to map into the form
  * @param mapped_json data can be passed as json to a single `mapped_json` column, as well as individual mapFields
  * @param summary_table_fields specify a list of fields to show in the summary display
+ * @param allow_mapFields_new_row if form contains mapFields that write directly to the db,
+ * also allow creation of new row to hold data if does not exist
  */
 export interface IFormSchema {
   title: string;
@@ -194,6 +207,7 @@ export interface IFormSchema {
   allowRepeats?: boolean;
   mapFields?: IDyadMappedField[];
   summary_table_fields?: IDyadMappedField[];
+  allow_new_mapFields_row?: boolean;
   // mapped_json?: IDyadFieldSummary[];
 
   // TODO - Consider additional options
@@ -216,6 +230,7 @@ export interface IFormSchema {
  * @param write_updates By default values are only written to a mapped table when the corresponding survey is opened,
  * depending on whether instance_id has changed. Override this behaviour and write changes directly to the database
  * whenever detected.
+ * NOTE - by default this will not create rows when they do not already exist, except for dyad_summary table
  * ```
  * calculation: (data)=>Math.min(data.Visit1.f2_some_field, data.Visit2.f3_another_field)
  * calculation: (data)=>data.Birthbaby._rows.length

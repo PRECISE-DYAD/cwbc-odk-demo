@@ -18,17 +18,19 @@ export const DYAD_SUMMARY_FIELDS: IDyadMappedField[] = [
   },
   {
     label: "randomisation group",
-    mapped_field_name: "randomisation_group",
     calculation: (data) => {
-      if (data.dyad_summary.control_group_allocation) {
-        return data.dyad_summary.control_group_allocation;
+      if (data.dyad_summary.qoc_case) {
+        return data.dyad_summary.qoc_case;
       } else {
         if ("some condition") {
           return "1";
+        } else {
+          return "2";
         }
       }
     },
-    field: "summary_field_name",
+    write_updates: true,
+    mapped_field_name: "qoc_case",
   },
   {
     label: "Full Name",
@@ -88,7 +90,7 @@ export const DYAD_SUMMARY_FIELDS: IDyadMappedField[] = [
 
 export const DYAD_CHILD_SUMMARY_FIELDS: IDyadMappedField[] = [
   {
-    label: "Age of child",
+    // label: "Age of child",
     calculation: (data) => {
       if (data.Birthbaby.f9_delivery_date) {
         return differenceInWeeks(new Date(), new Date(data.Birthbaby.f9_delivery_date)) + " weeks";
