@@ -90,7 +90,7 @@ export const DYAD_SUMMARY_FIELDS: IDyadMappedField[] = [
 
 export const DYAD_CHILD_SUMMARY_FIELDS: IDyadMappedField[] = [
   {
-    // label: "Age of child",
+    label: "Age of child",
     calculation: (data) => {
       if (data.Birthbaby.f9_delivery_date) {
         return differenceInWeeks(new Date(), new Date(data.Birthbaby.f9_delivery_date)) + " weeks";
