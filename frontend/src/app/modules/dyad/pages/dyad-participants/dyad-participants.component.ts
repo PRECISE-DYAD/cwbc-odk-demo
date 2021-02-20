@@ -23,8 +23,8 @@ export class DyadParticipantsComponent implements OnInit, AfterViewInit {
     private route: ActivatedRoute
   ) {}
 
-  ngOnInit(): void {
-    this.loadParticipants();
+  async ngOnInit() {
+    await this.loadParticipants();
   }
   ngAfterViewInit(): void {
     this.dataSource.sort = this.sort;
@@ -39,12 +39,12 @@ export class DyadParticipantsComponent implements OnInit, AfterViewInit {
   async loadParticipants() {
     await this.dyadService.isReady();
     this.isLoading = false;
-    const { participantSummaries } = this.dyadService;
-    this.dataSource.data = participantSummaries;
+    const { allParticipants } = this.dyadService;
+    this.dataSource.data = allParticipants;
   }
   handleRowClicked(row: IDyadParticipantSummary) {
     if (row.dyad_consent && row.dyad_consent.d1_enroll_consent === "1") {
-      this.router.navigate([row.f2_guid], { relativeTo: this.route });
+      this.router.navigate([row.precise_profileSummary.f2_guid], { relativeTo: this.route });
     } else {
       this.dyadService.enrolParticipant(this.router, this.route, row);
     }

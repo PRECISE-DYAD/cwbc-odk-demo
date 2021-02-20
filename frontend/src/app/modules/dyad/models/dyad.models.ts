@@ -1,7 +1,13 @@
-import { IFormMetaWithEntries, IODkTableRowData } from "src/app/modules/shared/types";
+import { IODkTableRowData } from "src/app/modules/shared/types";
 import { IParticipantSummary } from "../../precise/types";
 import { ICustomIcon } from "../../shared/components/icons";
-import { DYAD_CHILD_SUMMARY_FIELDS, DYAD_SUMMARY_FIELDS } from "./dyad-summary.model";
+import { DYAD_CHILD_VISIT1_FIELDS, DYAD_SUMMARY_FIELDS } from "./dyad-summary.model";
+
+/**
+ * General Note - many of the types here started from precise typings, but were then changed without changing precise
+ * (e.g. formMeta vs formSchema). As such not all the same methods can be applied to precise methods.
+ * In the future they should be merged and made consistent
+ */
 
 /************************************************************************************
  *  Constants - Used for data population
@@ -47,9 +53,9 @@ const DYAD_SCHEMA_BASE: { [tableId in IDyadTableId]: IFormSchema } = {
   },
   dyad_child_visit1: {
     title: "Dyad Visit 1 - Child",
-    mapFields: [],
+    mapFields: DYAD_CHILD_VISIT1_FIELDS,
     is_child_form: true,
-    summary_table_fields: DYAD_CHILD_SUMMARY_FIELDS,
+    summary_table_fields: DYAD_CHILD_VISIT1_FIELDS,
   },
   dyad_child_visit2: {
     title: "Dyad Visit 2 - Child",
@@ -166,23 +172,45 @@ export interface IDyadFormSection {
 }
 
 export type IDyadTableId = typeof DYAD_tableIdS[number];
-export interface IDyadParticipantSummary extends IParticipantSummary {
-  dyad_consent: IODkTableRowData;
-}
+
 /**
- * Participant data is saved by table, with top-level referring to latest entry (in case of multiple)
- * and a _rows property which can be used to access raw entries
+ * On first load participant data is retrieved for all participants for only 2 tables,
+ * before retrieving full data on participant load
  */
-export type IDyadParticipantData = {
-  [tableId in IDyadTableId]: IODkTableRowData & { _rows: IODkTableRowData[] };
-};
+export interface IDyadParticipantSummary {
+  dyad_consent: IODkTableRowData;
+  precise_profileSummary: IParticipantSummary;
+}
+
+/**
+ * Participant data is saved by table, with top-level referring to latest entry (in case of multiple).
+ * Each table has a _rows property to access raw data in case of multiple entries
+ * If the table is a child table it will also contain a _mother property that can access parent data
+ */
+export interface IDyadParticipantData extends IDyadTableData {
+  _mother?: { [tableId in IDyadTableId]: IOdkTableRowDataWithRawRows };
+}
+type IDyadTableData = { [tableId in IDyadTableId]: IOdkTableRowDataWithRawRows };
+
+/** Participant data also contains a _rows property that provides raw data entries */
+interface IOdkTableRowDataWithRawRows extends IODkTableRowData {
+  _rows: IODkTableRowData[];
+}
 /**
  * Child interfaces record nested the same as the active participant data
  */
 export interface IDyadParticipantChild {
   f2_guid_child: string;
-  formsHash: { [tableId in IDyadTableId]: IFormMetaWithEntries };
+  formsHash: { [tableId in IDyadTableId]: IFormSchemaWithEntries };
   data: IDyadParticipantData;
+  mother: IDyadParticipant;
+}
+
+export interface IDyadParticipant {
+  f2_guid: string;
+  formsHash: { [tableId in IDyadTableId]: IFormSchemaWithEntries };
+  data: IDyadParticipantData;
+  children: IDyadParticipantChild[];
 }
 
 // TODO - merge with IFormMeta type definition

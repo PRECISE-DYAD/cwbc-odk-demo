@@ -1,6 +1,5 @@
 import { Injectable } from "@angular/core";
 import { takeWhile } from "rxjs/operators";
-import deepEqual from "fast-deep-equal";
 import { OdkService } from "src/app/modules/shared/services/odk/odk.service";
 import * as IPrecise from "src/app/modules/precise/types";
 import { environment } from "src/environments/environment";
@@ -8,16 +7,14 @@ import {
   DYAD_SCHEMA,
   IDyadParticipantSummary,
   IDyadParticipantData,
-  IDyadTableId,
   IDyadParticipantChild,
   IFormSchema,
   IDyadMappedField,
-  IFormSchemaWithEntries,
+  IDyadParticipant,
 } from "../models/dyad.models";
 import { _arrToHashmap } from "../../shared/utils";
 import { BehaviorSubject } from "rxjs";
-import { IFormMeta, IFormMetaWithEntries, IODkTableRowData } from "../../shared/types";
-import { DYAD_SUMMARY_FIELDS } from "../models/dyad-summary.model";
+import { IODkTableRowData } from "../../shared/types";
 import { ActivatedRoute, Router } from "@angular/router";
 
 /**
@@ -37,11 +34,8 @@ Object.entries(DYAD_SCHEMA).forEach(([baseId, value]) => {
  * or create instantiable class
  */
 export class DyadService {
-  participantSummaries = [];
-  activeParticipant: IDyadParticipantSummary;
-  participantFormsHash: { [tableId in IDyadTableId]: IFormMetaWithEntries };
-  activeParticipantData: IDyadParticipantData;
-  activeParticipantChildren: IDyadParticipantChild[];
+  allParticipants: IDyadParticipantSummary[] = [];
+  activeParticipant: IDyadParticipant;
   private _dataLoaded$ = new BehaviorSubject(false);
   constructor(private odk: OdkService) {
     this.init();
@@ -60,29 +54,54 @@ export class DyadService {
 
   async setActiveParticipantById(f2_guid?: string) {
     if (f2_guid) {
-      this.activeParticipant = this.participantSummaries.find((p) => p.f2_guid === f2_guid);
       console.log("active participant", this.activeParticipant);
-      await this.loadParticipantTableData(this.activeParticipant);
-      this.loadParticipantChildMeta();
-      await this.updateParticipantSummaryTable();
-      await this.updateParticipantMappedData();
+      const formsHash: IDyadParticipant["formsHash"] = await this.loadParticipantFormsHash(f2_guid);
+      const data: IDyadParticipant["data"] = this.formsHashToParticipantData(formsHash);
+      const participant: IDyadParticipant = {
+        f2_guid,
+        data,
+        formsHash,
+        children: [],
+      };
+      participant.children = this.loadParticipantChildMeta(participant);
+      this.activeParticipant = participant;
+      console.log("active participant", this.activeParticipant);
+      await this.updateParticipantMappedData(this.activeParticipant);
     } else {
       this.activeParticipant = null;
     }
   }
 
-  async updateParticipantMappedData() {
-    console.log("checking mapped data");
+  async updateParticipantMappedData(participant: IDyadParticipant) {
     const updates = Object.entries(MAPPED_SCHEMA).map(async ([table_id, schema]) => {
-      const updatableFields = (schema.mapFields || []).filter((f) => f.write_updates);
-
-      if (updatableFields.length > 0) {
-        console.log("checking fields", table_id, updatableFields);
+      const writtenMapFields = (schema.mapFields || []).filter((f) => f.write_updates);
+      const { f2_guid } = this.activeParticipant;
+      if (writtenMapFields.length > 0) {
+        console.log("checking fields", table_id, writtenMapFields);
         if (schema.is_child_form) {
-          // TODO - iterate child forms
+          // Handle child forms iteratively
+          for (const child of this.activeParticipant.children) {
+            const { data, f2_guid_child, formsHash } = child;
+            console.log("updating child", child);
+            const rows = data[table_id]._rows;
+            if (rows.length == 0 && schema.allow_new_mapFields_row) {
+              console.log("creating new row for mapped data");
+              await this.odk.addRow(table_id, { f2_guid, f2_guid_child }, f2_guid_child);
+              return this.setActiveParticipantById(f2_guid);
+            } else {
+              for (const row of rows) {
+                const updateEntry = this.comparedMappedFieldData(row, writtenMapFields, child.data);
+                // note - if row identical odk also provides own check whether for sql updates required, so not strictly required
+                if (Object.keys(updateEntry).length > 0) {
+                  console.log("updating child row", row, updateEntry);
+                  await this.odk.updateRow(table_id, row._id, { ...row, ...updateEntry });
+                }
+              }
+            }
+          }
         } else {
-          const { f2_guid } = this.activeParticipant;
-          const rows = this.activeParticipantData[table_id]._rows;
+          // handle mother forms
+          const rows = participant.data[table_id]._rows;
           // handle new row creation where permitted
           if (rows.length == 0 && schema.allow_new_mapFields_row) {
             console.log("creating new row for mapped data");
@@ -90,10 +109,14 @@ export class DyadService {
             return this.setActiveParticipantById(f2_guid);
           } else {
             for (const row of rows) {
-              const updateEntry = this.comparedMappedFieldData(row, updatableFields);
+              const updateEntry = this.comparedMappedFieldData(
+                row,
+                writtenMapFields,
+                participant.data
+              );
               // note - if row identical odk also provides own check whether for sql updates required, so not strictly required
               if (Object.keys(updateEntry).length > 0) {
-                console.log("updating row", row);
+                console.log("updating row", row, updateEntry);
                 await this.odk.updateRow(table_id, row._id, { ...row, ...updateEntry });
               }
             }
@@ -103,51 +126,17 @@ export class DyadService {
     });
     await Promise.all(updates);
   }
-  comparedMappedFieldData(row, mapFields) {
+
+  private comparedMappedFieldData(row, mapFields, participantData) {
     const updatedFields: any = {};
     for (const mapField of mapFields) {
-      const { field, value } = this._evaluateMappedField(mapField, this.activeParticipantData);
+      const { field, value } = this._evaluateMappedField(mapField, participantData);
       const existingValue = row[field];
       if (existingValue !== value) {
         updatedFields[field] = value;
       }
     }
     return updatedFields;
-  }
-
-  /**
-   * Evaluate the list of all fieds specified in the dyad_summary_fields model
-   * and write to the summary table
-   */
-  async updateParticipantSummaryTable() {
-    return;
-    const { f2_guid } = this.activeParticipant;
-    const summaryEntry = { f2_guid, mapped_json: {} };
-    DYAD_SUMMARY_FIELDS.forEach((f) => {
-      const { field, value } = this._evaluateMappedField(f, this.activeParticipantData);
-      if (field) {
-        // when assigning values convert undefined or empty string to null
-        summaryEntry.mapped_json[field] = value || null;
-      }
-    });
-    // console.log("summary entry", { ...summaryEntry });
-    // when writing object value to database it still must be sent as string
-    summaryEntry.mapped_json = JSON.stringify(summaryEntry.mapped_json);
-    const table_id: IDyadTableId = "dyad_summary";
-    const tableEntries = await this.odk.query(table_id, "f2_guid = ?", [f2_guid]);
-    if (tableEntries.length > 0) {
-      const currentEntry = tableEntries[0];
-      // compare changes between proposed update and outstanding doc
-      // preserving existing metadata
-      const updatedEntry = { ...currentEntry, ...summaryEntry };
-      if (!deepEqual(currentEntry, updatedEntry)) {
-        this.odk.updateRow(table_id, f2_guid, summaryEntry);
-      } else {
-        // console.log("summary up to date");
-      }
-    } else {
-      this.odk.addRow(table_id, summaryEntry, f2_guid);
-    }
   }
 
   /**
@@ -160,13 +149,14 @@ export class DyadService {
     participant: IDyadParticipantSummary
   ) {
     console.log("enrol participant", participant);
-    const { f2_guid, dyad_consent } = participant;
+    const { precise_profileSummary, dyad_consent } = participant;
+    const { f2_guid } = precise_profileSummary;
     // open form for editing if entry already exists
     const editRowId = dyad_consent ? dyad_consent._id : null;
     // navigate to expected profile page to display after enrollment complete
     router.navigate([f2_guid], { relativeTo: route });
     //
-    this.launchForm(MAPPED_SCHEMA.dyad_consent, editRowId, { f2_guid });
+    this.launchForm(MAPPED_SCHEMA.dyad_consent, editRowId);
   }
 
   /**
@@ -179,8 +169,8 @@ export class DyadService {
     const preciseProfiles = await this.odk.getTableRows<IPrecise.IParticipant>(
       MAPPED_SCHEMA.profileSummary.tableId
     );
-    this.participantSummaries = preciseProfiles.map((p) => ({
-      ...p,
+    this.allParticipants = preciseProfiles.map((p) => ({
+      precise_profileSummary: p,
       dyad_consent: dyadProfileHash[p.f2_guid] || null,
     }));
   }
@@ -196,19 +186,30 @@ export class DyadService {
    * NOTE - any additional fields listed in formMeta also populated
    */
   public async launchForm(
-    formMeta: IFormMeta | IFormSchema,
+    formMeta: IFormSchema,
     editRowId: string = null,
-    jsonMap: any = {}
+    participant?: IDyadParticipant | IDyadParticipantChild
   ) {
-    let { tableId, formId } = formMeta;
+    // all forms should be linked to a participant. Even if registering new participant, should
+    // provide a placeholder f2_guid
+    participant = participant || this.activeParticipant;
+    let { tableId, formId, is_child_form } = formMeta;
     // ensure table and form ids have been properly mapped
     // note - avoid full lookup in case modified mapped fields have been pass (e.g. baby section forms)
     tableId = environment.tableMapping[tableId] || tableId;
     formId = environment.formMapping[formId] || formId;
-    if (this.activeParticipant) {
-      jsonMap.f2_guid = jsonMap.f2_guid || this.activeParticipant.f2_guid;
+    // assign mapped data
+    let jsonMap: any = {};
+    jsonMap = { ...jsonMap, ...this._generateMappedFields(formMeta.mapFields, participant.data) };
+    if (is_child_form) {
+      const { f2_guid_child, mother } = participant as IDyadParticipantChild;
+      jsonMap.f2_guid_child = f2_guid_child;
+      jsonMap.f2_guid = mother.f2_guid;
+    } else {
+      const { f2_guid } = participant as IDyadParticipant;
+      jsonMap.f2_guid = f2_guid;
     }
-    jsonMap = { ...jsonMap, ...this._generateMappedFields(formMeta.mapFields) };
+    // launch form
     console.log("launching form", tableId, formId, editRowId, jsonMap);
     if (editRowId) {
       // manually update piped fields in case of changes
@@ -222,11 +223,8 @@ export class DyadService {
   /**
    * query batch to get rows from other tables linked by participant guid
    */
-  private async loadParticipantTableData(participant: IDyadParticipantSummary) {
-    const { f2_guid } = participant;
-    const collated: {
-      [tableId in IDyadTableId]: IFormSchemaWithEntries;
-    } = {} as any;
+  private async loadParticipantFormsHash(f2_guid: string) {
+    const collated: IDyadParticipant["formsHash"] = {} as any;
     const promises = Object.entries(MAPPED_SCHEMA).map(async ([key, formMeta]) => {
       const { tableId } = formMeta;
       // lookup the data for every table given by the mapped table id
@@ -251,54 +249,38 @@ export class DyadService {
       collated[key] = { ...formMeta, tableId: key, entries };
     });
     await Promise.all(promises);
-    this.setParticipantForms(collated);
-  }
-
-  /**
-   * Separate action from async load code to allow mobx to update synchronously
-   * Additionally collate all participant data from forms into a single object, organised by table
-   */
-  private setParticipantForms(
-    collated: {
-      [tableId in IDyadTableId]: IFormSchemaWithEntries;
-    }
-  ) {
-    const participantFormsHash = _arrToHashmap(Object.values(collated), "tableId") as any;
-    const activeParticipantData = this._extractMappedDataValues(
-      Object.values(participantFormsHash)
-    );
-    this.participantFormsHash = participantFormsHash;
-    console.log("participant forms hash", participantFormsHash);
-    this.activeParticipantData = activeParticipantData;
-    console.log("active participant data", activeParticipantData);
+    console.log("collated", collated);
+    return collated;
   }
 
   /**
    * Create repeat groups for nesting child data based on Birthbaby entries
    * Create formHash with baby entries alongside data object for use in calculations
    */
-  private loadParticipantChildMeta() {
+  private loadParticipantChildMeta(mother: IDyadParticipant) {
     const children: IDyadParticipantChild[] = [];
     // Use birthmother entries to populate children
-    for (const entry of this.participantFormsHash.Birthbaby.entries) {
+    for (const entry of mother.formsHash.Birthbaby.entries) {
       const { f2_guid_child } = entry;
       // Generate forms hashmap with filtered entry for child
       const formsHash: any = {};
       const childForms = Object.values(DYAD_SCHEMA).filter((s) => s.is_child_form);
       for (const form of childForms) {
         const { formId } = form;
-        const formMeta = this.participantFormsHash[formId];
+        const formMeta = mother.formsHash[formId];
         formsHash[formId] = {
           ...formMeta,
           entries: formMeta.entries.filter((e) => e.f2_guid_child === f2_guid_child),
         };
       }
       // populate child data for use in calculation
-      const data = this._extractMappedDataValues(Object.values(formsHash)) as any;
-      children.push({ formsHash, f2_guid_child, data });
+      const data = this.formsHashToParticipantData(formsHash) as any;
+      // also make mother data available in child calculations
+      data._mother = mother.data;
+      children.push({ formsHash, f2_guid_child, data, mother });
     }
     console.log("participant children", children);
-    this.activeParticipantChildren = children;
+    return children;
   }
 
   /**
@@ -319,9 +301,9 @@ export class DyadService {
    * NOTE - in the case of multiple entries takes only the most recent, therefore an extra `_rows`
    * property has been added where raw entries can be accessed
    */
-  private _extractMappedDataValues(participantForms: IFormMetaWithEntries[]) {
+  private formsHashToParticipantData(formsHash: IDyadParticipant["formsHash"]) {
     const data: any = {};
-    for (const form of participantForms) {
+    for (const form of Object.values(formsHash)) {
       const { tableId } = form;
       if (!data[tableId]) {
         data[tableId] = { _rows: form.entries };
@@ -343,10 +325,10 @@ export class DyadService {
    * optional mapped_field_name to retrieve and return
    * NOTE - in case of multiple table entries returns only first entry
    */
-  private _generateMappedFields(mapFields: IDyadMappedField[] = []) {
+  private _generateMappedFields(mapFields: IDyadMappedField[] = [], data: IDyadParticipantData) {
     const mapping = {};
     for (const mapField of mapFields) {
-      const { field, value } = this._evaluateMappedField(mapField, this.activeParticipantData);
+      const { field, value } = this._evaluateMappedField(mapField, data);
       if (field) {
         mapping[field] = value || null;
       }

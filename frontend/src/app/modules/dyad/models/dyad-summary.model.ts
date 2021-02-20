@@ -88,7 +88,7 @@ export const DYAD_SUMMARY_FIELDS: IDyadMappedField[] = [
   },
 ];
 
-export const DYAD_CHILD_SUMMARY_FIELDS: IDyadMappedField[] = [
+export const DYAD_CHILD_VISIT1_FIELDS: IDyadMappedField[] = [
   {
     label: "Age of child",
     calculation: (data) => {
@@ -98,6 +98,13 @@ export const DYAD_CHILD_SUMMARY_FIELDS: IDyadMappedField[] = [
         return "N/A - no delivery date specified in Birthbaby form";
       }
     },
+  },
+  {
+    label: "Mother Visit 1 Date",
+    // when working with child forms data also has access to mother
+    calculation: (data) => data._mother.dyad_visit1.gv_visit_date,
+    mapped_field_name: "gv_sum_visit1_date",
+    write_updates: true,
   },
 ];
 
