@@ -1,7 +1,13 @@
-import { IFormMetaWithEntries, IODkTableRowData } from "src/app/modules/shared/types";
+import { IODkTableRowData } from "src/app/modules/shared/types";
 import { IParticipantSummary } from "../../precise/types";
 import { ICustomIcon } from "../../shared/components/icons";
-import { DYAD_CHILD_SUMMARY_FIELDS, DYAD_SUMMARY_FIELDS } from "./dyad-summary.model";
+import { DYAD_CHILD_VISIT1_FIELDS, DYAD_SUMMARY_FIELDS } from "./dyad-summary.model";
+
+/**
+ * General Note - many of the types here started from precise typings, but were then changed without changing precise
+ * (e.g. formMeta vs formSchema). As such not all the same methods can be applied to precise methods.
+ * In the future they should be merged and made consistent
+ */
 
 /************************************************************************************
  *  Constants - Used for data population
@@ -42,18 +48,29 @@ const DYAD_SCHEMA_BASE: { [tableId in IDyadTableId]: IFormSchema } = {
   dyad_summary: {
     title: "Dyad Summary",
     mapFields: DYAD_SUMMARY_FIELDS,
-    summary_table_fields: DYAD_SUMMARY_FIELDS,
+    show_summary_table: true,
+    allow_new_mapFields_row: true,
   },
   dyad_child_visit1: {
     title: "Dyad Visit 1 - Child",
-    mapFields: [],
+    mapFields: DYAD_CHILD_VISIT1_FIELDS,
     is_child_form: true,
-    summary_table_fields: DYAD_CHILD_SUMMARY_FIELDS,
+    show_summary_table: true,
   },
   dyad_child_visit2: {
     title: "Dyad Visit 2 - Child",
     mapFields: [],
     is_child_form: true,
+    // disabled: (data) => {
+    //   const totalLabRecords = data.lab._rows.length;
+    //   const firstLabDate = data.lab._rows[2]
+    //   if(!data.lab._rows[some_field){
+    //     return true
+    //   }
+    //   if (!data.dyad_child_visit1) {
+    //     return true;
+    //   }
+    // },
   },
   dyad_visit1: {
     title: "Dyad Visit 1 - Mother",
@@ -100,43 +117,40 @@ const DYAD_SCHEMA_BASE: { [tableId in IDyadTableId]: IFormSchema } = {
 
 /**
  * Forms to include with specific sections on profile summary page
- * @param formIds - a list of forms to show metadata (including summary tables) from
- * @param label - header text shown at the top of the section
- * @param icon - icon displayed in the header, from a predefined list of available icons
- * @param color - color variant to use (based on primary color), from 1-6. If omitted will be black/white
+ * @see {IDyadFormSection}
  */
 export const DYAD_FORM_SECTIONS: IDyadFormSection[] = [
   {
     _id: "dyad_profile",
     formIds: ["dyad_consent", "dyad_summary"],
-    label: "Dyad Profile",
+    section_title: "Dyad Profile",
     icon: "person",
   },
   {
     _id: "dyad_visit_1",
     formIds: ["dyad_enrollment", "dyad_visit1", "dyad_child_visit1"],
-    label: "Dyad Visit 1",
+    section_title: "Dyad Visit 1",
     icon: "visit",
     color: "1",
   },
   {
     _id: "dyad_visit_2",
     formIds: ["dyad_enrollment", "dyad_visit2", "dyad_child_visit2"],
-    label: "Dyad Visit 2",
+    section_title: "Dyad Visit 2",
     icon: "visit",
     color: "1",
   },
   {
     _id: "dyad_verbal_autopsy",
     formIds: [],
-    label: "Verbal Autopsy",
+    section_title: "Verbal Autopsy",
     icon: "verbal",
     color: "2",
   },
   {
     _id: "dyad_end_of_report",
     formIds: [],
-    label: "End of Report",
+    section_title: "End of Report",
     icon: "assignment",
     color: "3",
   },
@@ -145,33 +159,61 @@ export const DYAD_FORM_SECTIONS: IDyadFormSection[] = [
 /************************************************************************************
  *  Interfaces used for type-checking
  ************************************************************************************/
+/**
+ * @param formIds - a list of forms to show metadata (including summary tables) from
+ * @param section_title - header text shown at the top of the section
+ * @param icon - icon displayed in the header, from a predefined list of available icons
+ * @param color - color variant to use (based on primary color), from 1-6. If omitted will be black/white
+ */
 export interface IDyadFormSection {
   _id: string;
   formIds: IDyadTableId[];
-  label?: string;
+  section_title?: string;
   icon?: ICustomIcon;
   /** color variants 1-6 are variations on the primary color, if blank will be black/white */
   color?: "1" | "2" | "3" | "4" | "5" | "6";
 }
 
 export type IDyadTableId = typeof DYAD_tableIdS[number];
-export interface IDyadParticipantSummary extends IParticipantSummary {
-  dyad_consent: IODkTableRowData;
-}
+
 /**
- * Participant data is saved by table, with top-level referring to latest entry (in case of multiple)
- * and a _rows property which can be used to access raw entries
+ * On first load participant data is retrieved for all participants for only 2 tables,
+ * before retrieving full data on participant load
  */
-export type IDyadParticipantData = {
-  [tableId in IDyadTableId]: IODkTableRowData & { _rows: IODkTableRowData[] };
-};
+export interface IDyadParticipantSummary {
+  dyad_consent: IODkTableRowData;
+  precise_profileSummary: IParticipantSummary;
+}
+
+/**
+ * Participant data is saved by table, with top-level referring to latest entry (in case of multiple).
+ * Each table has a _rows property to access raw data in case of multiple entries
+ * If the table is a child table it will also contain a _mother property that can access parent data
+ */
+export interface IDyadParticipantData extends IDyadTableData {
+  _mother?: { [tableId in IDyadTableId]: IOdkTableRowDataWithRawRows };
+}
+type IDyadTableData = { [tableId in IDyadTableId]: IOdkTableRowDataWithRawRows };
+
+/** Participant data also contains a _rows property that provides raw data entries */
+interface IOdkTableRowDataWithRawRows extends IODkTableRowData {
+  _rows: IODkTableRowData[];
+}
 /**
  * Child interfaces record nested the same as the active participant data
  */
 export interface IDyadParticipantChild {
   f2_guid_child: string;
-  formsHash: { [tableId in IDyadTableId]: IFormMetaWithEntries };
+  formsHash: { [tableId in IDyadTableId]: IFormSchemaWithEntries };
   data: IDyadParticipantData;
+  mother: IDyadParticipant;
+}
+
+export interface IDyadParticipant {
+  f2_guid: string;
+  formsHash: { [tableId in IDyadTableId]: IFormSchemaWithEntries };
+  data: IDyadParticipantData;
+  children: IDyadParticipantChild[];
 }
 
 // TODO - merge with IFormMeta type definition
@@ -183,8 +225,9 @@ export interface IDyadParticipantChild {
  * @param is_child_form if child form will create a separate instance for every child
  * @param allowRepeats  specify if the form should accept multiple entries from the same participant
  * @param mapFields specify individual fields to map into the form
- * @param mapped_json data can be passed as json to a single `mapped_json` column, as well as individual mapFields
- * @param summary_table_fields specify a list of fields to show in the summary display
+ * @param show_summary_table if set to true, any fields specified in mapFields with a summary_label column will be shown in a summary table
+ * @param allow_mapFields_new_row if form contains mapFields that write directly to the db,
+ * also allow creation of new row to hold data if does not exist
  */
 export interface IFormSchema {
   title: string;
@@ -193,22 +236,14 @@ export interface IFormSchema {
   is_child_form?: boolean;
   allowRepeats?: boolean;
   mapFields?: IDyadMappedField[];
-  summary_table_fields?: IDyadMappedField[];
-  // mapped_json?: IDyadFieldSummary[];
-
-  // TODO - Consider additional options
-  /**  - specify condition to disable the form */
-  // hidden?: boolean | ((data: IDyadParticipantData) => boolean);
-  /** If form allows repeats, limit maximum entries  */
-  // repeats_limit?: number;
-  /** Determine whether the passed fields should be recalculated on home page load (not just form) */
-  // calculate_on_load?: boolean;
+  show_summary_table?: boolean;
+  allow_new_mapFields_row?: boolean;
 }
 
 /**
  * Field mappings can can be used to display data, or pipe into a table. Values can either be calculated from
  * a collation of all participant data, or a single table field value
- * @param label Text that appears before the value on a form
+ * @param summary_label If provided, will display in the summary table with corresponding summary_label
  * @param tableId If supplied with a field, will return specific value
  * @param field Name of field to
  * @param calculation Function executed to calculate value (with access to participant data object)
@@ -216,13 +251,38 @@ export interface IFormSchema {
  * @param write_updates By default values are only written to a mapped table when the corresponding survey is opened,
  * depending on whether instance_id has changed. Override this behaviour and write changes directly to the database
  * whenever detected.
- * ```
+ * NOTE - by default this will not create rows when they do not already exist, except for dyad_summary table
+ *
+ * @example // calculation statements
  * calculation: (data)=>Math.min(data.Visit1.f2_some_field, data.Visit2.f3_another_field)
- * calculation: (data)=>data.Birthbaby._rows.length
- * ```
+ *
+ * @example // access data when multiple row entries exist
+ * calculation: (data)=> const totalRows = data.table1._rows.length ...
+ *
+ * @example // access mother data from a child form
+ * calculation: (data) => data.childTable._mother.motherTable.id
+ *
+ * @example // pass a calculated value into the form on form open (do not show in the summary table)
+ * calculation: (data) => data.table1.first_name + ' ' + data.table1.last_name,
+ * mapped_field_name: "participant_name"
+ *
+ * @example // pass a calculated value into the form on form open and re-evaluate every load
+ * calculation: (data) => data.table1.first_name + ' ' + data.table1.last_name,
+ * mapped_field_name: "participant_name",
+ * write_updates: true
+ *
+ * @example // show a value in a summary table (but do not map to the form)
+ * calculation: (data) =>data.table2.name_of_town
+ * summary_label: "Participant Town"
+ *
+ * @example // map a single field from a table into the form, and show in the summary table
+ * tableId: "table2",
+ * field: "name_of_town",
+ * summary_label: "Participant Town"
+ * // (Note the same can be achieved with a calculation statement if mapped_field also included)
  */
 export interface IDyadMappedField {
-  label?: string;
+  summary_label?: string;
   tableId?: IDyadTableId;
   field?: string;
   calculation?: (data: IDyadParticipantData) => string | number;

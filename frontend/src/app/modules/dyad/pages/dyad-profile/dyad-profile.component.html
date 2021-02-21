@@ -1,124 +1,99 @@
 <div class="page primary">
   <div *ngIf="!dyadService.activeParticipant">Loading...</div>
-  <div
-    style="padding: 1em; flex: 1"
-    *ngIf="dyadService.activeParticipant && dyadService.participantFormsHash"
-  >
-    <div
-      *ngIf="dyadService.activeParticipantData.dyad_consent.d1_enroll_consent === '0'"
-      class="warning-message"
-    >
-      <mat-icon style="margin-right: 10px">block</mat-icon>
-      <div>Participant has not consented to Dyad</div>
-    </div>
-    <mat-accordion multi displayMode="flat">
-      <!-- Form Sections -->
-      <mat-expansion-panel
-        *ngFor="let section of formSections"
-        class="no-padding"
-        [ngClass]="
-          section.color ? 'theme-default primary-inverted color-rotate-' + section.color : ''
-        "
-        expanded
+  <div *ngIf="dyadService.activeParticipant as activeParticipant">
+    <div style="padding: 1em; flex: 1">
+      <div
+        *ngIf="activeParticipant.data.dyad_consent.d1_enroll_consent === '0'"
+        class="warning-message"
       >
-        <mat-expansion-panel-header expandedHeight="48px">
-          <mat-panel-title [style.color]="section.color ? 'white' : 'black'">
-            <mat-icon [svgIcon]="section.icon"></mat-icon>
-            <span>{{ section.label }}</span>
-          </mat-panel-title>
-        </mat-expansion-panel-header>
-        <section class="section-details">
-          <div *ngFor="let formSchema of section.formSchema">
-            <!-- mother form entry create and edit -->
-            <div *ngIf="!formSchema.is_child_form">
-              <app-form-entries-summary
-                [form]="dyadService.participantFormsHash[formSchema.id]"
-                (entrySelected)="
-                  dyadService.launchForm(dyadService.participantFormsHash[formSchema.id], $event)
-                "
-              ></app-form-entries-summary>
-              <app-field-summary-table
-                *ngIf="formSchema.summary_table_fields"
-                style="margin-left: 36px; margin-top: 8px"
-                [fieldSummaries]="formSchema.summary_table_fields"
-                [participantData]="dyadService.activeParticipantData"
-              ></app-field-summary-table>
-            </div>
-
-            <!-- child form entry create and edit -->
-            <div *ngIf="formSchema.is_child_form" class="child-form-section">
-              <div class="child-form-heading">
-                <mat-icon svgIcon="baby"></mat-icon>
-                <span>{{ formSchema.title }}</span>
-              </div>
-              <div
-                *ngFor="let child of dyadService.activeParticipantChildren; index as childIndex"
-                style="margin-left: 32px"
-              >
-                <app-form-entries-summary
-                  [title]="child.data.Birthbaby.f9_baby_id || child.f2_guid_child.split('_').pop()"
-                  [form]="child.formsHash[formSchema.id]"
-                  (entrySelected)="launchChildForm(formSchema, $event, child)"
-                ></app-form-entries-summary>
-                <app-field-summary-table
-                  *ngIf="formSchema.summary_table_fields"
-                  style="margin-left: 36px; margin-top: 8px"
-                  [fieldSummaries]="formSchema.summary_table_fields"
-                  [participantData]="child.data"
-                ></app-field-summary-table>
-              </div>
-              <div *ngIf="dyadService.activeParticipantChildren.length === 0" class="basic-warning">
-                <mat-icon>warning</mat-icon>
-                <span
-                  >No records for Precise Birthbaby form. {{ formSchema.title }} form cannot be
-                  completed</span
-                >
-              </div>
-            </div>
-          </div>
-        </section>
-      </mat-expansion-panel>
-
-      <!-- Baby Sections -->
-      <!-- <div *ngFor="let child of dyadService.activeParticipantChildren; index as childIndex">
+        <mat-icon style="margin-right: 10px">block</mat-icon>
+        <div>Participant has not consented to Dyad</div>
+      </div>
+      <mat-accordion multi displayMode="flat">
+        <!-- Form Sections -->
         <mat-expansion-panel
+          *ngFor="let section of formSections"
+          class="no-padding"
+          [ngClass]="
+            section.color ? 'theme-default primary-inverted color-rotate-' + section.color : ''
+          "
           expanded
-          class="no-padding theme-default primary-inverted color-rotate-2"
-          *ngFor="let section of childFormSections"
         >
           <mat-expansion-panel-header expandedHeight="48px">
-            <mat-panel-title style="color: white"
-              ><mat-icon svgIcon="baby"></mat-icon>
-              <span style="margin-right: 5px">{{ section.label }}</span>
-              <span *ngIf="dyadService.activeParticipantChildren.length > 1">
-                - {{ childIndex + 1 }}</span
-              >
+            <mat-panel-title [style.color]="section.color ? 'white' : 'black'">
+              <mat-icon [svgIcon]="section.icon"></mat-icon>
+              <span>{{ section.section_title }}</span>
             </mat-panel-title>
           </mat-expansion-panel-header>
           <section class="section-details">
-            <app-form-entries-summary
-              *ngFor="let formId of section.formIds"
-              [form]="child.formsHash[formId]"
-              (entrySelected)="launchChildForm(formId, $event, child)"
-            ></app-form-entries-summary>
+            <div *ngFor="let formSchema of section.formSchema">
+              <!-- mother form entry create and edit -->
+              <div *ngIf="!formSchema.is_child_form">
+                <app-form-entries-summary
+                  [form]="activeParticipant.formsHash[formSchema.id]"
+                  (entrySelected)="
+                    dyadService.launchForm(activeParticipant.formsHash[formSchema.id], $event)
+                  "
+                ></app-form-entries-summary>
+                <app-field-summary-table
+                  *ngIf="formSchema.show_summary_table"
+                  style="margin-left: 36px; margin-top: 8px"
+                  [fieldSummaries]="formSchema.mapFields"
+                  [participantData]="activeParticipant.data"
+                ></app-field-summary-table>
+              </div>
+
+              <!-- child form entry create and edit -->
+              <div *ngIf="formSchema.is_child_form" class="child-form-section">
+                <div class="child-form-heading">
+                  <mat-icon svgIcon="baby"></mat-icon>
+                  <span>{{ formSchema.title }}</span>
+                </div>
+                <div
+                  *ngFor="let child of activeParticipant.children; index as childIndex"
+                  style="margin-left: 32px"
+                >
+                  <app-form-entries-summary
+                    [title]="
+                      child.data.Birthbaby.f9_baby_id || child.f2_guid_child.split('_').pop()
+                    "
+                    [form]="child.formsHash[formSchema.id]"
+                    (entrySelected)="launchChildForm(formSchema, $event, child)"
+                  ></app-form-entries-summary>
+                  <app-field-summary-table
+                    *ngIf="formSchema.show_summary_table"
+                    style="margin-left: 36px; margin-top: 8px"
+                    [fieldSummaries]="formSchema.mapFields"
+                    [participantData]="child.data"
+                  ></app-field-summary-table>
+                </div>
+                <div *ngIf="activeParticipant.children.length === 0" class="basic-warning">
+                  <mat-icon>warning</mat-icon>
+                  <span
+                    >No records for Precise Birthbaby form. {{ formSchema.title }} form cannot be
+                    completed</span
+                  >
+                </div>
+              </div>
+            </div>
           </section>
         </mat-expansion-panel>
-      </div> -->
-    </mat-accordion>
-    <!-- Custom/Hacky way to override default back button behaviour and return to dyad profile after viewing precise -->
-    <button
-      mat-button
-      [routerLink]="['/projects/precise/participants', dyadService.activeParticipant.f2_guid]"
-      [queryParams]="{
-        previous: '/projects/dyad/participants/' + dyadService.activeParticipant.f2_guid
-      }"
-      style="float: right; margin-top: 1em"
-    >
-      View Precise Profile
-    </button>
-  </div>
+      </mat-accordion>
+      <!-- Custom/Hacky way to override default back button behaviour and return to dyad profile after viewing precise -->
+      <div style="text-align: right">
+        <button
+          mat-button
+          [routerLink]="['/projects/precise/participants', dyadService.activeParticipant.f2_guid]"
+          [queryParams]="{
+            previous: '/projects/dyad/participants/' + dyadService.activeParticipant.f2_guid
+          }"
+          style="margin-top: 1em"
+        >
+          View Precise Profile
+        </button>
+      </div>
+    </div>
 
-  <div id="guid" *ngIf="dyadService.activeParticipant && dyadService.participantFormsHash">
-    {{ dyadService.activeParticipant.f2_guid }}
+    <div id="guid">{{ activeParticipant.f2_guid }}</div>
   </div>
 </div>

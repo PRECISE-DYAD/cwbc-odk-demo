@@ -5,8 +5,8 @@ import { CommonStore } from "src/app/modules/shared/stores";
 import {
   DYAD_FORM_SECTIONS,
   DYAD_SCHEMA,
+  IDyadParticipant,
   IDyadParticipantChild,
-  IDyadParticipantSummary,
   IFormSchema,
 } from "../../models/dyad.models";
 import { DyadService } from "../../services";
@@ -38,8 +38,7 @@ export class DyadProfileComponent implements OnDestroy, OnInit {
   }
 
   public launchChildForm(formSchema: IFormSchema, editRowId: string, child: IDyadParticipantChild) {
-    const { f2_guid_child } = child;
-    this.dyadService.launchForm(formSchema, editRowId, { f2_guid_child });
+    this.dyadService.launchForm(formSchema, editRowId, child);
   }
 
   private async init() {
@@ -48,8 +47,8 @@ export class DyadProfileComponent implements OnDestroy, OnInit {
     this.setPageTitle(this.dyadService.activeParticipant);
   }
 
-  private setPageTitle(activeParticipant: IDyadParticipantSummary) {
-    const { f2a_full_name, f2a_participant_id } = activeParticipant;
+  private setPageTitle(activeParticipant: IDyadParticipant) {
+    const { f2a_full_name, f2a_participant_id } = activeParticipant.data.profileSummary;
     this.commonStore.setPageTitle(`${f2a_participant_id || ""} ${f2a_full_name || ""}`);
   }
 }

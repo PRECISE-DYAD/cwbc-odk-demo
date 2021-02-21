@@ -12,83 +12,85 @@ import { differenceInWeeks } from "date-fns";
 const SITE = environment.SITE;
 export const DYAD_SUMMARY_FIELDS: IDyadMappedField[] = [
   {
-    label: "PTID",
+    summary_label: "PTID",
     tableId: "profileSummary",
     field: "f2a_participant_id",
   },
   {
-    label: "randomisation group",
-    mapped_field_name: "randomisation_group",
+    summary_label: "randomisation group",
     calculation: (data) => {
-      if (data.dyad_summary.control_group_allocation) {
-        return data.dyad_summary.control_group_allocation;
+      if (data.dyad_summary.qoc_case) {
+        return data.dyad_summary.qoc_case;
       } else {
         if ("some condition") {
           return "1";
+        } else {
+          return "2";
         }
       }
     },
-    field: "summary_field_name",
+    write_updates: true,
+    mapped_field_name: "qoc_case",
   },
   {
-    label: "Full Name",
+    summary_label: "Full Name",
     tableId: "profileSummary",
     field: "f2a_full_name",
   },
   {
-    label: "HDSS",
+    summary_label: "HDSS",
     tableId: "profileSummary",
     field: "f2a_hdss",
   },
   {
-    label: "Date of delivery",
+    summary_label: "Date of delivery",
     tableId: "Birthbaby",
     field: "f9_delivery_date",
   },
   {
-    label: "Gestational age at delivery",
+    summary_label: "Gestational age at delivery",
     tableId: "Birthbaby",
     field: "f9_ga_at_delivery",
   },
   {
-    label: "Mode of Delivery",
+    summary_label: "Mode of Delivery",
     calculation: (data) => mode_of_delivery(data),
   },
   {
-    label: "Number of Babies",
+    summary_label: "Number of Babies",
     tableId: "Birthmother",
     field: "f7_delivery_num_of_babies",
   },
   {
-    label: "Stillbirth in PRECISE pregnancy ",
+    summary_label: "Stillbirth in PRECISE pregnancy ",
     calculation: (data) => stillbirth_yn(data),
   },
   {
-    label: "Early neonatal death in PRECISE pregnancy",
+    summary_label: "Early neonatal death in PRECISE pregnancy",
     calculation: (data) => early_neonatal_death(data),
   },
   {
-    label: "Delivery location",
+    summary_label: "Delivery location",
     calculation: (data) => delivery_location(data),
   },
   {
-    label: "Ideal date of PRECISE-DYAD visit 1 (6 weeks , 6 months)",
+    summary_label: "Ideal date of PRECISE-DYAD visit 1 (6 weeks , 6 months)",
     calculation: (data) => ideal_visit1(data),
   },
   {
-    label: "Date of PRECISE-DYAD visit 1",
+    summary_label: "Date of PRECISE-DYAD visit 1",
     tableId: "dyad_visit1",
     field: "gv_visit_date",
   },
   {
-    label: "Weeks postpartum at PRECISE-DYAD visit 1",
+    summary_label: "Weeks postpartum at PRECISE-DYAD visit 1",
     calculation: (data) => weeks_postpartum_visit1(data),
   },
 ];
 
-export const DYAD_CHILD_SUMMARY_FIELDS: IDyadMappedField[] = [
+export const DYAD_CHILD_VISIT1_FIELDS: IDyadMappedField[] = [
   {
-    label: "Age of child",
+    summary_label: "Age of child",
     calculation: (data) => {
       if (data.Birthbaby.f9_delivery_date) {
         return differenceInWeeks(new Date(), new Date(data.Birthbaby.f9_delivery_date)) + " weeks";
@@ -96,6 +98,13 @@ export const DYAD_CHILD_SUMMARY_FIELDS: IDyadMappedField[] = [
         return "N/A - no delivery date specified in Birthbaby form";
       }
     },
+  },
+  {
+    summary_label: "Mother Visit 1 Date",
+    // when working with child forms data also has access to mother
+    calculation: (data) => data._mother.dyad_visit1.gv_visit_date,
+    mapped_field_name: "gv_sum_visit1_date",
+    write_updates: true,
   },
 ];
 
