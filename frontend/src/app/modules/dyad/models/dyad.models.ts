@@ -117,43 +117,40 @@ const DYAD_SCHEMA_BASE: { [tableId in IDyadTableId]: IFormSchema } = {
 
 /**
  * Forms to include with specific sections on profile summary page
- * @param formIds - a list of forms to show metadata (including summary tables) from
- * @param summary_label - header text shown at the top of the section
- * @param icon - icon displayed in the header, from a predefined list of available icons
- * @param color - color variant to use (based on primary color), from 1-6. If omitted will be black/white
+ * @see {IDyadFormSection}
  */
 export const DYAD_FORM_SECTIONS: IDyadFormSection[] = [
   {
     _id: "dyad_profile",
     formIds: ["dyad_consent", "dyad_summary"],
-    summary_label: "Dyad Profile",
+    section_title: "Dyad Profile",
     icon: "person",
   },
   {
     _id: "dyad_visit_1",
     formIds: ["dyad_enrollment", "dyad_visit1", "dyad_child_visit1"],
-    summary_label: "Dyad Visit 1",
+    section_title: "Dyad Visit 1",
     icon: "visit",
     color: "1",
   },
   {
     _id: "dyad_visit_2",
     formIds: ["dyad_enrollment", "dyad_visit2", "dyad_child_visit2"],
-    summary_label: "Dyad Visit 2",
+    section_title: "Dyad Visit 2",
     icon: "visit",
     color: "1",
   },
   {
     _id: "dyad_verbal_autopsy",
     formIds: [],
-    summary_label: "Verbal Autopsy",
+    section_title: "Verbal Autopsy",
     icon: "verbal",
     color: "2",
   },
   {
     _id: "dyad_end_of_report",
     formIds: [],
-    summary_label: "End of Report",
+    section_title: "End of Report",
     icon: "assignment",
     color: "3",
   },
@@ -162,10 +159,16 @@ export const DYAD_FORM_SECTIONS: IDyadFormSection[] = [
 /************************************************************************************
  *  Interfaces used for type-checking
  ************************************************************************************/
+/**
+ * @param formIds - a list of forms to show metadata (including summary tables) from
+ * @param section_title - header text shown at the top of the section
+ * @param icon - icon displayed in the header, from a predefined list of available icons
+ * @param color - color variant to use (based on primary color), from 1-6. If omitted will be black/white
+ */
 export interface IDyadFormSection {
   _id: string;
   formIds: IDyadTableId[];
-  summary_label?: string;
+  section_title?: string;
   icon?: ICustomIcon;
   /** color variants 1-6 are variations on the primary color, if blank will be black/white */
   color?: "1" | "2" | "3" | "4" | "5" | "6";
@@ -235,14 +238,6 @@ export interface IFormSchema {
   mapFields?: IDyadMappedField[];
   show_summary_table?: boolean;
   allow_new_mapFields_row?: boolean;
-
-  // TODO - Consider additional options
-  /**  - specify condition to disable the form */
-  // hidden?: boolean | ((data: IDyadParticipantData) => boolean);
-  /** If form allows repeats, limit maximum entries  */
-  // repeats_limit?: number;
-  /** Determine whether the passed fields should be recalculated on home page load (not just form) */
-  // calculate_on_load?: boolean;
 }
 
 /**
