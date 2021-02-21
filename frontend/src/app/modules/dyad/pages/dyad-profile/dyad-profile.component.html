@@ -36,9 +36,9 @@
                   "
                 ></app-form-entries-summary>
                 <app-field-summary-table
-                  *ngIf="formSchema.summary_table_fields"
+                  *ngIf="formSchema.show_summary_table"
                   style="margin-left: 36px; margin-top: 8px"
-                  [fieldSummaries]="formSchema.summary_table_fields"
+                  [fieldSummaries]="formSchema.mapFields"
                   [participantData]="activeParticipant.data"
                 ></app-field-summary-table>
               </div>
@@ -61,9 +61,9 @@
                     (entrySelected)="launchChildForm(formSchema, $event, child)"
                   ></app-form-entries-summary>
                   <app-field-summary-table
-                    *ngIf="formSchema.summary_table_fields"
+                    *ngIf="formSchema.show_summary_table"
                     style="margin-left: 36px; margin-top: 8px"
-                    [fieldSummaries]="formSchema.summary_table_fields"
+                    [fieldSummaries]="formSchema.mapFields"
                     [participantData]="child.data"
                   ></app-field-summary-table>
                 </div>
@@ -80,16 +80,18 @@
         </mat-expansion-panel>
       </mat-accordion>
       <!-- Custom/Hacky way to override default back button behaviour and return to dyad profile after viewing precise -->
-      <button
-        mat-button
-        [routerLink]="['/projects/precise/participants', dyadService.activeParticipant.f2_guid]"
-        [queryParams]="{
-          previous: '/projects/dyad/participants/' + dyadService.activeParticipant.f2_guid
-        }"
-        style="float: right; margin-top: 1em"
-      >
-        View Precise Profile
-      </button>
+      <div style="text-align: right">
+        <button
+          mat-button
+          [routerLink]="['/projects/precise/participants', dyadService.activeParticipant.f2_guid]"
+          [queryParams]="{
+            previous: '/projects/dyad/participants/' + dyadService.activeParticipant.f2_guid
+          }"
+          style="margin-top: 1em"
+        >
+          View Precise Profile
+        </button>
+      </div>
     </div>
 
     <div id="guid">{{ activeParticipant.f2_guid }}</div>

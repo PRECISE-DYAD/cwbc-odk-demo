@@ -48,14 +48,14 @@ const DYAD_SCHEMA_BASE: { [tableId in IDyadTableId]: IFormSchema } = {
   dyad_summary: {
     title: "Dyad Summary",
     mapFields: DYAD_SUMMARY_FIELDS,
-    summary_table_fields: DYAD_SUMMARY_FIELDS,
+    show_summary_table: true,
     allow_new_mapFields_row: true,
   },
   dyad_child_visit1: {
     title: "Dyad Visit 1 - Child",
     mapFields: DYAD_CHILD_VISIT1_FIELDS,
     is_child_form: true,
-    summary_table_fields: DYAD_CHILD_VISIT1_FIELDS,
+    show_summary_table: true,
   },
   dyad_child_visit2: {
     title: "Dyad Visit 2 - Child",
@@ -118,7 +118,7 @@ const DYAD_SCHEMA_BASE: { [tableId in IDyadTableId]: IFormSchema } = {
 /**
  * Forms to include with specific sections on profile summary page
  * @param formIds - a list of forms to show metadata (including summary tables) from
- * @param label - header text shown at the top of the section
+ * @param summary_label - header text shown at the top of the section
  * @param icon - icon displayed in the header, from a predefined list of available icons
  * @param color - color variant to use (based on primary color), from 1-6. If omitted will be black/white
  */
@@ -126,34 +126,34 @@ export const DYAD_FORM_SECTIONS: IDyadFormSection[] = [
   {
     _id: "dyad_profile",
     formIds: ["dyad_consent", "dyad_summary"],
-    label: "Dyad Profile",
+    summary_label: "Dyad Profile",
     icon: "person",
   },
   {
     _id: "dyad_visit_1",
     formIds: ["dyad_enrollment", "dyad_visit1", "dyad_child_visit1"],
-    label: "Dyad Visit 1",
+    summary_label: "Dyad Visit 1",
     icon: "visit",
     color: "1",
   },
   {
     _id: "dyad_visit_2",
     formIds: ["dyad_enrollment", "dyad_visit2", "dyad_child_visit2"],
-    label: "Dyad Visit 2",
+    summary_label: "Dyad Visit 2",
     icon: "visit",
     color: "1",
   },
   {
     _id: "dyad_verbal_autopsy",
     formIds: [],
-    label: "Verbal Autopsy",
+    summary_label: "Verbal Autopsy",
     icon: "verbal",
     color: "2",
   },
   {
     _id: "dyad_end_of_report",
     formIds: [],
-    label: "End of Report",
+    summary_label: "End of Report",
     icon: "assignment",
     color: "3",
   },
@@ -165,7 +165,7 @@ export const DYAD_FORM_SECTIONS: IDyadFormSection[] = [
 export interface IDyadFormSection {
   _id: string;
   formIds: IDyadTableId[];
-  label?: string;
+  summary_label?: string;
   icon?: ICustomIcon;
   /** color variants 1-6 are variations on the primary color, if blank will be black/white */
   color?: "1" | "2" | "3" | "4" | "5" | "6";
@@ -222,8 +222,7 @@ export interface IDyadParticipant {
  * @param is_child_form if child form will create a separate instance for every child
  * @param allowRepeats  specify if the form should accept multiple entries from the same participant
  * @param mapFields specify individual fields to map into the form
- * @param mapped_json data can be passed as json to a single `mapped_json` column, as well as individual mapFields
- * @param summary_table_fields specify a list of fields to show in the summary display
+ * @param show_summary_table if set to true, any fields specified in mapFields with a summary_label column will be shown in a summary table
  * @param allow_mapFields_new_row if form contains mapFields that write directly to the db,
  * also allow creation of new row to hold data if does not exist
  */
@@ -234,9 +233,8 @@ export interface IFormSchema {
   is_child_form?: boolean;
   allowRepeats?: boolean;
   mapFields?: IDyadMappedField[];
-  summary_table_fields?: IDyadMappedField[];
+  show_summary_table?: boolean;
   allow_new_mapFields_row?: boolean;
-  // mapped_json?: IDyadFieldSummary[];
 
   // TODO - Consider additional options
   /**  - specify condition to disable the form */
@@ -250,7 +248,7 @@ export interface IFormSchema {
 /**
  * Field mappings can can be used to display data, or pipe into a table. Values can either be calculated from
  * a collation of all participant data, or a single table field value
- * @param label Text that appears before the value on a form
+ * @param summary_label If provided, will display in the summary table with corresponding summary_label
  * @param tableId If supplied with a field, will return specific value
  * @param field Name of field to
  * @param calculation Function executed to calculate value (with access to participant data object)
@@ -265,7 +263,7 @@ export interface IFormSchema {
  * ```
  */
 export interface IDyadMappedField {
-  label?: string;
+  summary_label?: string;
   tableId?: IDyadTableId;
   field?: string;
   calculation?: (data: IDyadParticipantData) => string | number;
