@@ -252,10 +252,34 @@ export interface IFormSchema {
  * depending on whether instance_id has changed. Override this behaviour and write changes directly to the database
  * whenever detected.
  * NOTE - by default this will not create rows when they do not already exist, except for dyad_summary table
- * ```
+ *
+ * @example // calculation statements
  * calculation: (data)=>Math.min(data.Visit1.f2_some_field, data.Visit2.f3_another_field)
- * calculation: (data)=>data.Birthbaby._rows.length
- * ```
+ *
+ * @example // access data when multiple row entries exist
+ * calculation: (data)=> const totalRows = data.table1._rows.length ...
+ *
+ * @example // access mother data from a child form
+ * calculation: (data) => data.childTable._mother.motherTable.id
+ *
+ * @example // pass a calculated value into the form on form open (do not show in the summary table)
+ * calculation: (data) => data.table1.first_name + ' ' + data.table1.last_name,
+ * mapped_field_name: "participant_name"
+ *
+ * @example // pass a calculated value into the form on form open and re-evaluate every load
+ * calculation: (data) => data.table1.first_name + ' ' + data.table1.last_name,
+ * mapped_field_name: "participant_name",
+ * write_updates: true
+ *
+ * @example // show a value in a summary table (but do not map to the form)
+ * calculation: (data) =>data.table2.name_of_town
+ * summary_label: "Participant Town"
+ *
+ * @example // map a single field from a table into the form, and show in the summary table
+ * tableId: "table2",
+ * field: "name_of_town",
+ * summary_label: "Participant Town"
+ * // (Note the same can be achieved with a calculation statement if mapped_field also included)
  */
 export interface IDyadMappedField {
   summary_label?: string;
