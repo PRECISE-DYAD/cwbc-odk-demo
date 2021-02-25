@@ -77,9 +77,16 @@ async function processXlsxFile(filepath: string) {
   const appXLSXTargetPath = path.join(appTargetBase, relativePath);
   const designerXLSXPath = `designer/${appXLSXTargetPath}`;
   const targetMd5 = fs.existsSync(designerXLSXPath) ? await md5File(designerXLSXPath) : null;
-  if (sourceMd5 !== targetMd5) {
+  const formDefTargetPath = appXLSXTargetPath.replace(filename, "formDef.json");
+  // check existing formDef previously processed correctly
+  let hasValidFormdef = true;
+  try {
+    fs.readJSONSync(`designer/${formDefTargetPath}`, { throws: true });
+  } catch (error) {
+    hasValidFormdef = false;
+  }
+  if (sourceMd5 !== targetMd5 || !hasValidFormdef) {
     // copy and process entire table folder
-    const formDefTargetPath = appXLSXTargetPath.replace(filename, "formDef.json");
     const targetFolderPath = `designer/${appTargetBase}/${formFolder}`;
     fs.ensureDir(targetFolderPath);
     fs.emptyDirSync(targetFolderPath);
