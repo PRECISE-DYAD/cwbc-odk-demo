@@ -1,7 +1,7 @@
 import { Component, ViewChild, ElementRef, HostListener, NgZone } from "@angular/core";
 import { DomSanitizer, SafeUrl } from "@angular/platform-browser";
 import { slideInOut } from "src/app/modules/shared/animations";
-import { OdkService } from "src/app/modules/shared/services/odk/odk.service";
+import { OdkService, IODKWindow } from "src/app/modules/shared/services/odk/odk.service";
 import { NotificationService } from "src/app/modules/shared/services";
 
 @Component({
@@ -63,8 +63,8 @@ export class ODKDesignerIframeComponent {
         if (msg === "odk:ready") {
           const childWindow = this.iframeRef.nativeElement.contentWindow as any;
           if (!this.odkService.ready$.value) {
-            console.log("odk ready");
             this.odkService.setWindow(childWindow);
+            this.attachODKToLocalWindow(childWindow);
           }
         }
         if (msg.startsWith("odk:error")) {
@@ -143,7 +143,6 @@ export class ODKDesignerIframeComponent {
    */
   showIframe() {
     this.ngZone.run(() => {
-      console.log("showing iframe");
       setTimeout(() => {
         this.animationState = "in";
       }, 50);
@@ -158,7 +157,6 @@ export class ODKDesignerIframeComponent {
       }, 250);
     } else {
       this.ngZone.run(() => {
-        console.log("closing iframe");
         setTimeout(() => {
           this.animationState = "out";
           this.iframeUri = null;
@@ -189,5 +187,15 @@ export class ODKDesignerIframeComponent {
 
   handleIframeError(e) {
     console.log("iframe error", e);
+  }
+
+  /** When running locally, also make odk window properties available on current window */
+  private attachODKToLocalWindow(odkWindow: IODKWindow) {
+    const windowMappings: (keyof IODKWindow)[] = ["odkCommon", "odkData", "odkTables"];
+    windowMappings.forEach((property) => {
+      if (!window[property] && odkWindow[property]) {
+        window[property as any] = odkWindow[property];
+      }
+    });
   }
 }

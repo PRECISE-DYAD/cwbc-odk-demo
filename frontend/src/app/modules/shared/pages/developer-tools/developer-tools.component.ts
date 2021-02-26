@@ -61,7 +61,9 @@ export class DeveloperToolsComponent implements OnInit {
         const formDefPath = this.odkService.getFileAsUrl(formDefBase);
         formDef = await this.http.get(formDefPath).toPromise();
         rows = await this.odkService.getTableRows(tableId);
-      } catch (err) {}
+      } catch (err) {
+        console.error(err);
+      }
       return { ...meta, rows, formDef };
     });
     const tablesMeta = await Promise.all(getRowOperations);

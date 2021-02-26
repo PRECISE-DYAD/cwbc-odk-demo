@@ -12,6 +12,12 @@ import { differenceInWeeks } from "date-fns";
 const SITE = environment.SITE;
 export const DYAD_SUMMARY_FIELDS: IDyadMappedField[] = [
   {
+    summary_label: "Device ID",
+    calculation: (data) => {
+      return getDeviceId();
+    },
+  },
+  {
     summary_label: "PTID",
     tableId: "profileSummary",
     field: "f2a_participant_id",
@@ -190,6 +196,10 @@ function delivery_location(data: IDyadParticipantData) {
       location_str = "En route";
       return location_str;
   }
+}
+/** Use ODK's common method to get the unique device id */
+function getDeviceId() {
+  return (window as any)?.odkCommon?.getProperty("deviceId") || null;
 }
 
 function stillbirth_yn(data: IDyadParticipantData) {
