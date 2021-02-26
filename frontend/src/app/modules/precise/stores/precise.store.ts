@@ -76,9 +76,7 @@ export class PreciseStore {
    * and generate summary to be used within display components
    */
   async loadParticipants() {
-    const rows = await this.odk.getTableRows<IParticipant>(
-      MAPPED_SCHEMA.profileSummary.tableId
-    );
+    const rows = await this.odk.getTableRows<IParticipant>(MAPPED_SCHEMA.profileSummary.tableId);
     this.setParticipantLists(rows);
   }
 
@@ -133,40 +131,34 @@ export class PreciseStore {
   async loadParticipantTableData(participant: IParticipant) {
     const { f2_guid } = participant;
     const collated: { [tableId: string]: IFormMetaWithEntries } = {};
-    const promises = Object.entries(MAPPED_SCHEMA).map(
-      async ([key, formMeta]) => {
-        const { tableId } = formMeta;
-        // lookup the data for every table given by the mapped table id
-        let participantRows: any;
-        try {
-          participantRows = await this.odk.query(
-            tableId,
-            "f2_guid = ?",
-            [f2_guid],
-            // skip odk error notifications and just handle below
-            (err) => null
-          );
-        } catch (error) {
-          // either table does not exist or no f2_guid field - likely issue but could be exceptions
-          console.error(
-            "could not query user records:",
-            formMeta.tableId,
-            f2_guid
-          );
-        }
-        // attach metadata
-        collated[tableId] = {
-          ...formMeta,
-          entries: participantRows || [],
-        };
-        // duplicate data to pre-mapped table id for use in lookups
-        collated[key] = {
-          ...formMeta,
-          tableId: key,
-          entries: participantRows || [],
-        };
+    const promises = Object.entries(MAPPED_SCHEMA).map(async ([key, formMeta]) => {
+      const { tableId } = formMeta;
+      // lookup the data for every table given by the mapped table id
+      let participantRows: any;
+      try {
+        participantRows = await this.odk.query(
+          tableId,
+          "f2_guid = ?",
+          [f2_guid],
+          // skip odk error notifications and just handle below
+          (err) => null
+        );
+      } catch (error) {
+        // either table does not exist or no f2_guid field - likely issue but could be exceptions
+        console.error("could not query user records:", formMeta.tableId, f2_guid);
       }
-    );
+      // attach metadata
+      collated[tableId] = {
+        ...formMeta,
+        entries: participantRows || [],
+      };
+      // duplicate data to pre-mapped table id for use in lookups
+      collated[key] = {
+        ...formMeta,
+        tableId: key,
+        entries: participantRows || [],
+      };
+    });
     await Promise.all(promises);
     this.setParticipantForms(collated);
   }
@@ -175,13 +167,8 @@ export class PreciseStore {
    * Separate action from async load code to allow mobx to update synchronously
    * Additionally collate all participant data from forms into a single object, organised by table
    */
-  @action setParticipantForms(collated: {
-    [tableId: string]: IFormMetaWithEntries;
-  }) {
-    const participantFormsHash = _arrToHashmap(
-      Object.values(collated),
-      "tableId"
-    );
+  @action setParticipantForms(collated: { [tableId: string]: IFormMetaWithEntries }) {
+    const participantFormsHash = _arrToHashmap(Object.values(collated), "tableId");
     const activeParticipantData = this._extractMappedDataValues(
       Object.values(participantFormsHash)
     ) as any;
@@ -235,8 +222,7 @@ export class PreciseStore {
    */
   async backupParticipant(participant: IParticipant) {
     const newBackup = this._stripOdkMeta(participant);
-    const allBackups = this.participantFormsHash.profileSummaryRevisions
-      .entries as any[];
+    const allBackups = this.participantFormsHash.profileSummaryRevisions.entries as any[];
     const latestBackup = this._stripOdkMeta(allBackups[allBackups.length - 1]);
     // Simple object comparison as strings. More complex diffs available
     // via 3rd party libs such as diff, lodash or deep-compare. Skip if same.
@@ -257,11 +243,7 @@ export class PreciseStore {
    * NOTE - f2_guid automatically populated for all forms
    * NOTE - any additional fields listed in formMeta also populated
    */
-  async launchForm(
-    formMeta: IFormMeta,
-    editRowId: string = null,
-    jsonMap: any = {}
-  ) {
+  async launchForm(formMeta: IFormMeta, editRowId: string = null, jsonMap: any = {}) {
     let { tableId, formId } = formMeta;
     // ensure table and form ids have been properly mapped
     // note - avoid full lookup in case modified mapped fields have been pass (e.g. baby section forms)
@@ -288,10 +270,7 @@ export class PreciseStore {
    * NOTE - can possibly be removed as tables only have a few columns
    * (legacy data had over 100)
    */
-  private _generateParticipantSummary(
-    participant: IParticipant,
-    index: number
-  ) {
+  private _generateParticipantSummary(participant: IParticipant, index: number) {
     const summary: any = {};
     PARTICIPANT_SUMMARY_FIELDS.forEach((field) => {
       summary[field] = participant[field];
@@ -314,7 +293,10 @@ export class PreciseStore {
       if (!data[tableId]) {
         data[tableId] = {};
       }
-      const latestEntry = form.entries[form.entries.length - 1];
+      // Ignore automatic checkpoints (null checkpoint) when determining the latest entry
+      const savedEntries = form.entries.filter((r) => r._savepoint_type !== null);
+      const latestEntry = savedEntries[savedEntries.length - 1];
+      // const latestEntry = form.entries[form.entries.length - 1];
       if (latestEntry) {
         Object.entries(latestEntry).forEach(([key, value]) => {
           data[tableId][key] = value;
