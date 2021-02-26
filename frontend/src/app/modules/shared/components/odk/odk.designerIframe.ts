@@ -9,14 +9,14 @@ import { NotificationService } from "src/app/modules/shared/services";
   animations: [slideInOut],
   template: `
     <div class="container" [@slideInOut]="animationState">
-      <mat-toolbar color="accent">
+      <!-- <mat-toolbar color="accent">
         <span>Form Preview</span>
         <span style="flex: 1;"></span>
         <button mat-button class="close-button" aria-label="close" (click)="closeIframe()">
           Close
           <mat-icon>close</mat-icon>
         </button>
-      </mat-toolbar>
+      </mat-toolbar> -->
       <iframe
         *ngIf="iframeSrc"
         [src]="iframeSrc"
@@ -42,7 +42,8 @@ import { NotificationService } from "src/app/modules/shared/services";
       iframe {
         flex: 1;
         width: 100%;
-        height: calc(100% - 48px);
+        /* height: calc(100% - 48px); */
+        height: 100%;
         border: none;
       }
     `,
