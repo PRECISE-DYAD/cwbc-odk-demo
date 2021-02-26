@@ -1,7 +1,11 @@
 import { IODkTableRowData } from "src/app/modules/shared/types";
 import { IParticipantSummary } from "../../precise/types";
 import { ICustomIcon } from "../../shared/components/icons";
-import { DYAD_CHILD_VISIT1_FIELDS, DYAD_SUMMARY_FIELDS } from "./dyad-summary.model";
+import {
+  DYAD_CHILD_VISIT1_FIELDS,
+  DYAD_SUMMARY_FIELDS,
+  hasProvidedDyadConsent,
+} from "./dyad-summary.model";
 
 /**
  * General Note - many of the types here started from precise typings, but were then changed without changing precise
@@ -43,27 +47,49 @@ const DYAD_SCHEMA_BASE: { [tableId in IDyadTableId]: IFormSchema } = {
   Birthbaby: { title: "Birth Baby", is_child_form: true },
   Birthmother: { title: "Birth Mother" },
   // DYAD forms
-  dyad_enrollment: { title: "Dyad Visit 1 - Enrollment" },
+  dyad_enrollment: {
+    title: "Dyad Visit 1 - Enrollment",
+    disabled: (data) => {
+      if (!hasProvidedDyadConsent(data)) {
+        return "User has not provided Dyad consent";
+      }
+    },
+  },
   dyad_consent: { title: "Dyad Consent" },
   dyad_summary: {
     title: "Dyad Summary",
     mapFields: DYAD_SUMMARY_FIELDS,
     show_summary_table: true,
     allow_new_mapFields_row: true,
+    disabled: (data) => {
+      if (!hasProvidedDyadConsent(data)) {
+        return "User has not provided Dyad consent";
+      }
+    },
   },
   dyad_child_visit1: {
     title: "Dyad Visit 1 - Child",
     mapFields: DYAD_CHILD_VISIT1_FIELDS,
     is_child_form: true,
     show_summary_table: true,
+    disabled: (data) => {
+      if (!hasProvidedDyadConsent(data)) {
+        return "User has not provided Dyad consent";
+      }
+    },
   },
   dyad_child_visit2: {
     title: "Dyad Visit 2 - Child",
     mapFields: [],
     is_child_form: true,
     disabled: (data) => {
+      if (!hasProvidedDyadConsent(data)) {
+        return "User has not provided Dyad consent";
+      }
       const visit1Entries = data.dyad_child_visit1._rows.length;
-      return visit1Entries === 0 ? "Please complete visit 1 first" : false;
+      if (visit1Entries === 0) {
+        return "Please complete visit 1 first";
+      }
     },
   },
   dyad_visit1: {
@@ -102,11 +128,23 @@ const DYAD_SCHEMA_BASE: { [tableId in IDyadTableId]: IFormSchema } = {
         field: "f7_delivery_location",
       },
     ],
+    disabled: (data) => {
+      if (data.dyad_consent.d1_enroll_consent !== "1") {
+        return "The participant requires consent first";
+      }
+
+      // if (!hasProvidedDyadConsent(data)) {
+      //   return "User has not provided Dyad consent";
+      // }
+    },
   },
   dyad_visit2: {
     title: "Dyad Visit 2 - Mother",
     mapFields: [],
     disabled: (data) => {
+      if (!hasProvidedDyadConsent(data)) {
+        return "User has not provided Dyad consent";
+      }
       const visit1Entries = data.dyad_visit1._rows;
       if (visit1Entries.length === 0) {
         return "Please complete visit1 first";
@@ -238,7 +276,7 @@ export interface IFormSchema {
   is_child_form?: boolean;
   allowRepeats?: boolean;
   mapFields?: IDyadMappedField[];
-  disabled?: (data: IDyadParticipantData) => string | boolean;
+  disabled?: (data: IDyadParticipantData) => string | boolean | void;
   show_summary_table?: boolean;
   allow_new_mapFields_row?: boolean;
 }

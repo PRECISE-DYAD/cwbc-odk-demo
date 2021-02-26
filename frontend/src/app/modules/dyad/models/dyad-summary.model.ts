@@ -202,6 +202,10 @@ function getDeviceId() {
   return (window as any)?.odkCommon?.getProperty("deviceId") || null;
 }
 
+export function hasProvidedDyadConsent(data: IDyadParticipantData) {
+  return data.dyad_consent.d1_enroll_consent === "1";
+}
+
 function stillbirth_yn(data: IDyadParticipantData) {
   let val = "";
 
