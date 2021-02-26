@@ -147,10 +147,11 @@ export class DyadService {
     const { f2_guid } = precise_profileSummary;
     // open form for editing if entry already exists
     const editRowId = dyad_consent ? dyad_consent._id : null;
+    // open the form for editing or creating new entry
+    await this.launchForm(MAPPED_SCHEMA.dyad_consent, editRowId, { f2_guid } as any);
     // navigate to expected profile page to display after enrollment complete
+    // note - assumes form will not just be dismissed (could be refined)
     router.navigate([f2_guid], { relativeTo: route });
-    //
-    this.launchForm(MAPPED_SCHEMA.dyad_consent, editRowId);
   }
 
   /**
@@ -167,6 +168,7 @@ export class DyadService {
       precise_profileSummary: p,
       dyad_consent: dyadProfileHash[p.f2_guid] || null,
     }));
+    console.log("all participant summaries", this.allParticipants);
   }
 
   /**
@@ -184,6 +186,7 @@ export class DyadService {
     editRowId: string = null,
     participant?: IDyadParticipant | IDyadParticipantChild
   ) {
+    console.log("launch form", participant);
     // all forms should be linked to a participant. Even if registering new participant, should
     // provide a placeholder f2_guid
     participant = participant || this.activeParticipant;
@@ -235,8 +238,7 @@ export class DyadService {
         // either table does not exist or no f2_guid field - likely issue but could be exceptions
         console.error("could not query user records:", formMeta.tableId, f2_guid);
       }
-      // omit entries created partially when a form opened and closed again locally
-      const entries = (participantRows || []).filter((r) => r._savepoint_type !== null);
+      const entries = participantRows || [];
       // attach metadata
       collated[tableId] = { ...formMeta, entries };
       // duplicate data to pre-mapped table id for use in lookups
@@ -284,7 +286,6 @@ export class DyadService {
    */
   private evaluateDisabledForms(participant: IDyadParticipant | IDyadParticipantChild) {
     const { data, formsHash } = participant;
-    console.log("evaluating disabled forms", formsHash, data);
     Object.entries(formsHash).forEach(([tableId, schema]) => {
       if (schema.hasOwnProperty("disabled") && typeof schema.disabled === "function") {
         try {
@@ -326,7 +327,9 @@ export class DyadService {
       if (!data[tableId]) {
         data[tableId] = { _rows: form.entries };
       }
-      const latestEntry = form.entries[form.entries.length - 1];
+      // Ignore automatic checkpoints (null checkpoint) when determining the latest entry
+      const savedEntries = form.entries.filter((r) => r._savepoint_type !== null);
+      const latestEntry = savedEntries[savedEntries.length - 1];
       if (latestEntry) {
         Object.entries(latestEntry).forEach(([key, value]) => {
           data[tableId][key] = value;

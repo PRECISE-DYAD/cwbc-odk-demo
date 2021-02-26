@@ -34,7 +34,9 @@ export class DyadProfileComponent implements OnDestroy, OnInit {
     this.init();
   }
   ngOnDestroy() {
-    this.dyadService.setActiveParticipantById(this.route.snapshot.params.f2_guid);
+    // when leaving reset the active participant
+    // TODO - we don't necessarily want to reset when navigating to precise profile
+    this.dyadService.setActiveParticipantById(null);
   }
 
   public launchChildForm(formSchema: IFormSchema, editRowId: string, child: IDyadParticipantChild) {
