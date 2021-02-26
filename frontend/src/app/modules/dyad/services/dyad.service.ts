@@ -64,6 +64,7 @@ export class DyadService {
         children: [],
       };
       participant.children = this.loadParticipantChildMeta(participant);
+      participant.formsHash = this.evaluateDisabledForms(participant);
       this.activeParticipant = participant;
       console.log("active participant", this.activeParticipant);
       await this.updateParticipantMappedData(this.activeParticipant);
@@ -277,10 +278,35 @@ export class DyadService {
       const data = this.formsHashToParticipantData(formsHash) as any;
       // also make mother data available in child calculations
       data._mother = mother.data;
-      children.push({ formsHash, f2_guid_child, data, mother });
+      const child: IDyadParticipantChild = { formsHash, f2_guid_child, data, mother };
+      child.formsHash = this.evaluateDisabledForms(child);
+      children.push(child);
     }
     console.log("participant children", children);
     return children;
+  }
+
+  /**
+   * Evaluate any logic from a formschema's disabled calculation function, and map back
+   * to formschema calculated _disabled and _disabled_msg fields
+   */
+  private evaluateDisabledForms(participant: IDyadParticipant | IDyadParticipantChild) {
+    const { data, formsHash } = participant;
+    console.log("evaluating disabled forms", formsHash, data);
+    Object.entries(formsHash).forEach(([tableId, schema]) => {
+      if (schema.hasOwnProperty("disabled") && typeof schema.disabled === "function") {
+        try {
+          const evaluation = schema.disabled(data);
+          formsHash[tableId]._disabled = evaluation ? true : false;
+          if (evaluation && typeof evaluation === "string") {
+            formsHash[tableId]._disabled_msg = evaluation;
+          }
+        } catch (error) {
+          console.error("could not evaluate disabled function", tableId, schema.disabled);
+        }
+      }
+    });
+    return formsHash;
   }
 
   /**

@@ -9,6 +9,7 @@ const icons = [
   "disease",
   "edit",
   "fetus",
+  "forms_required",
   "lab",
   "mother",
   "person",
