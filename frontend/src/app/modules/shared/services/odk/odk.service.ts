@@ -14,7 +14,7 @@ import { environment } from "src/environments/environment";
 // When running on device the following methods are automatically added
 // to the window object. When running in development some mocking methods
 // are provided in sibling class files (created as needed)
-type IODKWindow = Window & {
+export type IODKWindow = Window & {
   odkData: OdkDataClass;
   odkCommon: OdkCommonClass;
   odkTables: OdkTablesClass;
@@ -96,6 +96,7 @@ export class OdkService {
    * Used to pass the window object from the child iframe for use within our services
    */
   setWindow(window: IODKWindow) {
+    console.log("setting window", window);
     this.window = window;
     this.setServiceReady();
   }
@@ -256,6 +257,7 @@ export class OdkService {
           resolve(resultsJson);
         },
         (err: Error) => {
+          console.log("query error", err);
           failureCallback(err);
           resolve([]);
         }
