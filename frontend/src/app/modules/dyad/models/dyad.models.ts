@@ -61,16 +61,11 @@ const DYAD_SCHEMA_BASE: { [tableId in IDyadTableId]: IFormSchema } = {
     title: "Dyad Visit 2 - Child",
     mapFields: [],
     is_child_form: true,
-    // disabled: (data) => {
-    //   const totalLabRecords = data.lab._rows.length;
-    //   const firstLabDate = data.lab._rows[2]
-    //   if(!data.lab._rows[some_field){
-    //     return true
-    //   }
-    //   if (!data.dyad_child_visit1) {
-    //     return true;
-    //   }
-    // },
+    disabled: (data) => {
+      const visit1Entries = data.dyad_child_visit1._rows.length;
+      console.log("visit1Entries", data.dyad_child_visit1._rows.length);
+      return visit1Entries === 0 ? "Please complete visit 1 first" : false;
+    },
   },
   dyad_visit1: {
     title: "Dyad Visit 1 - Mother",
@@ -112,6 +107,12 @@ const DYAD_SCHEMA_BASE: { [tableId in IDyadTableId]: IFormSchema } = {
   dyad_visit2: {
     title: "Dyad Visit 2 - Mother",
     mapFields: [],
+    disabled: (data) => {
+      const visit1Entries = data.dyad_visit1._rows;
+      if (visit1Entries.length === 0) {
+        return "Please complete visit1 first";
+      }
+    },
   },
 };
 
@@ -225,6 +226,8 @@ export interface IDyadParticipant {
  * @param is_child_form if child form will create a separate instance for every child
  * @param allowRepeats  specify if the form should accept multiple entries from the same participant
  * @param mapFields specify individual fields to map into the form
+ * @param disabled provide a calculation to determine if the form should be disabled. Any string or TRUE response
+ * will indicate the form should be disabled, and if a string the text will be shown as a notification
  * @param show_summary_table if set to true, any fields specified in mapFields with a summary_label column will be shown in a summary table
  * @param allow_mapFields_new_row if form contains mapFields that write directly to the db,
  * also allow creation of new row to hold data if does not exist
@@ -236,6 +239,7 @@ export interface IFormSchema {
   is_child_form?: boolean;
   allowRepeats?: boolean;
   mapFields?: IDyadMappedField[];
+  disabled?: (data: IDyadParticipantData) => string | boolean;
   show_summary_table?: boolean;
   allow_new_mapFields_row?: boolean;
 }
@@ -292,6 +296,9 @@ export interface IDyadMappedField {
 
 export interface IFormSchemaWithEntries extends IFormSchema {
   entries: IODkTableRowData[];
+  // formSchema disabled field as evaulated is stored in _disabled
+  _disabled?: boolean;
+  _disabled_msg?: string;
 }
 
 /************************************************************************************

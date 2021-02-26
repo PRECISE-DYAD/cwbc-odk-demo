@@ -9,7 +9,7 @@ import { IFormMetaWithEntries } from "src/app/modules/shared/types";
   selector: "app-form-entries-summary",
   template: `
     <div *ngFor="let entry of form.entries">
-      <button mat-button (click)="entrySelected.next(entry._id)">
+      <button mat-button (click)="entrySelected.next(entry._id)" [disabled]="form._disabled">
         <ng-container [ngSwitch]="entry._savepoint_type">
           <mat-icon *ngSwitchCase="'COMPLETE'"> check_box</mat-icon>
           <mat-icon *ngSwitchCase="'INCOMPLETE'">indeterminate_check_box</mat-icon>
@@ -26,6 +26,7 @@ import { IFormMetaWithEntries } from "src/app/modules/shared/types";
         mat-button
         *ngIf="!form.allowRepeats && !form.entries[0]"
         (click)="entrySelected.next()"
+        [disabled]="form._disabled"
       >
         <mat-icon>check_box_outline_blank</mat-icon>
         <span>{{ title || form.title }}</span>
@@ -35,11 +36,17 @@ import { IFormMetaWithEntries } from "src/app/modules/shared/types";
       mat-button
       *ngIf="!form.allowRepeats && !form.entries[0]"
       (click)="entrySelected.next()"
+      [disabled]="form._disabled"
     >
       <mat-icon>check_box_outline_blank</mat-icon>
       <span>{{ title || form.title }}</span>
     </button>
-    <button mat-button *ngIf="form.allowRepeats" (click)="entrySelected.next()">
+    <button
+      mat-button
+      *ngIf="form.allowRepeats"
+      (click)="entrySelected.next()"
+      [disabled]="form._disabled"
+    >
       <mat-icon>add</mat-icon>
       <span>{{ title || form.title }}</span>
     </button>
@@ -48,6 +55,10 @@ import { IFormMetaWithEntries } from "src/app/modules/shared/types";
       <span
         >Multiple entries detected. Please notify your supervisor or data manager to resolve.
       </span>
+    </div>
+    <div *ngIf="form._disabled_msg" style="margin-left: 50px; font-style:italic; margin-top: 0px;">
+      <!-- <mat-icon svgIcon="forms_required"></mat-icon> -->
+      <span>{{ form._disabled_msg }}</span>
     </div>
   `,
   styles: [

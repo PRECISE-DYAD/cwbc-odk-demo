@@ -19,6 +19,8 @@ export interface IFormMeta {
 // Participant forms contain full form meta with specific participant entries
 export interface IFormMetaWithEntries extends IFormMeta {
   entries: IODkTableRowData[];
+  _disabled?: boolean;
+  _disabled_msg?: string;
 }
 
 export interface IFormMetaMappedField {
