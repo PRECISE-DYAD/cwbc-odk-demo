@@ -13,8 +13,8 @@ import { DyadService } from "../../services/dyad.service";
 })
 export class DyadParticipantsComponent implements OnInit, AfterViewInit {
   isLoading = true;
-  dataSource = new MatTableDataSource<IDyadParticipantSummary>();
-  displayedColumns = ["dyad_consent", "f2a_participant_id", "f2a_full_name", "f2_guid"];
+  dataSource = new MatTableDataSource<any>();
+  displayedColumns = ["d1_enroll_consent", "f2a_participant_id", "f2a_full_name", "f2_guid"];
   @ViewChild(MatPaginator, { static: true }) paginator: MatPaginator;
   @ViewChild(MatSort, { static: true }) sort: MatSort;
   constructor(
@@ -40,13 +40,27 @@ export class DyadParticipantsComponent implements OnInit, AfterViewInit {
     await this.dyadService.isReady();
     this.isLoading = false;
     const { allParticipants } = this.dyadService;
-    this.dataSource.data = allParticipants;
+    this.dataSource.data = allParticipants.map((p, i) => this.getDatasourceData(p));
   }
-  handleRowClicked(row: IDyadParticipantSummary) {
-    if (row.dyad_consent && row.dyad_consent.d1_enroll_consent === "1") {
-      this.router.navigate([row.precise_profileSummary.f2_guid], { relativeTo: this.route });
+  /**
+   * To make it easier to search and filter store just a subset of data at the top level
+   * Keep the raw participant data for use in row click handler
+   */
+  private getDatasourceData(participant: IDyadParticipantSummary) {
+    const d1_enroll_consent = participant.dyad_consent?.d1_enroll_consent || null;
+    const { f2a_participant_id, f2a_full_name, f2_guid } = participant.precise_profileSummary;
+    return { d1_enroll_consent, f2a_participant_id, f2a_full_name, f2_guid, _raw: participant };
+  }
+
+  handleRowClicked(row: { _raw: IDyadParticipantSummary }) {
+    // as all data for a row is merged into the top level, use _raw for processing
+    const participant = row._raw;
+    if (participant.dyad_consent && participant.dyad_consent.d1_enroll_consent === "1") {
+      this.router.navigate([participant.precise_profileSummary.f2_guid], {
+        relativeTo: this.route,
+      });
     } else {
-      this.dyadService.enrolParticipant(this.router, this.route, row);
+      this.dyadService.enrolParticipant(this.router, this.route, participant);
     }
   }
 
