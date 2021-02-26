@@ -63,7 +63,6 @@ const DYAD_SCHEMA_BASE: { [tableId in IDyadTableId]: IFormSchema } = {
     is_child_form: true,
     disabled: (data) => {
       const visit1Entries = data.dyad_child_visit1._rows.length;
-      console.log("visit1Entries", data.dyad_child_visit1._rows.length);
       return visit1Entries === 0 ? "Please complete visit 1 first" : false;
     },
   },

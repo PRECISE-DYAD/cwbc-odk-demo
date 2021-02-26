@@ -54,7 +54,6 @@ export class DyadService {
 
   async setActiveParticipantById(f2_guid?: string) {
     if (f2_guid) {
-      console.log("active participant", this.activeParticipant);
       const formsHash: IDyadParticipant["formsHash"] = await this.loadParticipantFormsHash(f2_guid);
       const data: IDyadParticipant["data"] = this.formsHashToParticipantData(formsHash);
       const participant: IDyadParticipant = {
@@ -78,15 +77,12 @@ export class DyadService {
       const writtenMapFields = (schema.mapFields || []).filter((f) => f.write_updates);
       const { f2_guid } = this.activeParticipant;
       if (writtenMapFields.length > 0) {
-        console.log("checking fields", table_id, writtenMapFields);
         if (schema.is_child_form) {
           // Handle child forms iteratively
           for (const child of this.activeParticipant.children) {
-            const { data, f2_guid_child, formsHash } = child;
-            console.log("updating child", child);
+            const { data, f2_guid_child } = child;
             const rows = data[table_id]._rows;
             if (rows.length == 0 && schema.allow_new_mapFields_row) {
-              console.log("creating new row for mapped data");
               await this.odk.addRow(table_id, { f2_guid, f2_guid_child }, f2_guid_child);
               return this.setActiveParticipantById(f2_guid);
             } else {
@@ -94,7 +90,6 @@ export class DyadService {
                 const updateEntry = this.comparedMappedFieldData(row, writtenMapFields, child.data);
                 // note - if row identical odk also provides own check whether for sql updates required, so not strictly required
                 if (Object.keys(updateEntry).length > 0) {
-                  console.log("updating child row", row, updateEntry);
                   await this.odk.updateRow(table_id, row._id, { ...row, ...updateEntry });
                 }
               }
@@ -105,7 +100,6 @@ export class DyadService {
           const rows = participant.data[table_id]._rows;
           // handle new row creation where permitted
           if (rows.length == 0 && schema.allow_new_mapFields_row) {
-            console.log("creating new row for mapped data");
             await this.odk.addRow(table_id, { f2_guid }, f2_guid);
             return this.setActiveParticipantById(f2_guid);
           } else {
@@ -117,7 +111,6 @@ export class DyadService {
               );
               // note - if row identical odk also provides own check whether for sql updates required, so not strictly required
               if (Object.keys(updateEntry).length > 0) {
-                console.log("updating row", row, updateEntry);
                 await this.odk.updateRow(table_id, row._id, { ...row, ...updateEntry });
               }
             }
@@ -250,7 +243,6 @@ export class DyadService {
       collated[key] = { ...formMeta, tableId: key, entries };
     });
     await Promise.all(promises);
-    console.log("collated", collated);
     return collated;
   }
 

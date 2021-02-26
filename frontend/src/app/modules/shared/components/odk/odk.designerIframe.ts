@@ -143,7 +143,6 @@ export class ODKDesignerIframeComponent {
    */
   showIframe() {
     this.ngZone.run(() => {
-      console.log("showing iframe");
       setTimeout(() => {
         this.animationState = "in";
       }, 50);
@@ -158,7 +157,6 @@ export class ODKDesignerIframeComponent {
       }, 250);
     } else {
       this.ngZone.run(() => {
-        console.log("closing iframe");
         setTimeout(() => {
           this.animationState = "out";
           this.iframeUri = null;

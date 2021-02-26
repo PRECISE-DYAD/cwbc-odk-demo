@@ -62,7 +62,6 @@ export class PreciseProfileComponent implements OnDestroy, OnInit {
     this.commonStore.setPageTitle(`${f2a_participant_id || ""} ${f2a_full_name || ""}`);
   }
   private loadParticipantSections() {
-    console.log("loading participant sections");
     const sections: { [sectionID: string]: ISectionWithMeta } = {};
     PRECISE_FORM_SECTIONS.forEach((s) => {
       const sectionWithMeta = {

@@ -66,7 +66,6 @@ export class PreciseParticipantsComponent implements OnInit {
       autoFocus: true,
     });
     const res = await dialogRef.afterClosed().toPromise();
-    console.log("res", res);
     switch (res.action) {
       case "addScreening":
         return this.store.screenNewParticipant({ f0_precise_id: res.data });
