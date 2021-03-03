@@ -163,7 +163,13 @@ function copyCustomTypeTemplates() {
     for (let formFolder of formFolders) {
       const targetDir = `${designerTablesPath}/${tableId}/forms/${formFolder}`;
       for (let filename of srcFiles) {
-        fs.copySync(`${srcDir}/${filename}`, `${targetDir}/${filename}`);
+        // if specific table folder has own version of file copy that, if not copy global
+        const formSpecificVersion = `forms/tables/${tableId}/forms/${tableId}/${filename}`;
+        if (fs.existsSync(formSpecificVersion)) {
+          fs.copySync(formSpecificVersion, `${targetDir}/${filename}`);
+        } else {
+          fs.copySync(`${srcDir}/${filename}`, `${targetDir}/${filename}`);
+        }
       }
     }
   }

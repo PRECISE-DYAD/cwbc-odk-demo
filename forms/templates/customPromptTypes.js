@@ -6,17 +6,15 @@
  *
  * NOTE: These will automatically be copied
  */
-
 // define any js imports required. Note, only preconfigured system imports are available
-define(["promptTypes", "jquery"], function (promptTypes, $) {
+define(["promptTypes", "jquery", "require"], function (promptTypes, $, r) {
   return {
     // key should match the name defined in the prompt_types sheet
     // value should use a base type to extend on, e.g. input_type, select_one etc.
     // see full list in designer/app/system/survey/js/prompts.js
     example_custom_prompt: promptTypes.input_type.extend({
       // optional, provide a path to a handlebars template to use (default uses same as base prompt type)
-      templatePath:
-        "../config/assets/templates/example_custom_prompt.handlebars",
+      templatePath: "../config/assets/templates/example_custom_prompt.handlebars",
       afterRender: function () {
         // any of the default functions can be overwritten, afterRender is an empty placeholder
         // for making data changes after data full loaded and element rendered, so a good place for
@@ -59,8 +57,7 @@ define(["promptTypes", "jquery"], function (promptTypes, $) {
       templatePath: "../config/assets/templates/custom_text.handlebars",
     }),
     custom_contents_page: promptTypes.user_branch.extend({
-      templatePath:
-        "../config/assets/templates/custom_contents_page.handlebars",
+      templatePath: "../config/assets/templates/custom_contents_page.handlebars",
     }),
     custom_section_complete: promptTypes.acknowledge.extend({
       acknLabel: { text: "Mark Section as Complete" },
@@ -69,8 +66,7 @@ define(["promptTypes", "jquery"], function (promptTypes, $) {
       templatePath: "../config/assets/templates/custom_date_picker.handlebars",
     }),
     custom_datetime_picker: promptTypes.input_type.extend({
-      templatePath:
-        "../config/assets/templates/custom_datetime_picker.handlebars",
+      templatePath: "../config/assets/templates/custom_datetime_picker.handlebars",
     }),
     custom_date: promptTypes.input_type.extend({
       templatePath: "../config/assets/templates/custom_date.handlebars",
