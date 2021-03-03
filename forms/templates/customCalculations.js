@@ -18,7 +18,7 @@ define(function () {
      * e.g. `var customValue = calculates.custom.exampleCalc('hello')`
      ***********************************************************************************/
     exampleCalc: (arg1) => {
-      return arg1;
+      return `The data supplied was: ${arg1}`;
     },
   };
 });
