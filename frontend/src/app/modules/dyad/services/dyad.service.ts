@@ -207,14 +207,16 @@ export class DyadService {
       jsonMap.f2_guid = f2_guid;
     }
     // launch form
-    console.log("launching form", tableId, formId, editRowId, jsonMap);
+
     if (editRowId) {
+      console.log("edit row", { tableId, formId, editRowId, jsonMap });
       // manually update piped fields in case of changes
       await this.odk.updateRow(tableId, editRowId, jsonMap);
       return this.odk.editRowWithSurvey(tableId, editRowId, formId);
+    } else {
+      console.log("new row", { tableId, formId, jsonMap });
+      return this.odk.addRowWithSurvey(tableId, formId, editRowId, jsonMap);
     }
-    console.log("adding row", tableId, formId, editRowId, jsonMap);
-    return this.odk.addRowWithSurvey(tableId, formId, editRowId, jsonMap);
   }
 
   /**
@@ -295,7 +297,11 @@ export class DyadService {
             formsHash[tableId]._disabled_msg = evaluation;
           }
         } catch (error) {
-          console.error("could not evaluate disabled function", tableId, schema.disabled);
+          console.group(`[${tableId}] - Error evaluating disabled function`);
+          console.error(error.message);
+          console.log("function:", schema.disabled);
+          console.log("data:", data);
+          console.groupEnd();
         }
       }
     });
