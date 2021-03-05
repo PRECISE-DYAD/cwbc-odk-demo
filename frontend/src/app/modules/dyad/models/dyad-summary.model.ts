@@ -58,22 +58,11 @@ export const DYAD_SUMMARY_FIELDS: IDyadMappedField[] = [
     tableId: "Birthbaby",
     field: "f9_ga_at_delivery",
   },
-  {
-    summary_label: "Mode of Delivery",
-    calculation: (data) => mode_of_delivery(data),
-  },
+
   {
     summary_label: "Number of Babies",
     tableId: "Birthmother",
     field: "f7_delivery_num_of_babies",
-  },
-  {
-    summary_label: "Stillbirth in PRECISE pregnancy ",
-    calculation: (data) => stillbirth_yn(data),
-  },
-  {
-    summary_label: "Early neonatal death in PRECISE pregnancy",
-    calculation: (data) => early_neonatal_death(data),
   },
   {
     summary_label: "Delivery location",
@@ -112,7 +101,46 @@ export const DYAD_CHILD_VISIT1_FIELDS: IDyadMappedField[] = [
     mapped_field_name: "gv_sum_visit1_date",
     write_updates: true,
   },
+  {
+    summary_label: "Mode of Delivery",
+    calculation: (data) => mode_of_delivery(data),
+  },
+  {
+    summary_label: "Stillbirth in PRECISE pregnancy ",
+    calculation: (data) => stillbirth_yn(data),
+  },
+  {
+    summary_label: "Early neonatal death in PRECISE pregnancy",
+    calculation: (data) => early_neonatal_death(data),
+  },
 ];
+
+export const DYAD_CHILD_VA_FIELDS: IDyadMappedField[] = [ 
+  {
+    //summary_label: "Mother Birthmother Number of Babies",
+    // when working with child forms data also has access to mother
+    calculation: (data) => data._mother.Birthmother.f7_delivery_num_of_babies,
+    mapped_field_name: "f7_delivery_num_of_babies",
+    write_updates: true,
+  },
+  {
+    tableId: "Birthbaby",
+    field: "f9_delivery_date",
+  },
+  {
+    tableId: "Birthbaby",
+    field: "f9_mode_of_delivery",
+  },
+  {
+    tableId: "Birthbaby",
+    field: "f9_baby_birth_weight",
+  },
+  {
+    tableId: "Birthbaby",
+    field: "f9_birthweight",
+  }
+];
+
 
 switch (SITE) {
   case "gambia":
@@ -169,7 +197,7 @@ function mode_of_delivery(data: IDyadParticipantData) {
 
 function delivery_location(data: IDyadParticipantData) {
   let location_str = "NA";
-  let location = data.Birthmother.f7_delivery_location;
+  let location = data._mother.Birthmother.f7_delivery_location;
   switch (location) {
     default:
       location_str = "Don’t know";
@@ -210,9 +238,9 @@ function stillbirth_yn(data: IDyadParticipantData) {
   let val = "";
 
   if (data.Birthbaby.f9_baby_born_alive == "1") {
-    val = "Yes";
-  } else {
     val = "No";
+  } else {
+    val = "Yes";
   }
 
   return val;
@@ -222,7 +250,7 @@ function early_neonatal_death(data: IDyadParticipantData) {
   let val = "";
 
   if (
-    data.Birthmother.f7_delivery_location == 1 &&
+    data._mother.Birthmother.f7_delivery_location == 1 &&
     data.Birthbaby.f9_baby_born_alive == 1 &&
     data.Birthbaby.f9_baby_alive == 0
   ) {
