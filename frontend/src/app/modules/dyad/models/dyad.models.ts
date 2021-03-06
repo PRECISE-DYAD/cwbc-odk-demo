@@ -4,6 +4,7 @@ import { ICustomIcon } from "../../shared/components/icons";
 import {
   DYAD_CHILD_VISIT1_FIELDS,
   DYAD_SUMMARY_FIELDS,
+  DYAD_CHILD_VA_FIELDS,
   hasProvidedDyadConsent,
 } from "./dyad-summary.model";
 
@@ -21,13 +22,21 @@ import {
  * This is used to type-check other fields
  */
 export const DYAD_tableIdS = [
-  "dyad_consent",
-  "dyad_enrollment",
+  "dyad_consent", 
+  "dyad_enrollment_visit1",
+  "dyad_enrollment_visit2",
   "dyad_summary",
   "dyad_child_visit1",
   "dyad_child_visit2",
   "dyad_visit1",
   "dyad_visit2",
+  "dyad_general_info_visit1",
+  "dyad_general_info_visit2",
+  "MDAT",
+  "mother_verbal_autopsy",
+  "child_verbal_autopsy",
+  "dyad_end_report_visit1",
+  "dyad_end_report_visit2",
   // Any precise forms referenced in formulae should be included here and referenced in DYAD_SCHEMA_BASE.
   // They do not need to be included in the DYAD_FORM_SECTIONS metadata
   "Birthbaby",
@@ -47,15 +56,23 @@ const DYAD_SCHEMA_BASE: { [tableId in IDyadTableId]: IFormSchema } = {
   Birthbaby: { title: "Birth Baby", is_child_form: true },
   Birthmother: { title: "Birth Mother" },
   // DYAD forms
-  dyad_enrollment: {
-    title: "Dyad Visit 1 - Enrollment",
+  dyad_enrollment_visit1: {
+    title: "Dyad Visit 1 - Enrolment",
     disabled: (data) => {
       if (!hasProvidedDyadConsent(data)) {
         return "User has not provided Dyad consent";
       }
     },
   },
-  dyad_consent: { title: "Dyad Consent" },
+  dyad_enrollment_visit2: {
+    title: "Dyad Visit 2 - Enrolment",
+    disabled: (data) => {
+      if (!hasProvidedDyadConsent(data)) {
+        return "User has not provided Dyad consent";
+      }
+    },
+  },
+  dyad_consent: {title: "Dyad Confirmation"},
   dyad_summary: {
     title: "Dyad Summary",
     mapFields: DYAD_SUMMARY_FIELDS,
@@ -127,6 +144,22 @@ const DYAD_SCHEMA_BASE: { [tableId in IDyadTableId]: IFormSchema } = {
         tableId: "Birthmother",
         field: "f7_delivery_location",
       },
+      {
+        tableId: "dyad_general_info_visit1",
+        field: "gv_present_at_visit"
+      },
+      {
+        tableId: "dyad_general_info_visit1",
+        field: "gv_pregnant"
+      },
+      {
+        tableId: "dyad_general_info_visit1",
+        field: "gv_ke_village"
+      },
+      {
+        tableId: "dyad_general_info_visit1",
+        field: "gv_sum_visit1_date"
+      },
     ],
     disabled: (data) => {
       if (data.dyad_consent.d1_enroll_consent !== "1") {
@@ -151,6 +184,44 @@ const DYAD_SCHEMA_BASE: { [tableId in IDyadTableId]: IFormSchema } = {
       }
     },
   },
+  dyad_general_info_visit1:{
+    title: "Dyad Visit 1 - General Information",
+    mapFields: [
+      {
+        tableId: "profileSummary",
+        field: "f2a_phone_number",
+      },
+      {
+        tableId: "profileSummary",
+        field: "f2a_phone_number_2",
+      },    
+    ]
+      
+  },
+  dyad_general_info_visit2:{
+    title: "Dyad Visit 2 - General Information",
+    mapFields: [
+      {
+        tableId: "profileSummary",
+        field: "f2a_phone_number",
+      },
+      {
+        tableId: "profileSummary",
+        field: "f2a_phone_number_2",
+      },    
+    ]
+      
+  },
+  dyad_end_report_visit1: {title: "Visit 1 - End report" },
+  dyad_end_report_visit2: {title: "Visit 2 - End report" },
+  child_verbal_autopsy: {
+    title: "Child Verbal Autopsy", 
+    mapFields: DYAD_CHILD_VA_FIELDS,
+    is_child_form: true,
+    show_summary_table: true,    
+  },
+  mother_verbal_autopsy: {title: "Mother Verbal Autopsy"},
+  MDAT: {title: "MDAT", is_child_form: true},
 };
 
 /**
@@ -166,31 +237,24 @@ export const DYAD_FORM_SECTIONS: IDyadFormSection[] = [
   },
   {
     _id: "dyad_visit_1",
-    formIds: ["dyad_enrollment", "dyad_visit1", "dyad_child_visit1"],
+    formIds: ["dyad_enrollment_visit1","dyad_general_info_visit1", "dyad_visit1", "dyad_child_visit1", "dyad_end_report_visit1", "MDAT"],
     section_title: "Dyad Visit 1",
     icon: "visit",
     color: "1",
   },
   {
     _id: "dyad_visit_2",
-    formIds: ["dyad_enrollment", "dyad_visit2", "dyad_child_visit2"],
+    formIds: ["dyad_enrollment_visit2", "dyad_general_info_visit2", "dyad_visit2", "dyad_child_visit2", "dyad_end_report_visit2", "MDAT"],
     section_title: "Dyad Visit 2",
     icon: "visit",
     color: "1",
   },
   {
     _id: "dyad_verbal_autopsy",
-    formIds: [],
+    formIds: ["mother_verbal_autopsy","child_verbal_autopsy"],
     section_title: "Verbal Autopsy",
     icon: "verbal",
     color: "2",
-  },
-  {
-    _id: "dyad_end_of_report",
-    formIds: [],
-    section_title: "End of Report",
-    icon: "assignment",
-    color: "3",
   },
 ];
 
