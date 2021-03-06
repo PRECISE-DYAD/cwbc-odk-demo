@@ -13,6 +13,11 @@ define(["screenTypes", "require"], function (screenTypes, r) {
    */
 
   loadCustomCalculationJS(r).then((custom_calculations) => {
+    // Custom calculations are later added to individual prompts, however if wanting to use
+    // as part of an 'if' condition statement they will not be available
+    // Workaround is to attach to the window within a custom 'cwbc' property
+    var that = this;
+    that.cwbc = custom_calculations;
     screenTypes.custom_prompts_screen = screenTypes.screen.extend({
       // attach custom calculation statements to prompts when retrieving
       buildRenderContext: function (ctxt) {
@@ -100,7 +105,6 @@ function loadCustomCalculationJS(r) {
  */
 function buildRenderContextWithCustomCalculations(ctxt, custom_calculations = {}) {
   var that = this;
-  console.log("building render context", that);
   // this once held the code to invoke with_next and with_next_validate actions
   that.whenTemplateIsReady(
     $.extend({}, ctxt, {
