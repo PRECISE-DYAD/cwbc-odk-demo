@@ -72,7 +72,7 @@ export class DyadService {
     }
   }
 
-  async updateParticipantMappedData(participant: IDyadParticipant) {
+  private async updateParticipantMappedData(participant: IDyadParticipant) {
     const updates = Object.entries(MAPPED_SCHEMA).map(async ([table_id, schema]) => {
       const writtenMapFields = (schema.mapFields || []).filter((f) => f.write_updates);
       const { f2_guid } = this.activeParticipant;
@@ -148,7 +148,12 @@ export class DyadService {
     // open form for editing if entry already exists
     const editRowId = dyad_consent ? dyad_consent._id : null;
     // open the form for editing or creating new entry
-    await this.launchForm(MAPPED_SCHEMA.dyad_consent, editRowId, { f2_guid } as any);
+    // allow access to profile summary data (rest of participant forms wont be loaded yet)
+    // NOTE - if profile summary ever renamed this will have to be manually updated
+    await this.launchForm(MAPPED_SCHEMA.dyad_consent, editRowId, {
+      f2_guid,
+      data: { profileSummary: precise_profileSummary },
+    } as any);
     // navigate to expected profile page to display after enrollment complete
     // note - assumes form will not just be dismissed (could be refined)
     router.navigate([f2_guid], { relativeTo: route });
