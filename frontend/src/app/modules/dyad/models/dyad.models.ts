@@ -1,6 +1,7 @@
 import { IODkTableRowData } from "src/app/modules/shared/types";
 import { IParticipantSummary } from "../../precise/types";
 import { ICustomIcon } from "../../shared/components/icons";
+import { IActiveDevice } from "./device-form.model";
 import {
   DYAD_CHILD_VISIT1_FIELDS,
   DYAD_SUMMARY_FIELDS,
@@ -22,7 +23,7 @@ import {
  * This is used to type-check other fields
  */
 export const DYAD_tableIdS = [
-  "dyad_consent", 
+  "dyad_consent",
   "dyad_enrollment_visit1",
   "dyad_enrollment_visit2",
   "dyad_summary",
@@ -72,7 +73,7 @@ const DYAD_SCHEMA_BASE: { [tableId in IDyadTableId]: IFormSchema } = {
       }
     },
   },
-  dyad_consent: {title: "Dyad Confirmation"},
+  dyad_consent: { title: "Dyad Confirmation" },
   dyad_summary: {
     title: "Dyad Summary",
     mapFields: DYAD_SUMMARY_FIELDS,
@@ -146,19 +147,19 @@ const DYAD_SCHEMA_BASE: { [tableId in IDyadTableId]: IFormSchema } = {
       },
       {
         tableId: "dyad_general_info_visit1",
-        field: "gv_present_at_visit"
+        field: "gv_present_at_visit",
       },
       {
         tableId: "dyad_general_info_visit1",
-        field: "gv_pregnant"
+        field: "gv_pregnant",
       },
       {
         tableId: "dyad_general_info_visit1",
-        field: "gv_ke_village"
+        field: "gv_ke_village",
       },
       {
         tableId: "dyad_general_info_visit1",
-        field: "gv_sum_visit1_date"
+        field: "gv_sum_visit1_date",
       },
     ],
     disabled: (data) => {
@@ -184,7 +185,7 @@ const DYAD_SCHEMA_BASE: { [tableId in IDyadTableId]: IFormSchema } = {
       }
     },
   },
-  dyad_general_info_visit1:{
+  dyad_general_info_visit1: {
     title: "Dyad Visit 1 - General Information",
     mapFields: [
       {
@@ -194,11 +195,10 @@ const DYAD_SCHEMA_BASE: { [tableId in IDyadTableId]: IFormSchema } = {
       {
         tableId: "profileSummary",
         field: "f2a_phone_number_2",
-      },    
-    ]
-      
+      },
+    ],
   },
-  dyad_general_info_visit2:{
+  dyad_general_info_visit2: {
     title: "Dyad Visit 2 - General Information",
     mapFields: [
       {
@@ -208,20 +208,19 @@ const DYAD_SCHEMA_BASE: { [tableId in IDyadTableId]: IFormSchema } = {
       {
         tableId: "profileSummary",
         field: "f2a_phone_number_2",
-      },    
-    ]
-      
+      },
+    ],
   },
-  dyad_end_report_visit1: {title: "Visit 1 - End report" },
-  dyad_end_report_visit2: {title: "Visit 2 - End report" },
+  dyad_end_report_visit1: { title: "Visit 1 - End report" },
+  dyad_end_report_visit2: { title: "Visit 2 - End report" },
   child_verbal_autopsy: {
-    title: "Child Verbal Autopsy", 
+    title: "Child Verbal Autopsy",
     mapFields: DYAD_CHILD_VA_FIELDS,
     is_child_form: true,
-    show_summary_table: true,    
+    show_summary_table: true,
   },
-  mother_verbal_autopsy: {title: "Mother Verbal Autopsy"},
-  MDAT: {title: "MDAT", is_child_form: true},
+  mother_verbal_autopsy: { title: "Mother Verbal Autopsy" },
+  MDAT: { title: "MDAT", is_child_form: true },
 };
 
 /**
@@ -237,21 +236,36 @@ export const DYAD_FORM_SECTIONS: IDyadFormSection[] = [
   },
   {
     _id: "dyad_visit_1",
-    formIds: ["dyad_enrollment_visit1","dyad_general_info_visit1", "dyad_visit1", "dyad_child_visit1", "dyad_end_report_visit1", "MDAT"],
+    formIds: [
+      "dyad_randomisation",
+      "dyad_enrollment_visit1",
+      "dyad_general_info_visit1",
+      "dyad_visit1",
+      "dyad_child_visit1",
+      "dyad_end_report_visit1",
+      "MDAT",
+    ],
     section_title: "Dyad Visit 1",
     icon: "visit",
     color: "1",
   },
   {
     _id: "dyad_visit_2",
-    formIds: ["dyad_enrollment_visit2", "dyad_general_info_visit2", "dyad_visit2", "dyad_child_visit2", "dyad_end_report_visit2", "MDAT"],
+    formIds: [
+      "dyad_enrollment_visit2",
+      "dyad_general_info_visit2",
+      "dyad_visit2",
+      "dyad_child_visit2",
+      "dyad_end_report_visit2",
+      "MDAT",
+    ],
     section_title: "Dyad Visit 2",
     icon: "visit",
     color: "1",
   },
   {
     _id: "dyad_verbal_autopsy",
-    formIds: ["mother_verbal_autopsy","child_verbal_autopsy"],
+    formIds: ["mother_verbal_autopsy", "child_verbal_autopsy"],
     section_title: "Verbal Autopsy",
     icon: "verbal",
     color: "2",
@@ -294,11 +308,12 @@ export interface IDyadParticipantSummary {
  */
 export interface IDyadParticipantData extends IDyadTableData {
   _mother?: { [tableId in IDyadTableId]: IOdkTableRowDataWithRawRows };
+  _device?: IActiveDevice;
 }
 type IDyadTableData = { [tableId in IDyadTableId]: IOdkTableRowDataWithRawRows };
 
 /** Participant data also contains a _rows property that provides raw data entries */
-interface IOdkTableRowDataWithRawRows extends IODkTableRowData {
+export interface IOdkTableRowDataWithRawRows extends IODkTableRowData {
   _rows: IODkTableRowData[];
 }
 /**
@@ -325,6 +340,7 @@ export interface IDyadParticipant {
  * @param tableId override the default tableId that will otherwise be populated from the object key
  * @param formId override the default tableId that will otherwise be populated from the object key
  * @param is_child_form if child form will create a separate instance for every child
+ * @param is_device_form if using device form data returned will consist of all rows for the device, not just the active participant's
  * @param allowRepeats  specify if the form should accept multiple entries from the same participant
  * @param mapFields specify individual fields to map into the form
  * @param disabled provide a calculation to determine if the form should be disabled. Any string or TRUE response

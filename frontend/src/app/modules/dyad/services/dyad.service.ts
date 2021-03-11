@@ -16,6 +16,7 @@ import { _arrToHashmap } from "../../shared/utils";
 import { BehaviorSubject } from "rxjs";
 import { IODkTableRowData } from "../../shared/types";
 import { ActivatedRoute, Router } from "@angular/router";
+import { DeviceFormService } from "./device-form.service";
 
 /**
  * Create a new object that contains all the mappings selectable from
@@ -37,11 +38,12 @@ export class DyadService {
   allParticipants: IDyadParticipantSummary[] = [];
   activeParticipant: IDyadParticipant;
   private _dataLoaded$ = new BehaviorSubject(false);
-  constructor(private odk: OdkService) {
+  constructor(private odk: OdkService, private deviceFormService: DeviceFormService) {
     this.init();
   }
 
   async init() {
+    await this.deviceFormService.init();
     await this.loadParticipants();
     this._dataLoaded$.next(true);
   }
@@ -52,6 +54,7 @@ export class DyadService {
     return this._dataLoaded$.pipe(takeWhile((ready) => ready === false)).toPromise();
   }
 
+  /** Load a participant by their unique identifier and retrieve all forms belonging to them */
   async setActiveParticipantById(f2_guid?: string) {
     if (f2_guid) {
       const formsHash: IDyadParticipant["formsHash"] = await this.loadParticipantFormsHash(f2_guid);
@@ -211,6 +214,7 @@ export class DyadService {
       const { f2_guid } = participant as IDyadParticipant;
       jsonMap.f2_guid = f2_guid;
     }
+    jsonMap.device_id = this.deviceFormService.activeDevice.device_id;
     // launch form
 
     if (editRowId) {
@@ -347,6 +351,8 @@ export class DyadService {
         });
       }
     }
+    // add device forms
+    data._device = this.deviceFormService.activeDevice;
     const mapped: IDyadParticipantData = data;
     return mapped;
   }

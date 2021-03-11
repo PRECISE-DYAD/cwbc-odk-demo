@@ -115,6 +115,11 @@ export class OdkService {
   getFileAsUrl(relativePath: string) {
     return this.window.odkCommon.getFileAsUrl(relativePath);
   }
+
+  /** Get device properties */
+  getProperty(propertyId: string) {
+    return this.window.odkCommon.getProperty(propertyId);
+  }
   /**
    * Manually update a row in the database
    * Performs a lookup for the rowID, and if exists first checks values, and then updates if different
