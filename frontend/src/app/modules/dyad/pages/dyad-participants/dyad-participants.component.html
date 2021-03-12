@@ -71,7 +71,5 @@
   </table>
   <mat-paginator [pageSizeOptions]="[10, 25, 50, 100]"></mat-paginator>
   <!-- device id -->
-  <div id="deviceId" *ngIf="deviceFormService.activeDevice">
-    Device ID: {{ deviceFormService.activeDevice.device_id }}
-  </div>
+  <div id="deviceId">Device ID: {{ dyadService.device_id }}</div>
 </div>

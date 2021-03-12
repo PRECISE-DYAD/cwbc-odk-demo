@@ -4,7 +4,6 @@ import { MatSort } from "@angular/material/sort";
 import { MatTableDataSource } from "@angular/material/table";
 import { ActivatedRoute, Router } from "@angular/router";
 import { IDyadParticipantSummary } from "../../models/dyad.models";
-import { DeviceFormService } from "../../services/device-form.service";
 import { DyadService } from "../../services/dyad.service";
 
 @Component({
@@ -20,7 +19,6 @@ export class DyadParticipantsComponent implements OnInit, AfterViewInit {
   @ViewChild(MatSort, { static: true }) sort: MatSort;
   constructor(
     public dyadService: DyadService,
-    public deviceFormService: DeviceFormService,
     private router: Router,
     private route: ActivatedRoute
   ) {}

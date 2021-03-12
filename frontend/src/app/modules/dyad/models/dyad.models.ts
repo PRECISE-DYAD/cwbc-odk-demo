@@ -1,7 +1,7 @@
 import { IODkTableRowData } from "src/app/modules/shared/types";
 import { IParticipantSummary } from "../../precise/types";
 import { ICustomIcon } from "../../shared/components/icons";
-import { IActiveDevice } from "./device-form.model";
+import { DYAD_RANDOMISATION_SCHEMA } from "./dyad-randomisation.model";
 import {
   DYAD_CHILD_VISIT1_FIELDS,
   DYAD_SUMMARY_FIELDS,
@@ -38,6 +38,7 @@ export const DYAD_tableIdS = [
   "child_verbal_autopsy",
   "dyad_end_report_visit1",
   "dyad_end_report_visit2",
+  "dyad_randomisation",
   // Any precise forms referenced in formulae should be included here and referenced in DYAD_SCHEMA_BASE.
   // They do not need to be included in the DYAD_FORM_SECTIONS metadata
   "Birthbaby",
@@ -56,6 +57,8 @@ const DYAD_SCHEMA_BASE: { [tableId in IDyadTableId]: IFormSchema } = {
   Visit1: { title: "Visit1" },
   Birthbaby: { title: "Birth Baby", is_child_form: true },
   Birthmother: { title: "Birth Mother" },
+  // Device forms (listed in other file)
+  dyad_randomisation: DYAD_RANDOMISATION_SCHEMA,
   // DYAD forms
   dyad_enrollment_visit1: {
     title: "Dyad Visit 1 - Enrolment",
@@ -308,7 +311,7 @@ export interface IDyadParticipantSummary {
  */
 export interface IDyadParticipantData extends IDyadTableData {
   _mother?: { [tableId in IDyadTableId]: IOdkTableRowDataWithRawRows };
-  _device?: IActiveDevice;
+  _device_id: string;
 }
 type IDyadTableData = { [tableId in IDyadTableId]: IOdkTableRowDataWithRawRows };
 
@@ -324,6 +327,7 @@ export interface IDyadParticipantChild {
   formsHash: { [tableId in IDyadTableId]: IFormSchemaWithEntries };
   data: IDyadParticipantData;
   mother: IDyadParticipant;
+  device_id: string;
 }
 
 export interface IDyadParticipant {
@@ -331,6 +335,7 @@ export interface IDyadParticipant {
   formsHash: { [tableId in IDyadTableId]: IFormSchemaWithEntries };
   data: IDyadParticipantData;
   children: IDyadParticipantChild[];
+  device_id: string;
 }
 
 // TODO - merge with IFormMeta type definition
@@ -354,6 +359,7 @@ export interface IFormSchema {
   tableId?: string;
   formId?: string;
   is_child_form?: boolean;
+  is_device_form?: boolean;
   allowRepeats?: boolean;
   mapFields?: IDyadMappedField[];
   disabled?: (data: IDyadParticipantData) => string | boolean | void;
