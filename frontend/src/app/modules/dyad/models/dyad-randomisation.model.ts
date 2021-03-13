@@ -130,7 +130,7 @@ function calcRandomisation(data: IDyadParticipantData, includeLogs = false) {
   }
 
   // TODO - these will be populated from additional methods
-  if (data.Visit1._rows.length > 0) {
+  if (data.dyad_visit1._rows.length > 0) {
     log("Visit 1 complete, confirming randomisation");
     qoc_case_final = qoc_case_selected;
     mental_health_case_final = mental_health_case_selected;
