@@ -36,6 +36,7 @@ Object.entries(DYAD_SCHEMA).forEach(([baseId, value]) => {
 export class DyadService {
   allParticipants: IDyadParticipantSummary[] = [];
   activeParticipant: IDyadParticipant;
+  device_id: string;
   private _dataLoaded$ = new BehaviorSubject(false);
   constructor(private odk: OdkService) {
     this.init();
@@ -44,6 +45,12 @@ export class DyadService {
   async init() {
     await this.loadParticipants();
     this._dataLoaded$.next(true);
+    let device_id = this.odk.getProperty("deviceid");
+    // testing device id
+    if (device_id === "property-of(deviceid)") {
+      device_id = "device_id_testing_12345";
+    }
+    this.device_id = device_id;
   }
   /**
    * Promise to indicate when initial data has been loaded
@@ -52,73 +59,107 @@ export class DyadService {
     return this._dataLoaded$.pipe(takeWhile((ready) => ready === false)).toPromise();
   }
 
+  /** Load a participant by their unique identifier and retrieve all forms belonging to them */
   async setActiveParticipantById(f2_guid?: string) {
+    const device_id = this.device_id;
     if (f2_guid) {
-      const formsHash: IDyadParticipant["formsHash"] = await this.loadParticipantFormsHash(f2_guid);
-      const data: IDyadParticipant["data"] = this.formsHashToParticipantData(formsHash);
+      const formsHash: IDyadParticipant["formsHash"] = await this.loadParticipantFormsHash(
+        f2_guid,
+        device_id
+      );
+      const data: IDyadParticipant["data"] = this.formsHashToParticipantData(formsHash, f2_guid);
+      data._device_id = device_id;
       const participant: IDyadParticipant = {
         f2_guid,
         data,
         formsHash,
         children: [],
+        device_id,
       };
       participant.children = this.loadParticipantChildMeta(participant);
       participant.formsHash = this.evaluateDisabledForms(participant);
+      await this.updateParticipantMappedData(participant);
       this.activeParticipant = participant;
       console.log("active participant", this.activeParticipant);
-      await this.updateParticipantMappedData(this.activeParticipant);
     } else {
       this.activeParticipant = null;
     }
   }
 
   private async updateParticipantMappedData(participant: IDyadParticipant) {
+    let participantReloadRequired: string;
     const updates = Object.entries(MAPPED_SCHEMA).map(async ([table_id, schema]) => {
       const writtenMapFields = (schema.mapFields || []).filter((f) => f.write_updates);
-      const { f2_guid } = this.activeParticipant;
+      const { f2_guid, device_id } = participant;
       if (writtenMapFields.length > 0) {
         if (schema.is_child_form) {
           // Handle child forms iteratively
-          for (const child of this.activeParticipant.children) {
+          for (const child of participant.children) {
             const { data, f2_guid_child } = child;
-            const rows = data[table_id]._rows;
+            let rows = data[table_id]._rows;
+            // device forms return all rows for device so filter to child only
+            if (schema.is_device_form) {
+              rows = rows.filter((r) => r.f2_guid_child === f2_guid_child);
+            }
             if (rows.length == 0 && schema.allow_new_mapFields_row) {
-              await this.odk.addRow(table_id, { f2_guid, f2_guid_child }, f2_guid_child);
-              return this.setActiveParticipantById(f2_guid);
+              try {
+                await this.odk.addRow(table_id, { f2_guid, f2_guid_child }, f2_guid_child);
+                participantReloadRequired = "child new row";
+              } catch (error) {
+                // handled by main methods
+              }
             } else {
               for (const row of rows) {
                 const updateEntry = this.comparedMappedFieldData(row, writtenMapFields, child.data);
                 // note - if row identical odk also provides own check whether for sql updates required, so not strictly required
                 if (Object.keys(updateEntry).length > 0) {
                   await this.odk.updateRow(table_id, row._id, { ...row, ...updateEntry });
+                  participantReloadRequired = "child row updated";
                 }
               }
             }
           }
         } else {
           // handle mother forms
-          const rows = participant.data[table_id]._rows;
+          let rows = participant.data[table_id]._rows;
+          // device forms return all rows for device so filter to child only
+          if (schema.is_device_form) {
+            rows = rows.filter((r) => r.f2_guid === participant.f2_guid);
+          }
           // handle new row creation where permitted
           if (rows.length == 0 && schema.allow_new_mapFields_row) {
-            await this.odk.addRow(table_id, { f2_guid }, f2_guid);
-            return this.setActiveParticipantById(f2_guid);
-          } else {
-            for (const row of rows) {
-              const updateEntry = this.comparedMappedFieldData(
-                row,
-                writtenMapFields,
-                participant.data
-              );
-              // note - if row identical odk also provides own check whether for sql updates required, so not strictly required
-              if (Object.keys(updateEntry).length > 0) {
-                await this.odk.updateRow(table_id, row._id, { ...row, ...updateEntry });
-              }
+            try {
+              await this.odk.addRow(table_id, { f2_guid, device_id }, f2_guid);
+              participantReloadRequired = "new row";
+            } catch (error) {
+              // handled by main methods
+            }
+          }
+          // handle updates
+          for (const row of rows) {
+            const updateEntry = this.comparedMappedFieldData(
+              row,
+              writtenMapFields,
+              participant.data
+            );
+            // note - if row identical odk also provides own check whether for sql updates required, so not strictly required
+            if (Object.keys(updateEntry).length > 0) {
+              await this.odk.updateRow(table_id, row._id, { ...row, ...updateEntry });
+              participantReloadRequired = "row updated";
             }
           }
         }
       }
     });
     await Promise.all(updates);
+    // If rows have been updated likely initialisation logic will be required to re-run
+    // do this after a small timeout to allow ui to update and prevent crash on infinite loop case
+    if (participantReloadRequired) {
+      console.log("reloading participant", participantReloadRequired);
+      setTimeout(() => {
+        this.setActiveParticipantById(participant.f2_guid);
+      }, 500);
+    }
   }
 
   private comparedMappedFieldData(row, mapFields, participantData) {
@@ -127,7 +168,7 @@ export class DyadService {
       const { field, value } = this._evaluateMappedField(mapField, participantData);
       const existingValue = row[field];
       if (existingValue !== value) {
-        updatedFields[field] = value;
+        updatedFields[field] = value || null;
       }
     }
     return updatedFields;
@@ -191,10 +232,10 @@ export class DyadService {
     editRowId: string = null,
     participant?: IDyadParticipant | IDyadParticipantChild
   ) {
-    console.log("launch form", participant);
     // all forms should be linked to a participant. Even if registering new participant, should
     // provide a placeholder f2_guid
     participant = participant || this.activeParticipant;
+    console.log("launch form", participant);
     let { tableId, formId, is_child_form } = formMeta;
     // ensure table and form ids have been properly mapped
     // note - avoid full lookup in case modified mapped fields have been pass (e.g. baby section forms)
@@ -211,6 +252,7 @@ export class DyadService {
       const { f2_guid } = participant as IDyadParticipant;
       jsonMap.f2_guid = f2_guid;
     }
+    jsonMap.device_id = participant.device_id;
     // launch form
 
     if (editRowId) {
@@ -227,17 +269,19 @@ export class DyadService {
   /**
    * query batch to get rows from other tables linked by participant guid
    */
-  private async loadParticipantFormsHash(f2_guid: string) {
+  private async loadParticipantFormsHash(f2_guid: string, device_id: string) {
     const collated: IDyadParticipant["formsHash"] = {} as any;
     const promises = Object.entries(MAPPED_SCHEMA).map(async ([key, formMeta]) => {
-      const { tableId } = formMeta;
+      const { tableId, is_device_form } = formMeta;
       // lookup the data for every table given by the mapped table id
       let participantRows: IODkTableRowData[];
+      const rowQuery = is_device_form ? "device_id = ?" : "f2_guid = ?";
+      const rowQueryValue = is_device_form ? device_id : f2_guid;
       try {
         participantRows = await this.odk.query(
           tableId,
-          "f2_guid = ?",
-          [f2_guid],
+          rowQuery,
+          [rowQueryValue],
           // skip odk error notifications and just handle below
           (err) => null
         );
@@ -279,7 +323,8 @@ export class DyadService {
       const data = this.formsHashToParticipantData(formsHash) as any;
       // also make mother data available in child calculations
       data._mother = mother.data;
-      const child: IDyadParticipantChild = { formsHash, f2_guid_child, data, mother };
+      const { device_id } = mother;
+      const child: IDyadParticipantChild = { formsHash, f2_guid_child, data, mother, device_id };
       child.formsHash = this.evaluateDisabledForms(child);
       children.push(child);
     }
@@ -331,12 +376,16 @@ export class DyadService {
    * NOTE - in the case of multiple entries takes only the most recent, therefore an extra `_rows`
    * property has been added where raw entries can be accessed
    */
-  private formsHashToParticipantData(formsHash: IDyadParticipant["formsHash"]) {
+  private formsHashToParticipantData(formsHash: IDyadParticipant["formsHash"], f2_guid?: string) {
     const data: any = {};
     for (const form of Object.values(formsHash)) {
-      const { tableId } = form;
+      const { tableId, is_device_form } = form;
       if (!data[tableId]) {
         data[tableId] = { _rows: form.entries };
+      }
+      // if working with device forms filter to just those that apply to this participant
+      if (is_device_form && f2_guid) {
+        form.entries = form.entries.filter((v) => v.f2_guid === f2_guid);
       }
       // Ignore automatic checkpoints (null checkpoint) when determining the latest entry
       const savedEntries = form.entries.filter((r) => r._savepoint_type !== null);
@@ -395,6 +444,10 @@ export class DyadService {
     }
     // apply any field name changes
     field = mapped_field_name || field;
+    // prevent undefined values
+    if (value === undefined) {
+      value = null;
+    }
     return { field, value };
   }
 }
