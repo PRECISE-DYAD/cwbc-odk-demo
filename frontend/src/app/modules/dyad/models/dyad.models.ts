@@ -233,14 +233,13 @@ const DYAD_SCHEMA_BASE: { [tableId in IDyadTableId]: IFormSchema } = {
 export const DYAD_FORM_SECTIONS: IDyadFormSection[] = [
   {
     _id: "dyad_profile",
-    formIds: ["dyad_consent", "dyad_summary"],
+    formIds: ["dyad_consent", "dyad_summary", "dyad_randomisation"],
     section_title: "Dyad Profile",
     icon: "person",
   },
   {
     _id: "dyad_visit_1",
     formIds: [
-      "dyad_randomisation",
       "dyad_enrollment_visit1",
       "dyad_general_info_visit1",
       "dyad_visit1",

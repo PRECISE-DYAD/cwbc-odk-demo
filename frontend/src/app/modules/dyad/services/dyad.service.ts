@@ -45,6 +45,12 @@ export class DyadService {
   async init() {
     await this.loadParticipants();
     this._dataLoaded$.next(true);
+    let device_id = this.odk.getProperty("deviceid");
+    // testing device id
+    if (device_id === "property-of(deviceid)") {
+      device_id = "device_id_testing_12345";
+    }
+    this.device_id = device_id;
   }
   /**
    * Promise to indicate when initial data has been loaded
@@ -55,9 +61,8 @@ export class DyadService {
 
   /** Load a participant by their unique identifier and retrieve all forms belonging to them */
   async setActiveParticipantById(f2_guid?: string) {
+    const device_id = this.device_id;
     if (f2_guid) {
-      const device_id = this.odk.getProperty("deviceid");
-      this.device_id = device_id;
       const formsHash: IDyadParticipant["formsHash"] = await this.loadParticipantFormsHash(
         f2_guid,
         device_id
@@ -73,15 +78,16 @@ export class DyadService {
       };
       participant.children = this.loadParticipantChildMeta(participant);
       participant.formsHash = this.evaluateDisabledForms(participant);
-      console.log("active participant", this.activeParticipant);
       await this.updateParticipantMappedData(participant);
       this.activeParticipant = participant;
+      console.log("active participant", this.activeParticipant);
     } else {
       this.activeParticipant = null;
     }
   }
 
   private async updateParticipantMappedData(participant: IDyadParticipant) {
+    let participantReloadRequired: string;
     const updates = Object.entries(MAPPED_SCHEMA).map(async ([table_id, schema]) => {
       const writtenMapFields = (schema.mapFields || []).filter((f) => f.write_updates);
       const { f2_guid, device_id } = participant;
@@ -98,7 +104,7 @@ export class DyadService {
             if (rows.length == 0 && schema.allow_new_mapFields_row) {
               try {
                 await this.odk.addRow(table_id, { f2_guid, f2_guid_child }, f2_guid_child);
-                return this.setActiveParticipantById(f2_guid);
+                participantReloadRequired = "child new row";
               } catch (error) {
                 // handled by main methods
               }
@@ -107,8 +113,8 @@ export class DyadService {
                 const updateEntry = this.comparedMappedFieldData(row, writtenMapFields, child.data);
                 // note - if row identical odk also provides own check whether for sql updates required, so not strictly required
                 if (Object.keys(updateEntry).length > 0) {
-                  console.log("updating row");
-                  // await this.odk.updateRow(table_id, row._id, { ...row, ...updateEntry });
+                  await this.odk.updateRow(table_id, row._id, { ...row, ...updateEntry });
+                  participantReloadRequired = "child row updated";
                 }
               }
             }
@@ -124,27 +130,36 @@ export class DyadService {
           if (rows.length == 0 && schema.allow_new_mapFields_row) {
             try {
               await this.odk.addRow(table_id, { f2_guid, device_id }, f2_guid);
-              return this.setActiveParticipantById(f2_guid);
+              participantReloadRequired = "new row";
             } catch (error) {
               // handled by main methods
             }
-          } else {
-            for (const row of rows) {
-              const updateEntry = this.comparedMappedFieldData(
-                row,
-                writtenMapFields,
-                participant.data
-              );
-              // note - if row identical odk also provides own check whether for sql updates required, so not strictly required
-              if (Object.keys(updateEntry).length > 0) {
-                await this.odk.updateRow(table_id, row._id, { ...row, ...updateEntry });
-              }
+          }
+          // handle updates
+          for (const row of rows) {
+            const updateEntry = this.comparedMappedFieldData(
+              row,
+              writtenMapFields,
+              participant.data
+            );
+            // note - if row identical odk also provides own check whether for sql updates required, so not strictly required
+            if (Object.keys(updateEntry).length > 0) {
+              await this.odk.updateRow(table_id, row._id, { ...row, ...updateEntry });
+              participantReloadRequired = "row updated";
             }
           }
         }
       }
     });
     await Promise.all(updates);
+    // If rows have been updated likely initialisation logic will be required to re-run
+    // do this after a small timeout to allow ui to update and prevent crash on infinite loop case
+    if (participantReloadRequired) {
+      console.log("reloading participant", participantReloadRequired);
+      setTimeout(() => {
+        this.setActiveParticipantById(participant.f2_guid);
+      }, 500);
+    }
   }
 
   private comparedMappedFieldData(row, mapFields, participantData) {
@@ -153,7 +168,7 @@ export class DyadService {
       const { field, value } = this._evaluateMappedField(mapField, participantData);
       const existingValue = row[field];
       if (existingValue !== value) {
-        updatedFields[field] = value;
+        updatedFields[field] = value || null;
       }
     }
     return updatedFields;
@@ -217,10 +232,10 @@ export class DyadService {
     editRowId: string = null,
     participant?: IDyadParticipant | IDyadParticipantChild
   ) {
-    console.log("launch form", participant);
     // all forms should be linked to a participant. Even if registering new participant, should
     // provide a placeholder f2_guid
     participant = participant || this.activeParticipant;
+    console.log("launch form", participant);
     let { tableId, formId, is_child_form } = formMeta;
     // ensure table and form ids have been properly mapped
     // note - avoid full lookup in case modified mapped fields have been pass (e.g. baby section forms)
@@ -429,6 +444,10 @@ export class DyadService {
     }
     // apply any field name changes
     field = mapped_field_name || field;
+    // prevent undefined values
+    if (value === undefined) {
+      value = null;
+    }
     return { field, value };
   }
 }

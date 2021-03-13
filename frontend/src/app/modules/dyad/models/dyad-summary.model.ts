@@ -22,22 +22,14 @@ export const DYAD_SUMMARY_FIELDS: IDyadMappedField[] = [
     tableId: "profileSummary",
     field: "f2a_participant_id",
   },
-  {
-    summary_label: "randomisation group",
-    calculation: (data) => {
-      if (data.dyad_summary.qoc_case) {
-        return data.dyad_summary.qoc_case;
-      } else {
-        if ("some condition") {
-          return "1";
-        } else {
-          return "2";
-        }
-      }
-    },
-    write_updates: true,
-    mapped_field_name: "qoc_case",
-  },
+  // {
+  //   summary_label: "randomisation group",
+  //   calculation: (data) => {
+
+  //   },
+  //   write_updates: true,
+  //   mapped_field_name: "qoc_case",
+  // },
   {
     summary_label: "Full Name",
     tableId: "profileSummary",
@@ -115,7 +107,7 @@ export const DYAD_CHILD_VISIT1_FIELDS: IDyadMappedField[] = [
   },
 ];
 
-export const DYAD_CHILD_VA_FIELDS: IDyadMappedField[] = [ 
+export const DYAD_CHILD_VA_FIELDS: IDyadMappedField[] = [
   {
     //summary_label: "Mother Birthmother Number of Babies",
     // when working with child forms data also has access to mother
@@ -138,9 +130,8 @@ export const DYAD_CHILD_VA_FIELDS: IDyadMappedField[] = [
   {
     tableId: "Birthbaby",
     field: "f9_birthweight",
-  }
+  },
 ];
-
 
 switch (SITE) {
   case "gambia":

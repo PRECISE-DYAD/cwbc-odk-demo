@@ -21,7 +21,7 @@ export const DYAD_RANDOMISATION_SCHEMA: IFormSchema = {
     },
     {
       summary_label: "Quality of case - selected",
-      calculation: (data) => calcRandomisation(data).qoc_case_selected,
+      calculation: (data) => calcRandomisation(data, true).qoc_case_selected,
       mapped_field_name: "qoc_case_selected",
       write_updates: true,
     },
@@ -69,8 +69,12 @@ export const DYAD_RANDOMISATION_SCHEMA: IFormSchema = {
     },
   ],
 };
-function calcRandomisation(data: IDyadParticipantData) {
-  console.log("calc randomisation", data.dyad_randomisation._rows);
+function calcRandomisation(data: IDyadParticipantData, includeLogs = false) {
+  // add a custom logging function to prevent duplicate logs when function repeated
+  const log: (...d: any[]) => void = includeLogs ? console.log : () => null;
+
+  log("calculate randomisation", data.dyad_randomisation._rows);
+
   // Look at any existing data first - if finalised do not modify (return full data)
   let {
     qoc_case_final,
@@ -82,8 +86,9 @@ function calcRandomisation(data: IDyadParticipantData) {
     qoc_case_final === 1 ||
     mental_health_case_final === 1 ||
     pelvic_floor_case_final === 1 ||
-    control_final === 1
+    control_final !== null
   ) {
+    log("calc already finalised, not changing");
     return data.dyad_randomisation;
   }
 
@@ -101,7 +106,7 @@ function calcRandomisation(data: IDyadParticipantData) {
     (r) => r.qoc_control_final === "qoc"
   ).length;
 
-  console.log({ qoc_case_number, qoc_control_number });
+  log({ qoc_case_number, qoc_control_number });
 
   // default values
   let qoc_case_selected = 0;
@@ -125,10 +130,13 @@ function calcRandomisation(data: IDyadParticipantData) {
   }
 
   // TODO - these will be populated from additional methods
-  qoc_case_final = qoc_case_selected;
-  mental_health_case_final = mental_health_case_selected;
-  pelvic_floor_case_final = pelvic_floor_case_selected;
-  control_final = control_selected;
+  if (data.Visit1._rows.length > 0) {
+    log("Visit 1 complete, confirming randomisation");
+    qoc_case_final = qoc_case_selected;
+    mental_health_case_final = mental_health_case_selected;
+    pelvic_floor_case_final = pelvic_floor_case_selected;
+    control_final = control_selected;
+  }
 
   return {
     qoc_case_selected,
