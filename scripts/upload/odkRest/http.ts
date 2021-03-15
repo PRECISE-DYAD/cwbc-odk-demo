@@ -1,54 +1,61 @@
-import axios, { AxiosResponse, AxiosError } from "axios";
-require("dotenv").config();
+import axios, { AxiosResponse, AxiosError, AxiosRequestConfig } from "axios";
 
 /**
- * Modified axios http methods to automate passing of auth and other header data
- * (could be replaced with interceptor/middleware)
+ * Use interceptor to append correct url prefix and auth headers
  */
-const username = process.env.ODK_USERNAME;
-const password = process.env.ODK_PASSWORD;
-const baseUrl = `${process.env.ODK_SERVER_URL}/odktables`;
+axios.interceptors.request.use(
+  (config) => {
+    config.url = `${process.env.ODK_SERVER_URL}/odktables/${config.url}`;
+    const username = process.env.ODK_USERNAME;
+    const password = process.env.ODK_PASSWORD;
+    const token = Buffer.from(`${username}:${password}`).toString("base64");
+    const Authorization = `basic ${token}`;
+    config.headers = { ...config.headers, Authorization };
+    return config;
+  },
+  (error) => {
+    return Promise.reject(error);
+  }
+);
 
-async function get<T = any>(endpoint: string) {
-  const url = `${baseUrl}/${endpoint}`;
+/**
+ * Base rest methods using axios
+ */
+async function get<T = any>(endpoint: string, config: AxiosRequestConfig = {}) {
   return axios
-    .get(url, { auth: { username, password } })
+    .get(endpoint, { ...config })
     .then((res) => handleRes<T>(res))
     .catch((err) => handleErr(err));
 }
 
 async function post<T = any>(endpoint: string, data: any, headers = {}) {
-  const url = `${baseUrl}/${endpoint}`;
   return axios
-    .post(url, data, {
-      auth: { username, password },
+    .post(endpoint, data, {
       headers: {
         ...headers,
         "X-OpenDataKit-Version": "2.0",
         // set max limits for posting size
-        maxContentLength: 100000000,
-        maxBodyLength: 1000000000,
+        maxContentLength: Infinity,
+        maxBodyLength: Infinity,
       },
     })
     .then((res) => handleRes<T>(res))
     .catch((err) => handleErr(err));
 }
 async function put<T = any>(endpoint: string, data: any, headers = {}) {
-  const url = `${baseUrl}/${endpoint}`;
   return axios
-    .put(url, data, {
-      auth: { username, password },
+    .put(endpoint, data, {
       headers: { ...headers, "X-OpenDataKit-Version": "2.0" },
       // set max limits for posting size
-      maxContentLength: 100000000,
+      maxContentLength: Infinity,
+      maxBodyLength: Infinity,     
     })
     .then((res) => handleRes<T>(res))
     .catch((err) => handleErr(err));
 }
 async function del<T = any>(endpoint: string) {
-  const url = `${baseUrl}/${endpoint}`;
   return axios
-    .delete(url, { auth: { username, password } })
+    .delete(endpoint)
     .then((res) => handleRes<T>(res))
     .catch((err) => handleErr(err));
 }
@@ -83,7 +90,7 @@ function handleErr<T = any>(err: AxiosError): T {
     console.log("err", Object.keys(err));
   }
 
-  throw new Error("request failed, see logs for details");
+  throw new Error("request failed, see above logs for more details");
 }
 
 export default { get, post, del, put };

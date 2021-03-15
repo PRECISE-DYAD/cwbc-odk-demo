@@ -161,6 +161,7 @@ export const PRECISE_TABLE_IDS = [
   "Visit1",
   "Visit2",
   "Withdrawal",
+  "location",
 ] as const;
 export type IPreciseTableId = typeof PRECISE_TABLE_IDS[number];
 export const PRECISE_SCHEMA: { [tableId in IPreciseTableId]: IFormMeta } = {
@@ -270,6 +271,16 @@ export const PRECISE_SCHEMA: { [tableId in IPreciseTableId]: IFormMeta } = {
       { table_id: "profileSummary", field_name: "f2a_participant_id" },
     ],
   },
+  location: {
+    title: "Location of the house",
+    formId: "location",
+    tableId: "location",
+    icon: "mother",
+    mapFields: [
+      { table_id: "profileSummary", field_name: "f2a_cohort" },
+      { table_id: "profileSummary", field_name: "f2a_participant_id" },
+    ],
+  },
 };
 /**
  * Subsection created for every new baby registered
@@ -284,7 +295,7 @@ export const PRECISE_BABY_FORM_SECTION: IPreciseFormSection = {
 export const PRECISE_FORM_SECTIONS: IPreciseFormSection[] = [
   {
     _id: "preciseVisitSection",
-    formIds: ["Visit1", "Visit2", "Birthmother", "Postpartum_mother"],
+    formIds: ["Visit1", "Visit2", "Birthmother", "Postpartum_mother", "location"],
   },
   {
     _id: "todSection",
